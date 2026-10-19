@@ -1,16 +1,18 @@
 {
-  "overview": "A minimal Caffeine starter scaffold named Common Thread with a Motoko backend and a single React page showing the project name.",
+  "overview": "Common Thread: a word association game with a guided beginner introduction, Relaxed mode, and solo Challenge mode.",
   "features": [
-    "Single page displaying the project name Common Thread",
-    "Minimal valid Motoko backend canister",
-    "Standard Caffeine build and deploy configuration"
+    "Two-step playable beginner introduction",
+    "Relaxed mode with unlimited guesses, graduated hints, and guided reveals",
+    "Challenge mode with four mistakes, answer review, and replay",
+    "Original nature, biology, and food puzzles with category explanations",
+    "Keyboard controls and responsive mobile layouts"
   ],
-  "category": "starter-scaffold",
+  "category": "learning-game",
   "tags": [
-    "starter",
-    "scaffold",
-    "minimal",
+    "word-game",
+    "learning",
+    "puzzles",
     "icp"
   ],
-  "last_updated": "2026-10-19T19:06:14.995Z"
+  "last_updated": "2026-10-19T19:30:39.509Z"
 }
