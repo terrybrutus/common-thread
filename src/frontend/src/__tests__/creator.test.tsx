@@ -34,7 +34,7 @@ async function reachFinalStep(
   );
   await user.type(
     screen.getByRole("textbox", { name: "Friend's nickname (optional)" }),
-    "Morgan",
+    "Jessica",
   );
   await user.click(screen.getByRole("button", { name: "Continue" }));
   expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
@@ -62,7 +62,7 @@ describe("personal creator and friend challenges", () => {
       expect.objectContaining({
         interests: "Nature and gardening",
         creator: "Terry",
-        recipient: "Morgan",
+        recipient: "Jessica",
       }),
     );
     expect(
@@ -73,7 +73,7 @@ describe("personal creator and friend challenges", () => {
     const field = screen.getByRole("textbox", {
       name: "Challenge code",
     }) as HTMLInputElement;
-    expect(decodeChallenge(field.value).recipient).toBe("Morgan");
+    expect(decodeChallenge(field.value).recipient).toBe("Jessica");
     await user.click(screen.getByRole("button", { name: "Test the puzzle" }));
     expect(
       screen.getByRole("heading", { name: puzzles[0].title }),
@@ -146,7 +146,7 @@ describe("personal creator and friend challenges", () => {
       {
         ...defaultBrief,
         creator: "Terry",
-        recipient: "Morgan",
+        recipient: "Jessica",
         mode: "challenge",
       },
       puzzles[1],
@@ -160,7 +160,7 @@ describe("personal creator and friend challenges", () => {
     const user = userEvent.setup();
     render(<App />);
     expect(
-      screen.getByRole("heading", { name: "A thread for Morgan." }),
+      screen.getByRole("heading", { name: "A thread for Jessica." }),
     ).toBeVisible();
     expect(screen.queryByText("Blood components")).not.toBeInTheDocument();
     await user.click(

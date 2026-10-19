@@ -423,7 +423,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                       onChange={(event) =>
                         update("recipient", event.target.value)
                       }
-                      placeholder="e.g. Morgan"
+                      placeholder="e.g. Jessica"
                       autoComplete="off"
                     />
                   </label>

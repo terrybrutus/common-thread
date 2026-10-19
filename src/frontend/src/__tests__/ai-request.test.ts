@@ -11,7 +11,7 @@ describe("AI request privacy and subject context", () => {
       topic: " Biology ",
       notes: " Course excerpt ",
       creator: "Terry",
-      recipient: "Morgan",
+      recipient: "Jessica",
       note: "Private invitation",
       difficulty: "balanced",
       familiarity: "familiar",

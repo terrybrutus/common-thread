@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/index-DylKiMl4.js","assets/StorageClient-CC6IK5sY.js","assets/backend-B2ZzLjkW.js"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/index-DQlDyNsK.js","assets/StorageClient-B-B-7qnt.js","assets/backend-DtHw2-0r.js"])))=>i.map(i=>d[i]);
 var __typeError = (msg) => {
   throw TypeError(msg);
 };
@@ -14764,8 +14764,8 @@ function generationRequest(brief) {
 }
 async function generatePuzzle(brief) {
   const [{ createActorWithConfig }, { createActor }] = await Promise.all([
-    __vitePreload(() => import("./index-DylKiMl4.js"), true ? __vite__mapDeps([0,1]) : void 0),
-    __vitePreload(() => import("./backend-B2ZzLjkW.js"), true ? __vite__mapDeps([2,1]) : void 0)
+    __vitePreload(() => import("./index-DQlDyNsK.js"), true ? __vite__mapDeps([0,1]) : void 0),
+    __vitePreload(() => import("./backend-DtHw2-0r.js"), true ? __vite__mapDeps([2,1]) : void 0)
   ]);
   const actor = await createActorWithConfig(createActor);
   const response = await actor.generatePersonalPuzzle(generationRequest(brief));
@@ -15173,7 +15173,7 @@ function Creator({ onHome, onPlay }) {
                       value: brief.recipient,
                       maxLength: 40,
                       onChange: (event) => update("recipient", event.target.value),
-                      placeholder: "e.g. Morgan",
+                      placeholder: "e.g. Jessica",
                       autoComplete: "off"
                     }
                   )
