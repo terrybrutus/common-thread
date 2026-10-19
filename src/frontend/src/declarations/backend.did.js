@@ -48,6 +48,14 @@ export const Result = IDL.Record({
   'hasMore' : IDL.Bool,
   'rows' : IDL.Vec(IDL.Vec(Cell)),
 });
+export const GenerationBrief = IDL.Record({
+  'topic' : IDL.Text,
+  'familiarity' : IDL.Text,
+  'interests' : IDL.Text,
+  'difficulty' : IDL.Text,
+  'notes' : IDL.Text,
+  'purpose' : IDL.Text,
+});
 
 export const idlService = IDL.Service({
   '_initialize_access_control' : IDL.Func([], [], []),
@@ -55,6 +63,7 @@ export const idlService = IDL.Service({
   '_internet_identity_sign_in_start' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'execute' : IDL.Func([IDL.Text], [Result], ['query']),
+  'generatePersonalPuzzle' : IDL.Func([GenerationBrief], [IDL.Text], []),
   'getApiDoc' : IDL.Func([], [IDL.Text], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
@@ -104,6 +113,14 @@ export const idlFactory = ({ IDL }) => {
     'hasMore' : IDL.Bool,
     'rows' : IDL.Vec(IDL.Vec(Cell)),
   });
+  const GenerationBrief = IDL.Record({
+    'topic' : IDL.Text,
+    'familiarity' : IDL.Text,
+    'interests' : IDL.Text,
+    'difficulty' : IDL.Text,
+    'notes' : IDL.Text,
+    'purpose' : IDL.Text,
+  });
   
   return IDL.Service({
     '_initialize_access_control' : IDL.Func([], [], []),
@@ -111,6 +128,7 @@ export const idlFactory = ({ IDL }) => {
     '_internet_identity_sign_in_start' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'execute' : IDL.Func([IDL.Text], [Result], ['query']),
+    'generatePersonalPuzzle' : IDL.Func([GenerationBrief], [IDL.Text], []),
     'getApiDoc' : IDL.Func([], [IDL.Text], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),

@@ -1,11 +1,14 @@
 {
-  "overview": "Common Thread: a word association game with a guided beginner introduction, Relaxed mode, and solo Challenge mode.",
+  "overview": "Common Thread: a word association game with guided practice, Relaxed and Challenge modes, and AI-assisted personal puzzles to share with friends.",
   "features": [
     "Two-step playable beginner introduction",
     "Relaxed mode with unlimited guesses, graduated hints, and guided reveals",
     "Challenge mode with four mistakes, answer review, and replay",
     "Original nature, biology, and food puzzles with category explanations",
-    "Keyboard controls and responsive mobile layouts"
+    "Keyboard controls and responsive mobile layouts",
+    "Four-question personal puzzle creator using Caffeine Inference",
+    "Editable puzzle-maker preview and spoiler-free together option",
+    "Casual friend-challenge links and codes with manual result sharing"
   ],
   "category": "learning-game",
   "tags": [
@@ -14,5 +17,5 @@
     "puzzles",
     "icp"
   ],
-  "last_updated": "2026-10-19T19:30:39.509Z"
+  "last_updated": "2026-10-19T20:30:50.784Z"
 }

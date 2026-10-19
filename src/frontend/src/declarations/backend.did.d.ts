@@ -26,6 +26,14 @@ export type Error = { 'FrontendOriginsNotConfigured' : null } |
   { 'UntrustedSsoSource' : { 'domain' : string } } |
   { 'MissingField' : string } |
   { 'FrontendOriginMismatch' : { 'got' : string, 'expected' : Array<string> } };
+export interface GenerationBrief {
+  'topic' : string,
+  'familiarity' : string,
+  'interests' : string,
+  'difficulty' : string,
+  'notes' : string,
+  'purpose' : string,
+}
 export interface Result { 'hasMore' : boolean, 'rows' : Array<Array<Cell>> }
 export type Result__1 = { 'ok' : null } |
   { 'err' : Error };
@@ -44,6 +52,7 @@ export interface _SERVICE {
   '_internet_identity_sign_in_start' : ActorMethod<[], Uint8Array>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'execute' : ActorMethod<[string], Result>,
+  'generatePersonalPuzzle' : ActorMethod<[GenerationBrief], string>,
   'getApiDoc' : ActorMethod<[], string>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'isCallerAdmin' : ActorMethod<[], boolean>,

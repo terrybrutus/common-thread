@@ -101,6 +101,14 @@ export type Error_ = {
         expected: Array<string>;
     };
 };
+export interface GenerationBrief {
+    topic: string;
+    familiarity: string;
+    interests: string;
+    difficulty: string;
+    notes: string;
+    purpose: string;
+}
 export interface Result {
     hasMore: boolean;
     rows: Array<Array<Cell>>;
@@ -142,6 +150,7 @@ export interface backendInterface {
     _internet_identity_sign_in_start(): Promise<Uint8Array>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     execute(qJson: string): Promise<Result>;
+    generatePersonalPuzzle(brief: GenerationBrief): Promise<string>;
     getApiDoc(): Promise<string>;
     getCallerUserRole(): Promise<UserRole>;
     isCallerAdmin(): Promise<boolean>;
@@ -218,6 +227,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.execute(arg0);
             return from_candid_Result_n6(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async generatePersonalPuzzle(arg0: GenerationBrief): Promise<string> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.generatePersonalPuzzle(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.generatePersonalPuzzle(arg0);
+            return result;
         }
     }
     async getApiDoc(): Promise<string> {

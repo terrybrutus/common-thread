@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useEffect, useReducer, useRef, useState } from "react";
+import { CopyField } from "../creator/CopyField";
 import {
   MISTAKE_LIMIT,
   type Mode,
@@ -28,6 +29,7 @@ interface GameProps {
   onRestart: () => void;
   onNext: () => void;
   onRelaxed: () => void;
+  personal?: boolean;
 }
 export function Game({
   puzzle,
@@ -36,6 +38,7 @@ export function Game({
   onRestart,
   onNext,
   onRelaxed,
+  personal = false,
 }: GameProps) {
   const [state, dispatch] = useReducer(
     (
@@ -298,7 +301,9 @@ export function Game({
                 ? puzzle.id === lessons[0].id
                   ? "Try the next practice"
                   : "Start Relaxed"
-                : "Next puzzle"}
+                : personal
+                  ? "Back to invitation"
+                  : "Next puzzle"}
               <ArrowRight size={16} />
             </button>
             {!tutorial && (
@@ -316,6 +321,12 @@ export function Game({
               </button>
             )}
           </div>
+          {personal && (
+            <CopyField
+              label="Your result · copy and send it yourself"
+              value={`Common Thread — ${puzzle.title}\n${mode === "relaxed" ? "Relaxed" : "Challenge"}: ${state.solved.length}/${puzzle.groups.length} threads connected.\n${state.mistakes} incorrect guesses${state.assisted ? ", with hints or guided reveals" : ""}. ${state.outcome === "won" ? "All connected!" : "A discovery in every try."}`}
+            />
+          )}
         </div>
       )}
       {state.outcome === "lost" && (

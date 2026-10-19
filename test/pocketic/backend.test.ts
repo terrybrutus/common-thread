@@ -35,6 +35,14 @@ it("answers the schema query instead of trapping", async () => {
   expect(typeof schema).toBe("string");
 });
 
+it("rejects an oversized creator brief before making an inference call", async () => {
+  await expect(actor.generatePersonalPuzzle({ purpose: "fun", interests: "x".repeat(241), topic: "", notes: "", difficulty: "easy", familiarity: "new" })).rejects.toThrow(/shorten/i);
+});
+
+it("rejects unsupported difficulty before making an inference call", async () => {
+  await expect(actor.generatePersonalPuzzle({ purpose: "fun", interests: "Nature", topic: "", notes: "", difficulty: "unknown", familiarity: "new" })).rejects.toThrow(/difficulty/i);
+});
+
 it("reports the caller role through the real canister", async () => {
   const role = await actor.getCallerUserRole();
   expect(role).toBeDefined();

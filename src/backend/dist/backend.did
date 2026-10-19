@@ -23,6 +23,15 @@ type Result =
    hasMore: bool;
    rows: vec vec Cell;
  };
+type GenerationBrief = 
+ record {
+   difficulty: text;
+   familiarity: text;
+   interests: text;
+   notes: text;
+   purpose: text;
+   topic: text;
+ };
 type Error = 
  variant {
    AmbiguousAttribute: record {
@@ -56,6 +65,7 @@ service : {
   _internet_identity_sign_in_start: () -> (blob);
   assignCallerUserRole: (user: principal, role: UserRole) -> ();
   execute: (qJson: text) -> (Result) query;
+  generatePersonalPuzzle: (brief: GenerationBrief) -> (text);
   getApiDoc: () -> (text) query;
   getCallerUserRole: () -> (UserRole) query;
   isCallerAdmin: () -> (bool) query;

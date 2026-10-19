@@ -7,11 +7,38 @@ import {
   Target,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Creator } from "./creator/Creator";
+import { FriendHub } from "./creator/FriendHub";
+import { Invitation } from "./creator/Invitation";
+import type { FriendChallenge } from "./creator/schema";
+import { decodeChallenge } from "./creator/sharing";
 import { Game } from "./game/Game";
 import type { Mode } from "./game/engine";
 import { lessons, puzzles } from "./game/puzzles";
 
+function readInvitation() {
+  if (!window.location.hash.startsWith("#thread="))
+    return { challenge: null, error: "" };
+  try {
+    return { challenge: decodeChallenge(window.location.hash), error: "" };
+  } catch {
+    return {
+      challenge: null,
+      error:
+        "That challenge link couldn't be opened. Ask your friend for a fresh copy, or paste a challenge code below.",
+    };
+  }
+}
+
 export default function App() {
+  const [entry] = useState(readInvitation);
+  const [personal, setPersonal] = useState<FriendChallenge | null>(
+    entry.challenge,
+  );
+  const [page, setPage] = useState<"home" | "creator" | "invitation">(
+    entry.challenge ? "invitation" : "home",
+  );
+  const [linkError, setLinkError] = useState(entry.error);
   const [mode, setMode] = useState<Mode | null>(null);
   const [puzzleIndex, setPuzzleIndex] = useState(0);
   const [lessonIndex, setLessonIndex] = useState(0);
@@ -21,10 +48,30 @@ export default function App() {
   const [returned, setReturned] = useState(false);
   const homeTitle = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
-    if (!mode && returned) homeTitle.current?.focus();
-  }, [mode, returned]);
+    if (!mode && page === "home" && returned) homeTitle.current?.focus();
+  }, [mode, returned, page]);
+  useEffect(() => {
+    function openHash() {
+      const incoming = readInvitation();
+      setLinkError(incoming.error);
+      if (incoming.challenge) {
+        setPersonal(incoming.challenge);
+        setMode(null);
+        setPage("invitation");
+      } else if (incoming.error) {
+        setPersonal(null);
+        setMode(null);
+        setPage("home");
+        setReturned(true);
+      }
+    }
+    window.addEventListener("hashchange", openHash);
+    return () => window.removeEventListener("hashchange", openHash);
+  }, []);
 
   function start(nextMode: Mode, index = topic) {
+    setPersonal(null);
+    setPage("home");
     setLessonIndex(0);
     setPuzzleIndex(index);
     setSession((value) => value + 1);
@@ -32,9 +79,38 @@ export default function App() {
   }
   function goHome() {
     setMode(null);
+    setPage("home");
+    setPersonal(null);
+    setLinkError("");
+    if (window.location.hash.startsWith("#thread="))
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
     setReturned(true);
   }
-  const puzzle = mode === "intro" ? lessons[lessonIndex] : puzzles[puzzleIndex];
+  function playPersonal(
+    challenge: FriendChallenge,
+    selectedMode = challenge.mode,
+  ) {
+    setPersonal(challenge);
+    setMode(selectedMode);
+    setPage("home");
+    setSession((value) => value + 1);
+  }
+  function openChallenge(challenge: FriendChallenge) {
+    setPersonal(challenge);
+    setMode(null);
+    setPage("invitation");
+    setLinkError("");
+  }
+  const puzzle =
+    personal && mode !== "intro"
+      ? personal.puzzle
+      : mode === "intro"
+        ? lessons[lessonIndex]
+        : puzzles[puzzleIndex];
 
   return (
     <div className="app-shell" data-ocid="page">
@@ -62,7 +138,15 @@ export default function App() {
         </button>
       </header>
       <main>
-        {mode === null ? (
+        {page === "creator" ? (
+          <Creator onHome={goHome} onPlay={playPersonal} />
+        ) : page === "invitation" && personal ? (
+          <Invitation
+            challenge={personal}
+            onHome={goHome}
+            onPlay={(selectedMode) => playPersonal(personal, selectedMode)}
+          />
+        ) : mode === null ? (
           <>
             <section className="welcome">
               <span className="eyebrow">
@@ -75,6 +159,18 @@ export default function App() {
                 Some things just belong together. Discover their connections,
                 follow your curiosity, and learn a little along the way.
               </p>
+              <button
+                className="text-button"
+                type="button"
+                onClick={() => {
+                  setPersonal(null);
+                  setMode(null);
+                  setPage("creator");
+                }}
+              >
+                Make something for a friend
+                <ArrowRight size={15} />
+              </button>
             </section>
             <section className="intro-banner" aria-labelledby="intro-title">
               <span className="banner-icon">
@@ -191,6 +287,19 @@ export default function App() {
                 </article>
               </div>
             </section>
+            {linkError && (
+              <p className="form-error" role="alert">
+                {linkError}
+              </p>
+            )}
+            <FriendHub
+              onCreate={() => {
+                setPersonal(null);
+                setMode(null);
+                setPage("creator");
+              }}
+              onOpen={openChallenge}
+            />
             <aside className="home-note">
               <BookOpen size={19} />
               <p>
@@ -204,21 +313,43 @@ export default function App() {
             </aside>
           </>
         ) : (
-          <Game
-            key={`${mode}-${puzzle.id}-${session}`}
-            puzzle={puzzle}
-            mode={mode}
-            onHome={goHome}
-            onRestart={() => setSession((value) => value + 1)}
-            onNext={() => {
-              if (mode === "intro" && lessonIndex === 0) setLessonIndex(1);
-              else if (mode === "intro") {
-                setHasPracticed(true);
-                start("relaxed");
-              } else setPuzzleIndex((value) => (value + 1) % puzzles.length);
-            }}
-            onRelaxed={() => start("relaxed", puzzleIndex)}
-          />
+          <>
+            <div className="personal-round-note">
+              {personal && (
+                <p>
+                  Made{" "}
+                  {personal.recipient ? `for ${personal.recipient}` : "for you"}{" "}
+                  by {personal.creator || "a friend"}
+                  {personal.source === "example" ? " · Example puzzle" : ""}
+                  {personal.note && <span>{personal.note}</span>}
+                </p>
+              )}
+            </div>
+            <Game
+              key={`${mode}-${puzzle.id}-${session}`}
+              puzzle={puzzle}
+              mode={mode}
+              onHome={goHome}
+              onRestart={() => setSession((value) => value + 1)}
+              onNext={() => {
+                if (personal) {
+                  setMode(null);
+                  setPage("invitation");
+                } else if (mode === "intro" && lessonIndex === 0)
+                  setLessonIndex(1);
+                else if (mode === "intro") {
+                  setHasPracticed(true);
+                  start("relaxed");
+                } else setPuzzleIndex((value) => (value + 1) % puzzles.length);
+              }}
+              onRelaxed={() =>
+                personal
+                  ? playPersonal(personal, "relaxed")
+                  : start("relaxed", puzzleIndex)
+              }
+              personal={personal !== null}
+            />
+          </>
         )}
       </main>
       <footer className="site-footer">

@@ -55,6 +55,14 @@ export type Error_ = {
         expected: Array<string>;
     };
 };
+export interface GenerationBrief {
+    topic: string;
+    familiarity: string;
+    interests: string;
+    difficulty: string;
+    notes: string;
+    purpose: string;
+}
 export interface Result {
     hasMore: boolean;
     rows: Array<Array<Cell>>;
@@ -93,6 +101,7 @@ export enum UserRole {
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     execute(qJson: string): Promise<Result>;
+    generatePersonalPuzzle(brief: GenerationBrief): Promise<string>;
     getApiDoc(): Promise<string>;
     getCallerUserRole(): Promise<UserRole>;
     isCallerAdmin(): Promise<boolean>;

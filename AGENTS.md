@@ -4,10 +4,13 @@
 
 - Keep the code clean, minimal, and ready to export to GitHub for continued development in Codex.
 - No elaborate styling.
+- Commit and push completed revisions and iterations to `origin/main` after relevant checks pass. The user explicitly requested automatic GitHub pushes on 2026-10-19; do not ask again for routine pushes. The user will import GitHub changes into Caffeine later; do not publish to Caffeine automatically.
 
 ## Accepted Requirements
 
 The initial scaffold requirements below describe the export baseline. The user has now authorized the first playable milestone: a two-step beginner introduction, Relaxed mode with unlimited guesses and graduated hints, and solo Challenge mode with four mistakes and no hints. Use original local puzzles, explanations, accessible controls, and mobile layouts. AI generation, multiplayer, and saved vocabulary are later milestones. Keep the existing Caffeine backend/configuration intact while the initial solo rules run locally in the frontend.
+
+The next authorized milestone adds Caffeine Inference for personalized puzzle creation, a four-question brief, editable answer previews, a spoiler-free together option, and casual friend-challenge links/codes. Nicknames and invitation notes stay out of the AI request. Study notes stay out of share links. Share links carry answer data and are not ranked or cheat-resistant; progress is independent on each screen. Do not claim live multiplayer. Examples must be explicitly chosen and clearly labeled, never used as a hidden fallback for AI failure.
 
 - Minimal valid Motoko backend.
 - Single page displaying the project name "Common Thread".
