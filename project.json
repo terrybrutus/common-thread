@@ -1,0 +1,16 @@
+{
+  "overview": "A minimal Caffeine starter scaffold named Common Thread with a Motoko backend and a single React page showing the project name.",
+  "features": [
+    "Single page displaying the project name Common Thread",
+    "Minimal valid Motoko backend canister",
+    "Standard Caffeine build and deploy configuration"
+  ],
+  "category": "starter-scaffold",
+  "tags": [
+    "starter",
+    "scaffold",
+    "minimal",
+    "icp"
+  ],
+  "last_updated": "2026-10-19T19:06:14.995Z"
+}
