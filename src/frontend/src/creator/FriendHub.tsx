@@ -1,31 +1,18 @@
-import { ArrowRight, Sparkles, Users } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import type { FriendChallenge } from "./schema";
 import { decodeChallenge } from "./sharing";
 
 export function FriendHub({
-  onCreate,
   onOpen,
-}: { onCreate: () => void; onOpen: (challenge: FriendChallenge) => void }) {
+}: { onOpen: (challenge: FriendChallenge) => void }) {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   return (
-    <section className="friend-hub" aria-labelledby="friends-title">
-      <div className="section-heading">
-        <div>
-          <span className="eyebrow">BETTER WITH A LITTLE YOU IN IT</span>
-          <h2 id="friends-title">Make a thread for someone.</h2>
-        </div>
-        <Users size={26} />
-      </div>
-      <p>
-        Shared interests. A subject they're studying. A little friendly
-        challenge. Give AI a few clues and make a puzzle that feels like you.
-      </p>
-      <button className="primary-button" type="button" onClick={onCreate}>
-        <Sparkles size={17} /> Create a personal puzzle
-        <ArrowRight size={17} />
-      </button>
+    <section
+      className="friend-hub compact-friends"
+      aria-label="Open a friend’s puzzle"
+    >
       <details className="join-challenge">
         <summary>Have a challenge from a friend?</summary>
         <form

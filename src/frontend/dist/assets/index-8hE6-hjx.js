@@ -14132,29 +14132,29 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$g = [
+const __iconNode$d = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$g);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$d);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$f = [
+const __iconNode$c = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$f);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$c);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$e = [
+const __iconNode$b = [
   ["path", { d: "M12 7v14", key: "1akyts" }],
   [
     "path",
@@ -14164,45 +14164,45 @@ const __iconNode$e = [
     }
   ]
 ];
-const BookOpen = createLucideIcon("book-open", __iconNode$e);
+const BookOpen = createLucideIcon("book-open", __iconNode$b);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$d = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$d);
+const __iconNode$a = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$a);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$c = [
+const __iconNode$9 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
 ];
-const CircleHelp = createLucideIcon("circle-help", __iconNode$c);
+const CircleHelp = createLucideIcon("circle-help", __iconNode$9);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$b = [
+const __iconNode$8 = [
   ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
   ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
 ];
-const Copy = createLucideIcon("copy", __iconNode$b);
+const Copy = createLucideIcon("copy", __iconNode$8);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$a = [
+const __iconNode$7 = [
   [
     "path",
     {
@@ -14220,14 +14220,14 @@ const __iconNode$a = [
   ["path", { d: "m18 15-2-2", key: "60u0ii" }],
   ["path", { d: "m15 18-2-2", key: "6p76be" }]
 ];
-const HeartHandshake = createLucideIcon("heart-handshake", __iconNode$a);
+const HeartHandshake = createLucideIcon("heart-handshake", __iconNode$7);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$9 = [
+const __iconNode$6 = [
   [
     "path",
     {
@@ -14238,52 +14238,15 @@ const __iconNode$9 = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$9);
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$6);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$8 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-const LoaderCircle = createLucideIcon("loader-circle", __iconNode$8);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$7 = [
-  ["path", { d: "M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z", key: "131961" }],
-  ["path", { d: "M19 10v2a7 7 0 0 1-14 0v-2", key: "1vc78b" }],
-  ["line", { x1: "12", x2: "12", y1: "19", y2: "22", key: "x3vr5v" }]
-];
-const Mic = createLucideIcon("mic", __iconNode$7);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$6 = [
-  ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
-  ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
-];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$6);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$5 = [
-  ["path", { d: "m18 14 4 4-4 4", key: "10pe0f" }],
-  ["path", { d: "m18 2 4 4-4 4", key: "pucp1d" }],
-  ["path", { d: "M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22", key: "1ailkh" }],
-  ["path", { d: "M2 6h1.972a4 4 0 0 1 3.6 2.2", key: "km57vx" }],
-  ["path", { d: "M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45", key: "os18l9" }]
-];
-const Shuffle = createLucideIcon("shuffle", __iconNode$5);
+const __iconNode$5 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+const LoaderCircle = createLucideIcon("loader-circle", __iconNode$5);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -14291,6 +14254,43 @@ const Shuffle = createLucideIcon("shuffle", __iconNode$5);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$4 = [
+  ["path", { d: "M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z", key: "131961" }],
+  ["path", { d: "M19 10v2a7 7 0 0 1-14 0v-2", key: "1vc78b" }],
+  ["line", { x1: "12", x2: "12", y1: "19", y2: "22", key: "x3vr5v" }]
+];
+const Mic = createLucideIcon("mic", __iconNode$4);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$3 = [
+  ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
+  ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
+];
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$3);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2 = [
+  ["path", { d: "m18 14 4 4-4 4", key: "10pe0f" }],
+  ["path", { d: "m18 2 4 4-4 4", key: "pucp1d" }],
+  ["path", { d: "M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22", key: "1ailkh" }],
+  ["path", { d: "M2 6h1.972a4 4 0 0 1 3.6 2.2", key: "km57vx" }],
+  ["path", { d: "M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45", key: "os18l9" }]
+];
+const Shuffle = createLucideIcon("shuffle", __iconNode$2);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$1 = [
   [
     "path",
     {
@@ -14303,54 +14303,7 @@ const __iconNode$4 = [
   ["path", { d: "M4 17v2", key: "vumght" }],
   ["path", { d: "M5 18H3", key: "zchphs" }]
 ];
-const Sparkles = createLucideIcon("sparkles", __iconNode$4);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$3 = [
-  ["path", { d: "M7 20h10", key: "e6iznv" }],
-  ["path", { d: "M10 20c5.5-2.5.8-6.4 3-10", key: "161w41" }],
-  [
-    "path",
-    {
-      d: "M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z",
-      key: "9gtqwd"
-    }
-  ],
-  [
-    "path",
-    {
-      d: "M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z",
-      key: "bkxnd2"
-    }
-  ]
-];
-const Sprout = createLucideIcon("sprout", __iconNode$3);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$2 = [
-  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }]
-];
-const Square = createLucideIcon("square", __iconNode$2);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$1 = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["circle", { cx: "12", cy: "12", r: "6", key: "1vlfrh" }],
-  ["circle", { cx: "12", cy: "12", r: "2", key: "1c9p78" }]
-];
-const Target = createLucideIcon("target", __iconNode$1);
+const Sparkles = createLucideIcon("sparkles", __iconNode$1);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -14358,12 +14311,9 @@ const Target = createLucideIcon("target", __iconNode$1);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode = [
-  ["path", { d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2", key: "1yyitq" }],
-  ["path", { d: "M16 3.128a4 4 0 0 1 0 7.744", key: "16gr8j" }],
-  ["path", { d: "M22 21v-2a4 4 0 0 0-3-3.87", key: "kshegd" }],
-  ["circle", { cx: "9", cy: "7", r: "4", key: "nufk8" }]
+  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }]
 ];
-const Users = createLucideIcon("users", __iconNode);
+const Square = createLucideIcon("square", __iconNode);
 const lessons = [
   {
     id: "first-thread",
@@ -14561,6 +14511,192 @@ function CopyField({ value, label }) {
       )
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx("output", { "aria-live": "polite", children: status })
+  ] });
+}
+function CreatorOptions({
+  brief,
+  update
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "creator-options", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Puzzle options" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "editor-fields", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("fieldset", { className: "choice-grid", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("legend", { children: "Who sees the answers?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "choice", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "radio",
+              name: "style",
+              checked: brief.style === "together",
+              onChange: () => update("style", "together")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Solve together · surprise us" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Keep the answers hidden for both of you." })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "choice", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "radio",
+              name: "style",
+              checked: brief.style === "gift",
+              onChange: () => update("style", "gift")
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Make a challenge" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Review the answers before sharing." })
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+        "Puzzle type",
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            value: brief.purpose,
+            onChange: (event) => update("purpose", event.target.value),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "fun", children: "Personal story" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "study", children: "Learning puzzle" })
+            ]
+          }
+        )
+      ] }),
+      brief.purpose === "fun" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          "Extra interests ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "textarea",
+            {
+              value: brief.interests,
+              maxLength: 2e3,
+              rows: 2,
+              onChange: (event) => update("interests", event.target.value)
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          "A theme to weave in ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              value: brief.topic,
+              maxLength: 500,
+              onChange: (event) => update("topic", event.target.value)
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          "Personal connections",
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: brief.personalization || "memories-only",
+              onChange: (event) => update(
+                "personalization",
+                event.target.value
+              ),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "memories-only", children: "All four groups from our story" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "mix", children: "Allow one related theme" })
+              ]
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+        "Puzzle difficulty",
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            value: brief.difficulty,
+            onChange: (event) => update(
+              "difficulty",
+              event.target.value
+            ),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "easy", children: "Gentle start" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "balanced", children: "A little twist" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tricky", children: "Make us think" })
+            ]
+          }
+        )
+      ] }),
+      brief.purpose === "study" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+        "Topic familiarity",
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            value: brief.familiarity,
+            onChange: (event) => update(
+              "familiarity",
+              event.target.value
+            ),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "new", children: "New to it" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "familiar", children: "Know it already" })
+            ]
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+        "Starting play mode",
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "select",
+          {
+            value: brief.mode,
+            onChange: (event) => update("mode", event.target.value),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "relaxed", children: "Relaxed · hints available" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "challenge", children: "Challenge · four mistakes" })
+            ]
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "field-row", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          "Your nickname ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              value: brief.creator,
+              maxLength: 40,
+              onChange: (event) => update("creator", event.target.value),
+              placeholder: "e.g. Terry"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          "Friend's nickname ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              value: brief.recipient,
+              maxLength: 40,
+              onChange: (event) => update("recipient", event.target.value),
+              placeholder: "e.g. Jessica"
+            }
+          )
+        ] })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+        "A personal note ",
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional)" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            value: brief.note,
+            maxLength: 180,
+            onChange: (event) => update("note", event.target.value)
+          }
+        )
+      ] })
+    ] })
   ] });
 }
 function Dictation({
@@ -14968,84 +15104,87 @@ function StoryLibraryControls({
     link.click();
     URL.revokeObjectURL(url);
   }
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "creator-panel story-library", "aria-label": "Saved stories", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Your living stories" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Keep your answers, add new memories, and make another puzzle without starting over." }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-      "Saved story",
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "select",
-        {
-          value: current.id,
-          onChange: (event) => onSelect(event.target.value),
-          children: profiles.map((profile) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: profile.id, children: profile.name }, profile.id))
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-      "Story name",
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          value: current.name,
-          maxLength: 80,
-          onChange: (event) => onRename(event.target.value)
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "field-help", children: status }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          className: "secondary-button",
-          disabled: busy,
-          onClick: () => void cloud("load-story"),
-          children: "Load private cloud stories"
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          className: "secondary-button",
-          disabled: busy,
-          onClick: () => void cloud("save-story"),
-          children: "Save to private cloud"
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "text-button", onClick: onNew, children: "Start another story" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "text-button", onClick: download, children: "Download story backup" })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-      "Import story backup",
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          type: "file",
-          accept: "application/json,.json",
-          onChange: async (event) => {
-            var _a2;
-            const file = (_a2 = event.target.files) == null ? void 0 : _a2[0];
-            if (!file) return;
-            try {
-              if (file.size > 3e5)
-                throw new Error("That backup is too large.");
-              onImport(parseProfile(JSON.parse(await file.text())));
-              setMessage("Story imported. Your answers are ready.");
-            } catch (error) {
-              setMessage(
-                error instanceof Error ? error.message : "Couldn't import that story."
-              );
-            }
-            event.target.value = "";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "creator-panel story-library", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Saved stories & backups" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { "aria-label": "Saved stories", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Your living stories" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Keep your answers, add new memories, and make another puzzle without starting over." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+        "Saved story",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "select",
+          {
+            value: current.id,
+            onChange: (event) => onSelect(event.target.value),
+            children: profiles.map((profile) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: profile.id, children: profile.name }, profile.id))
           }
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Browser saving stays on this device and site address. Private cloud saving works across computers. Backups contain your personal answers; keep them private." }),
-    message && /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "field-help", children: message })
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+        "Story name",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            value: current.name,
+            maxLength: 80,
+            onChange: (event) => onRename(event.target.value)
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "field-help", children: status }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            className: "secondary-button",
+            disabled: busy,
+            onClick: () => void cloud("load-story"),
+            children: "Load private cloud stories"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            className: "secondary-button",
+            disabled: busy,
+            onClick: () => void cloud("save-story"),
+            children: "Save to private cloud"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "text-button", onClick: onNew, children: "Start another story" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "text-button", onClick: download, children: "Download story backup" })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+        "Import story backup",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "file",
+            accept: "application/json,.json",
+            onChange: async (event) => {
+              var _a2;
+              const file = (_a2 = event.target.files) == null ? void 0 : _a2[0];
+              if (!file) return;
+              try {
+                if (file.size > 3e5)
+                  throw new Error("That backup is too large.");
+                onImport(parseProfile(JSON.parse(await file.text())));
+                setMessage("Story imported. Your answers are ready.");
+              } catch (error) {
+                setMessage(
+                  error instanceof Error ? error.message : "Couldn't import that story."
+                );
+              }
+              event.target.value = "";
+            }
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Browser saving stays on this device and site address. Private cloud saving works across computers. Backups contain your personal answers; keep them private." }),
+      message && /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "field-help", children: message })
+    ] })
   ] });
 }
 const storyQuestions = [
@@ -15176,13 +15315,20 @@ function StoryQuestions({
         )
       ] })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("dl", { className: "story-review", children: prompts.map((prompt, index2) => {
-        var _a2;
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { children: prompt }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { children: ((_a2 = values[index2]) == null ? void 0 : _a2.trim()) || "Skipped" })
-        ] }, prompt);
-      }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "story-review-details", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("summary", { children: [
+          "Review saved answers (",
+          values.filter((value) => value.trim()).length,
+          ")"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("dl", { className: "story-review", children: prompts.map((prompt, index2) => {
+          var _a2;
+          return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { children: prompt }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { children: ((_a2 = values[index2]) == null ? void 0 : _a2.trim()) || "Skipped" })
+          ] }, prompt);
+        }) })
+      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "button",
         {
@@ -15193,7 +15339,8 @@ function StoryQuestions({
         }
       ),
       !answers.some((value) => value.trim()) && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "No memories added. We'll use your shared interests for a themed puzzle." }),
-      onExtraChange && extraAnswers.length < 8 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "story-followup", children: [
+      onExtraChange && extraAnswers.length < 8 && /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "story-followup", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Add a new memory" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Add a detail when you feel like it. Your earlier answers stay saved." }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -15255,7 +15402,7 @@ function StoryQuestions({
         )
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "A few specific details help: name the place and why it matters, or list foods, games, shows, and routines you share. Your story is the primary source for the puzzle. These answers aren't included in the invitation." })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "People, places, favorites—short lists work. You can add more later." })
   ] });
 }
 function generationErrorMessage(error) {
@@ -15322,12 +15469,6 @@ function challengeLink(challenge, base = window.location.href) {
   url.hash = `thread=${encodeChallenge(challenge)}`;
   return url.toString();
 }
-const stepTitles = [
-  "Who are we making this for?",
-  "What brings you together?",
-  "A little fun, or something to learn?",
-  "How should this puzzle feel?"
-];
 function Creator({ onHome, onPlay }) {
   var _a2, _b2, _c2;
   const [library, setLibrary] = reactExports.useState(readLibrary);
@@ -15356,7 +15497,6 @@ function Creator({ onHome, onPlay }) {
       );
     }
   }, [library]);
-  const [step, setStep] = reactExports.useState(0);
   const [draft, setDraft] = reactExports.useState(null);
   const [source, setSource] = reactExports.useState("ai");
   const [pending, setPending] = reactExports.useState(false);
@@ -15369,7 +15509,7 @@ function Creator({ onHome, onPlay }) {
   reactExports.useEffect(() => {
     var _a3;
     (_a3 = heading.current) == null ? void 0 : _a3.focus();
-  }, [step, hasDraft, hasShared]);
+  }, [hasDraft, hasShared]);
   function update(key, value) {
     setBrief((current) => ({ ...current, [key]: value }));
   }
@@ -15434,8 +15574,7 @@ function Creator({ onHome, onPlay }) {
   const hasStory = Boolean(
     ((_a2 = brief.storyAnswers) == null ? void 0 : _a2.some((answer) => answer.trim())) || ((_b2 = brief.extraAnswers) == null ? void 0 : _b2.some((item) => item.answer.trim())) || ((_c2 = brief.memories) == null ? void 0 : _c2.trim())
   );
-  const canContinue = step !== 1 || brief.interests.trim().length > 0 || hasStory;
-  const canGenerate = (brief.interests.trim().length > 0 || hasStory) && (brief.purpose !== "study" || brief.topic.trim().length > 0);
+  const canGenerate = (brief.interests.trim().length > 0 || brief.topic.trim().length > 0 || hasStory) && (brief.purpose !== "study" || brief.topic.trim().length > 0);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "creator-page", "aria-labelledby": "creator-title", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "text-button", type: "button", onClick: onHome, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 16 }),
@@ -15446,9 +15585,10 @@ function Creator({ onHome, onPlay }) {
         /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 14 }),
         " MADE PERSONAL"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { id: "creator-title", ref: heading, tabIndex: -1, children: shared ? "A little challenge, ready to send." : draft ? brief.style === "together" ? "Keep a little mystery." : "Your puzzle. Your finishing touch." : stepTitles[step] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: shared ? "Send the link yourself, or copy a challenge code. No account needed to solve it." : draft ? brief.style === "together" ? "The connections are hidden so you can discover them together." : "AI does the heavy lifting. You get the final say." : "A few quick steps. A puzzle with your people in mind." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { id: "creator-title", ref: heading, tabIndex: -1, children: shared ? "A little challenge, ready to send." : draft ? brief.style === "together" ? "Keep a little mystery." : "Your puzzle. Your finishing touch." : "Make it personal." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: shared ? "Send the link yourself, or copy a challenge code. No account needed to solve it." : draft ? brief.style === "together" ? "The connections are hidden so you can discover them together." : "AI does the heavy lifting. You get the final say." : "A little about you. Then a puzzle to play." })
     ] }),
+    !draft && !shared && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", "aria-live": "polite", children: saveStatus }),
     !draft && !shared && /* @__PURE__ */ jsxRuntimeExports.jsx(
       StoryLibraryControls,
       {
@@ -15465,7 +15605,6 @@ function Creator({ onHome, onPlay }) {
             activeId: profile.id,
             profiles: [...current.profiles, profile].slice(-20)
           }));
-          setStep(0);
           setError("");
         },
         onRename: (name) => setLibrary((current) => ({
@@ -15665,382 +15804,98 @@ function Creator({ onHome, onPlay }) {
           }
         )
       ] })
-    ] }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("ol", { className: "creator-steps", "aria-label": "Puzzle creation steps", children: stepTitles.map((title, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "li",
-        {
-          "aria-current": index2 === step ? "step" : void 0,
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: index2 < step ? /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 14 }) : index2 + 1 }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: [
-              "Your people",
-              "Shared interests",
-              "The occasion",
-              "The feel"
-            ][index2] })
-          ]
+    ] }) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "form",
+      {
+        className: "creator-panel",
+        onSubmit: (event) => {
+          event.preventDefault();
+          if (canGenerate) void generate();
         },
-        title
-      )) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "form",
-        {
-          className: "creator-panel",
-          onSubmit: (event) => {
-            event.preventDefault();
-            if (step < 3 && canContinue) {
-              setError("");
-              setStep(step + 1);
-            } else if (step === 3 && canGenerate) void generate();
-          },
-          children: [
-            step === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("fieldset", { className: "choice-grid", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("legend", { children: "How will you play?" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "label",
-                  {
-                    className: brief.style === "gift" ? "choice selected-choice" : "choice",
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "input",
-                        {
-                          type: "radio",
-                          name: "style",
-                          value: "gift",
-                          checked: brief.style === "gift",
-                          onChange: () => update("style", "gift")
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Make a challenge" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "You create and review. Your friend solves." })
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "label",
-                  {
-                    className: brief.style === "together" ? "choice selected-choice" : "choice",
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "input",
-                        {
-                          type: "radio",
-                          name: "style",
-                          value: "together",
-                          checked: brief.style === "together",
-                          onChange: () => update("style", "together")
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Solve together · surprise us" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Keep the answers a surprise for both of you." })
-                    ]
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "field-row", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-                  "Your nickname ",
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional)" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "input",
-                    {
-                      value: brief.creator,
-                      maxLength: 40,
-                      onChange: (event) => update("creator", event.target.value),
-                      placeholder: "e.g. Terry",
-                      autoComplete: "off"
-                    }
-                  )
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-                  "Friend's nickname ",
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional)" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    "input",
-                    {
-                      value: brief.recipient,
-                      maxLength: 40,
-                      onChange: (event) => update("recipient", event.target.value),
-                      placeholder: "e.g. Jessica",
-                      autoComplete: "off"
-                    }
-                  )
-                ] })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Nicknames are just for the invitation. They aren't sent to AI." })
-            ] }),
-            step === 1 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-                "What do you both enjoy?",
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "textarea",
-                  {
-                    value: brief.interests,
-                    maxLength: 2e3,
-                    onChange: (event) => update("interests", event.target.value),
-                    placeholder: "Basketball, baking, '90s music… whatever feels like you two.",
-                    rows: 3,
-                    required: !hasStory
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "interest-chips", children: [
-                "Music",
-                "Food",
-                "Nature",
-                "Sports",
-                "Movies",
-                "Science"
-              ].map((interest) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                "button",
-                {
-                  className: "secondary-button",
-                  type: "button",
-                  onClick: () => update(
-                    "interests",
-                    (brief.interests ? `${brief.interests}, ${interest}` : interest).slice(0, 2e3)
-                  ),
-                  children: [
-                    interest,
-                    " +"
-                  ]
-                },
-                interest
-              )) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "A couple of interests is plenty. AI will find the connections." })
-            ] }),
-            step === 2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("fieldset", { className: "choice-grid", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("legend", { children: "What's the occasion?" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "label",
-                  {
-                    className: brief.purpose === "fun" ? "choice selected-choice" : "choice",
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "input",
-                        {
-                          type: "radio",
-                          name: "purpose",
-                          checked: brief.purpose === "fun",
-                          onChange: () => update("purpose", "fun")
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Just for fun" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "A little challenge made around your interests." })
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "label",
-                  {
-                    className: brief.purpose === "study" ? "choice selected-choice" : "choice",
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        "input",
-                        {
-                          type: "radio",
-                          name: "purpose",
-                          checked: brief.purpose === "study",
-                          onChange: () => update("purpose", "study")
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Learn something" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Practice vocabulary and relationships in a subject." })
-                    ]
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-                brief.purpose === "study" ? "What are they learning?" : "A theme to weave in (optional)",
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    value: brief.topic,
-                    maxLength: 500,
-                    onChange: (event) => update("topic", event.target.value),
-                    required: brief.purpose === "study",
-                    placeholder: brief.purpose === "study" ? "e.g. Introductory biology: the human body" : "e.g. Our next camping trip"
-                  }
-                )
-              ] }),
-              brief.purpose === "fun" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-                "How personal should it be?",
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "select",
-                  {
-                    value: brief.personalization || "memories-only",
-                    onChange: (event) => update(
-                      "personalization",
-                      event.target.value
-                    ),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "mix", children: "Mostly personal · allow one related theme" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "memories-only", children: "Our story · all four groups from our answers" })
-                    ]
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "field-help", children: "Saved memories take priority over interest chips. All four personal groups is the default; related themes are optional and limited to one group." })
-              ] }),
-              brief.purpose === "fun" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                StoryQuestions,
-                {
-                  answers: brief.storyAnswers || [],
-                  onChange: (answers) => update("storyAnswers", answers),
-                  extraAnswers: brief.extraAnswers || [],
-                  onExtraChange: (answers) => update("extraAnswers", answers)
-                },
-                currentStory.id
-              ),
-              brief.purpose === "study" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-                "Study notes ",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional, up to 12,000 characters)" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "textarea",
-                  {
-                    value: brief.notes,
-                    maxLength: 12e3,
-                    onChange: (event) => update("notes", event.target.value),
-                    rows: 5,
-                    placeholder: "Paste a short vocabulary list or course excerpt to ground the puzzle."
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "field-help", children: "Notes go to AI to create the puzzle. They aren't included in the invitation." })
-              ] }),
-              brief.purpose === "study" && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                Dictation,
-                {
-                  value: brief.notes,
-                  onChange: (value) => update("notes", value),
-                  maxLength: 12e3
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-                "A personal note ",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional)" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "input",
-                  {
-                    value: brief.note,
-                    maxLength: 180,
-                    onChange: (event) => update("note", event.target.value),
-                    placeholder: "Made this for your study break. You've got this!"
-                  }
-                )
-              ] })
-            ] }),
-            step === 3 && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-                "Puzzle difficulty",
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "select",
-                  {
-                    value: brief.difficulty,
-                    onChange: (event) => update(
-                      "difficulty",
-                      event.target.value
-                    ),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "easy", children: "Gentle start · clear categories" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "balanced", children: "A little twist · some overlapping meanings" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tricky", children: "Make us think · clever but fair" })
-                    ]
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-                "How familiar is the topic?",
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "select",
-                  {
-                    value: brief.familiarity,
-                    onChange: (event) => update(
-                      "familiarity",
-                      event.target.value
-                    ),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "new", children: "New to it · explain unfamiliar ideas" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "familiar", children: "Know it already · build on what we know" })
-                    ]
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-                "Starting play mode",
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(
-                  "select",
-                  {
-                    value: brief.mode,
-                    onChange: (event) => update("mode", event.target.value),
-                    children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "relaxed", children: "Relaxed · unlimited guesses and hints" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "challenge", children: "Challenge · four mistakes, no hints" })
-                    ]
-                  }
-                )
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "brief-summary", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Your thread" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-                  brief.interests,
-                  brief.topic ? ` · ${brief.topic}` : ""
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: brief.style === "together" ? "Answers stay hidden for you both." : "You'll review the connections before sharing." })
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "field-help", children: [
-                "A private Claude window will open. Sign in with the ChatGPT account that owns the service, then press Make my puzzle there. Return here for your board.",
-                " ",
-                "We'll check the board's structure; review the connections before sharing."
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
-              step > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
-                {
-                  className: "secondary-button",
-                  type: "button",
-                  disabled: pending,
-                  onClick: () => {
-                    setStep(step - 1);
-                    setError("");
-                  },
-                  children: "Back"
-                }
-              ),
+        children: [
+          brief.purpose === "fun" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            StoryQuestions,
+            {
+              answers: brief.storyAnswers || [],
+              onChange: (answers) => update("storyAnswers", answers),
+              extraAnswers: brief.extraAnswers || [],
+              onExtraChange: (answers) => update("extraAnswers", answers)
+            },
+            currentStory.id
+          ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+              "What are they learning?",
               /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "button",
+                "input",
                 {
-                  className: "primary-button",
-                  type: "submit",
-                  disabled: pending || !canContinue || step === 3 && !canGenerate,
-                  children: pending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 17, className: "loading-icon" }),
-                    " Finding your threads…"
-                  ] }) : step === 3 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 17 }),
-                    " Make our puzzle"
-                  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    "Continue",
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 17 })
-                  ] })
+                  value: brief.topic,
+                  maxLength: 500,
+                  onChange: (event) => update("topic", event.target.value),
+                  required: true
                 }
               )
             ] }),
-            step === 3 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+              "Study notes ",
+              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional, up to 12,000 characters)" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "textarea",
+                {
+                  value: brief.notes,
+                  maxLength: 12e3,
+                  rows: 5,
+                  onChange: (event) => update("notes", event.target.value)
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Dictation,
+              {
+                value: brief.notes,
+                onChange: (value) => update("notes", value),
+                maxLength: 12e3
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(CreatorOptions, { brief, update }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "field-help", children: [
+            brief.style === "together" ? "Answers stay hidden so you can play together." : "You'll review the answers before sharing.",
+            " ",
+            brief.mode === "challenge" ? "Four mistakes, no hints." : "Relaxed play with hints."
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              className: "primary-button",
+              type: "submit",
+              disabled: pending || !canGenerate,
+              children: pending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 17, className: "loading-icon" }),
+                " Finding your threads…"
+              ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 17 }),
+                " Make our puzzle"
+              ] })
+            }
+          ),
+          !canGenerate && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Add a memory to start, or choose a theme in Puzzle options." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Your private Claude window will open to make the puzzle." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "creator-example", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Try an example instead" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
               "button",
               {
-                className: "text-button example-button",
+                className: "text-button",
                 type: "button",
                 disabled: pending,
                 onClick: useExample,
                 children: "Explore the creator with an example puzzle"
               }
             )
-          ]
-        }
-      )
-    ] }),
+          ] })
+        ]
+      }
+    ),
     pending && /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "creator-status", "aria-live": "polite", children: "Finish in the private Claude window: sign in if asked, then press Make my puzzle. Your board will arrive here." }),
     error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-error", role: "alert", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: error }),
@@ -16050,7 +15905,6 @@ function Creator({ onHome, onPlay }) {
           type: "button",
           className: "text-button",
           onClick: () => {
-            setStep(2);
             setError("");
           },
           children: "Edit my answers"
@@ -16060,64 +15914,55 @@ function Creator({ onHome, onPlay }) {
   ] });
 }
 function FriendHub({
-  onCreate,
   onOpen
 }) {
   const [code, setCode] = reactExports.useState("");
   const [error, setError] = reactExports.useState("");
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "friend-hub", "aria-labelledby": "friends-title", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "section-heading", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "BETTER WITH A LITTLE YOU IN IT" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { id: "friends-title", children: "Make a thread for someone." })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Users, { size: 26 })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Shared interests. A subject they're studying. A little friendly challenge. Give AI a few clues and make a puzzle that feels like you." }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "primary-button", type: "button", onClick: onCreate, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 17 }),
-      " Create a personal puzzle",
-      /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 17 })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "join-challenge", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Have a challenge from a friend?" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "form",
-        {
-          onSubmit: (event) => {
-            event.preventDefault();
-            setError("");
-            try {
-              onOpen(decodeChallenge(code));
-            } catch (error2) {
-              setError(
-                error2 instanceof Error ? error2.message : "That challenge couldn't be opened."
-              );
-            }
-          },
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "friend-code", children: "Paste a challenge link or code" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "textarea",
-              {
-                id: "friend-code",
-                value: code,
-                maxLength: 22e3,
-                onChange: (event) => setCode(event.target.value),
-                rows: 3,
-                required: true
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    "section",
+    {
+      className: "friend-hub compact-friends",
+      "aria-label": "Open a friend’s puzzle",
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "join-challenge", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Have a challenge from a friend?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          "form",
+          {
+            onSubmit: (event) => {
+              event.preventDefault();
+              setError("");
+              try {
+                onOpen(decodeChallenge(code));
+              } catch (error2) {
+                setError(
+                  error2 instanceof Error ? error2.message : "That challenge couldn't be opened."
+                );
               }
-            ),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "secondary-button", type: "submit", children: [
-              "Open challenge",
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 15 })
-            ] }),
-            error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-error", role: "alert", children: error })
-          ]
-        }
-      )
-    ] })
-  ] });
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "friend-code", children: "Paste a challenge link or code" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "textarea",
+                {
+                  id: "friend-code",
+                  value: code,
+                  maxLength: 22e3,
+                  onChange: (event) => setCode(event.target.value),
+                  rows: 3,
+                  required: true
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "secondary-button", type: "submit", children: [
+                "Open challenge",
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 15 })
+              ] }),
+              error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-error", role: "alert", children: error })
+            ]
+          }
+        )
+      ] })
+    }
+  );
 }
 function Invitation({
   challenge,
@@ -16610,7 +16455,6 @@ function App() {
   const [lessonIndex, setLessonIndex] = reactExports.useState(0);
   const [session, setSession] = reactExports.useState(0);
   const [topic, setTopic] = reactExports.useState(0);
-  const [hasPracticed, setHasPracticed] = reactExports.useState(false);
   const [returned, setReturned] = reactExports.useState(false);
   const homeTitle = reactExports.useRef(null);
   reactExports.useEffect(() => {
@@ -16710,61 +16554,44 @@ function App() {
         onPlay: (selectedMode) => playPersonal(personal, selectedMode)
       }
     ) : mode === null ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "welcome", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "tiny-dot" }),
-          " WORDS. IDEAS. LITTLE DISCOVERIES."
-        ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "welcome quick-start", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "FIND FOUR GROUPS OF FOUR" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { ref: homeTitle, tabIndex: -1, "data-ocid": "page.title", children: [
           "Find the ",
           /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: "common thread." })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Some things just belong together. Discover their connections, follow your curiosity, and learn a little along the way." }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            className: "text-button",
-            type: "button",
-            onClick: () => {
-              setPersonal(null);
-              setMode(null);
-              setPage("creator");
-            },
-            children: [
-              "Make something for a friend",
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 15 })
-            ]
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "intro-banner", "aria-labelledby": "intro-title", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "banner-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Sprout, { size: 27 }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "A SMALL START" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { id: "intro-title", children: hasPracticed ? "A fresh look, whenever you need it." : "New here? Let's find your first thread." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Two tiny practice puzzles. Helpful nudges. All the time you need." })
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Sixteen words. Four connections. Ready to play?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "quick-start-actions", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "button",
+            {
+              className: "primary-button",
+              type: "button",
+              onClick: () => start("relaxed"),
+              children: [
+                "Play now ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 17 })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              className: "secondary-button",
+              type: "button",
+              onClick: () => {
+                setPersonal(null);
+                setMode(null);
+                setPage("creator");
+              },
+              children: "Create a personal puzzle"
+            }
+          )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            className: "primary-button",
-            type: "button",
-            onClick: () => start("intro"),
-            children: [
-              hasPracticed ? "Practice again" : "Show me how",
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 17 })
-            ]
-          }
-        )
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Play now starts a relaxed puzzle. Personal puzzles use your shared memories." })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "play-section", "aria-labelledby": "play-title", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "section-heading", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "MAKE A LITTLE ROOM FOR PLAY" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { id: "play-title", children: "What's your pace?" })
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "section-note", children: "Solo play · No sign-in needed" })
-        ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "play-options", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Choose a puzzle or challenge mode" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "topic-picker", children: [
           "Choose a puzzle",
           /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -16780,97 +16607,30 @@ function App() {
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mode-grid", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { className: "mode-card relaxed-card", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mode-top", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mode-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Sprout, { size: 25 }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pill", children: "ROOM TO EXPLORE" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "Relaxed" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Follow a hunch. Change your mind. Find the connections at your own pace." }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 15 }),
-                " Unlimited guesses"
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 15 }),
-                " Hints when you want them"
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 15 }),
-                " No clock to race"
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                className: "primary-button",
-                type: "button",
-                onClick: () => start("relaxed"),
-                children: [
-                  "Play Relaxed",
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 17 })
-                ]
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { className: "mode-card challenge-card", children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "mode-top", children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mode-icon", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Target, { size: 25 }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "pill", children: "A LITTLE MORE FOCUS" })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "Challenge" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Trust your instincts and make each guess count. How many threads can you find?" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 15 }),
-                " Four mistakes allowed"
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 15 }),
-                " Solve without hints"
-              ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Check, { size: 15 }),
-                " Take your time—no timer"
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "button",
-              {
-                className: "primary-button dark-button",
-                type: "button",
-                onClick: () => start("challenge"),
-                children: [
-                  "Play Challenge",
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 17 })
-                ]
-              }
-            )
-          ] })
-        ] })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              className: "secondary-button",
+              type: "button",
+              onClick: () => start("relaxed"),
+              children: "Play Relaxed"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              className: "secondary-button",
+              type: "button",
+              onClick: () => start("challenge"),
+              children: "Play Challenge"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Relaxed has hints. Challenge gives you four mistakes." })
       ] }),
       linkError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-error", role: "alert", children: linkError }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        FriendHub,
-        {
-          onCreate: () => {
-            setPersonal(null);
-            setMode(null);
-            setPage("creator");
-          },
-          onOpen: openChallenge
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "home-note", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, { size: 19 }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Know the topic? New to puzzles? Both are welcome." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
-          "Start with familiar words or explore biology. Every solved group comes with a little explanation."
-        ] })
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(FriendHub, { onOpen: openChallenge })
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "personal-round-note", children: personal && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
         "Made",
@@ -16896,7 +16656,6 @@ function App() {
             } else if (mode === "intro" && lessonIndex === 0)
               setLessonIndex(1);
             else if (mode === "intro") {
-              setHasPracticed(true);
               start("relaxed");
             } else setPuzzleIndex((value) => (value + 1) % puzzles.length);
           },

@@ -39,7 +39,7 @@ pnpm build
 
 ## Personal puzzles and friend challenges
 
-Choose **Create a personal puzzle** (or **Make something for a friend**) and answer four short questions: who is playing, shared interests, fun/study context, and difficulty/familiarity. Nicknames and personal invitation notes stay out of the AI request. Study notes are sent only for study generation and are never put into a challenge link.
+The home screen offers **Play now** for an immediate Relaxed board and **Create a personal puzzle** for story-based play. Puzzle selection and Challenge mode sit under **Choose a puzzle or challenge mode**; the header retains **How to play**. The personal creator opens directly on optional story questions, with no required interest selection or four-stage setup wizard. **Puzzle options** holds nicknames, interests, study mode and difficulty; **Saved stories & backups** holds storage tools. Existing saved profiles and answers are preserved. Nicknames and invitation notes stay out of the model request, and study notes remain outside challenge links.
 
 - **Make a challenge** shows the creator the groups and allows editing words, categories, hints, and explanations before sharing.
 - **Solve together** hides the groups so both players can discover them. Switching to maker preview reveals them explicitly.

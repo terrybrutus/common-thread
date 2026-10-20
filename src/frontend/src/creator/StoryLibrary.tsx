@@ -65,88 +65,91 @@ export function StoryLibraryControls({
     URL.revokeObjectURL(url);
   }
   return (
-    <section className="creator-panel story-library" aria-label="Saved stories">
-      <h2>Your living stories</h2>
-      <p>
-        Keep your answers, add new memories, and make another puzzle without
-        starting over.
-      </p>
-      <label>
-        Saved story
-        <select
-          value={current.id}
-          onChange={(event) => onSelect(event.target.value)}
-        >
-          {profiles.map((profile) => (
-            <option key={profile.id} value={profile.id}>
-              {profile.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label>
-        Story name
-        <input
-          value={current.name}
-          maxLength={80}
-          onChange={(event) => onRename(event.target.value)}
-        />
-      </label>
-      <output className="field-help">{status}</output>
-      <div className="creator-actions">
-        <button
-          type="button"
-          className="secondary-button"
-          disabled={busy}
-          onClick={() => void cloud("load-story")}
-        >
-          Load private cloud stories
-        </button>
-        <button
-          type="button"
-          className="secondary-button"
-          disabled={busy}
-          onClick={() => void cloud("save-story")}
-        >
-          Save to private cloud
-        </button>
-        <button type="button" className="text-button" onClick={onNew}>
-          Start another story
-        </button>
-        <button type="button" className="text-button" onClick={download}>
-          Download story backup
-        </button>
-      </div>
-      <label>
-        Import story backup
-        <input
-          type="file"
-          accept="application/json,.json"
-          onChange={async (event) => {
-            const file = event.target.files?.[0];
-            if (!file) return;
-            try {
-              if (file.size > 300000)
-                throw new Error("That backup is too large.");
-              onImport(parseProfile(JSON.parse(await file.text())));
-              setMessage("Story imported. Your answers are ready.");
-            } catch (error) {
-              setMessage(
-                error instanceof Error
-                  ? error.message
-                  : "Couldn't import that story.",
-              );
-            }
-            event.target.value = "";
-          }}
-        />
-      </label>
-      <p className="field-help">
-        Browser saving stays on this device and site address. Private cloud
-        saving works across computers. Backups contain your personal answers;
-        keep them private.
-      </p>
-      {message && <output className="field-help">{message}</output>}
-    </section>
+    <details className="creator-panel story-library">
+      <summary>Saved stories &amp; backups</summary>
+      <section aria-label="Saved stories">
+        <h2>Your living stories</h2>
+        <p>
+          Keep your answers, add new memories, and make another puzzle without
+          starting over.
+        </p>
+        <label>
+          Saved story
+          <select
+            value={current.id}
+            onChange={(event) => onSelect(event.target.value)}
+          >
+            {profiles.map((profile) => (
+              <option key={profile.id} value={profile.id}>
+                {profile.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Story name
+          <input
+            value={current.name}
+            maxLength={80}
+            onChange={(event) => onRename(event.target.value)}
+          />
+        </label>
+        <output className="field-help">{status}</output>
+        <div className="creator-actions">
+          <button
+            type="button"
+            className="secondary-button"
+            disabled={busy}
+            onClick={() => void cloud("load-story")}
+          >
+            Load private cloud stories
+          </button>
+          <button
+            type="button"
+            className="secondary-button"
+            disabled={busy}
+            onClick={() => void cloud("save-story")}
+          >
+            Save to private cloud
+          </button>
+          <button type="button" className="text-button" onClick={onNew}>
+            Start another story
+          </button>
+          <button type="button" className="text-button" onClick={download}>
+            Download story backup
+          </button>
+        </div>
+        <label>
+          Import story backup
+          <input
+            type="file"
+            accept="application/json,.json"
+            onChange={async (event) => {
+              const file = event.target.files?.[0];
+              if (!file) return;
+              try {
+                if (file.size > 300000)
+                  throw new Error("That backup is too large.");
+                onImport(parseProfile(JSON.parse(await file.text())));
+                setMessage("Story imported. Your answers are ready.");
+              } catch (error) {
+                setMessage(
+                  error instanceof Error
+                    ? error.message
+                    : "Couldn't import that story.",
+                );
+              }
+              event.target.value = "";
+            }}
+          />
+        </label>
+        <p className="field-help">
+          Browser saving stays on this device and site address. Private cloud
+          saving works across computers. Backups contain your personal answers;
+          keep them private.
+        </p>
+        {message && <output className="field-help">{message}</output>}
+      </section>
+    </details>
   );
 }

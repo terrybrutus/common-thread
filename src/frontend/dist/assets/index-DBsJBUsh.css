@@ -2636,6 +2636,68 @@ summary {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+.quick-start-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 24px 0 12px;
+}
+.play-options,
+.compact-friends,
+.creator-options,
+.creator-example {
+  margin: 18px 0;
+}
+.friend-hub.compact-friends {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.compact-friends .join-challenge {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+}
+.play-options > summary,
+.story-library > summary,
+.creator-options > summary,
+.creator-example > summary,
+.story-review-details > summary,
+.story-followup > summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 10px 0;
+}
+.play-options .topic-picker,
+.story-library > section,
+.creator-options > div,
+.story-followup > p {
+  margin-top: 18px;
+}
+.story-library {
+  margin-bottom: 18px;
+  padding: 8px 18px;
+}
+.creator-options,
+.creator-example,
+.story-followup {
+  border-top: 1px solid #dce0d6;
+  padding-top: 8px;
+}
+.quick-start .field-help {
+  font-size: 13px;
+  line-height: 1.6;
+}
+@media (max-width: 520px) {
+  .quick-start-actions {
+    flex-direction: column;
+  }
+  .quick-start-actions > button {
+    width: 100%;
+    justify-content: center;
+  }
+}
 .creator-panel > p {
   font-size: 14px;
   line-height: 1.8;

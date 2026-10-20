@@ -15,6 +15,10 @@ describe("living story persistence", () => {
     await user.click(
       screen.getByRole("button", { name: "Create a personal puzzle" }),
     );
+    await user.click(
+      screen.getByText("Saved stories & backups", { exact: true }),
+    );
+    await user.click(screen.getByText("Puzzle options", { exact: true }));
     expect(screen.getByRole("radio", { name: /Solve together/ })).toBeChecked();
     fireEvent.change(screen.getByRole("textbox", { name: "Story name" }), {
       target: { value: "Our saved adventures" },
@@ -23,12 +27,6 @@ describe("living story persistence", () => {
       screen.getByRole("textbox", { name: "Your nickname (optional)" }),
       { target: { value: "Player" } },
     );
-    await user.click(screen.getByRole("button", { name: "Continue" }));
-    fireEvent.change(
-      screen.getByRole("textbox", { name: "What do you both enjoy?" }),
-      { target: { value: "Games" } },
-    );
-    await user.click(screen.getByRole("button", { name: "Continue" }));
     fireEvent.change(screen.getByRole("textbox", { name: storyQuestions[0] }), {
       target: { value: "We met at the pier." },
     });
@@ -43,6 +41,10 @@ describe("living story persistence", () => {
     await user.click(
       screen.getByRole("button", { name: "Create a personal puzzle" }),
     );
+    await user.click(
+      screen.getByText("Saved stories & backups", { exact: true }),
+    );
+    await user.click(screen.getByText("Puzzle options", { exact: true }));
     expect(screen.getByRole("textbox", { name: "Story name" })).toHaveValue(
       "Our saved adventures",
     );
@@ -97,6 +99,7 @@ describe("living story persistence", () => {
       await user.click(
         screen.getByRole("button", { name: "Skip this question" }),
       );
+    await user.click(screen.getByText("Add a new memory", { exact: true }));
     await user.click(
       screen.getByRole("button", { name: "Ask me another question" }),
     );
@@ -105,6 +108,7 @@ describe("living story persistence", () => {
       { target: { value: "The cafe by the pier" } },
     );
     await user.click(screen.getByRole("button", { name: "Review my answers" }));
+    await user.click(screen.getByText(/Review saved answers/));
     expect(screen.getByText("At the pier")).toBeVisible();
     expect(screen.getByText("The cafe by the pier")).toBeVisible();
     expect(

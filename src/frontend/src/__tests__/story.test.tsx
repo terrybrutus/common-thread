@@ -37,6 +37,7 @@ describe("guided shared story", () => {
     await user.click(
       screen.getByRole("button", { name: "Skip this question" }),
     );
+    await user.click(screen.getByText(/Review saved answers/));
     expect(screen.getByText("First date at the arcade")).toBeVisible();
     expect(screen.getByText("Pickleball")).toBeVisible();
     expect(screen.getAllByText("Skipped")).toHaveLength(2);

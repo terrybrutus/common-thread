@@ -20,10 +20,26 @@ async function solve(
 }
 
 describe("playable experience", () => {
+  it("starts a board in one click and keeps setup controls out of the landing view", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    expect(
+      screen.getByRole("combobox", { name: "Choose a puzzle" }),
+    ).not.toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "Play Challenge" }),
+    ).not.toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Play now" }));
+    expect(
+      within(
+        screen.getByRole("group", { name: "Words to connect" }),
+      ).getAllByRole("button"),
+    ).toHaveLength(16);
+  });
   it("lets keyboard players select and clear words, skip practice, and reopen it", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: "Show me how" }));
+    await user.click(screen.getByRole("button", { name: "How to play" }));
     const apple = screen.getByRole("button", { name: "APPLE" });
     apple.focus();
     await user.keyboard(" ");
@@ -44,7 +60,7 @@ describe("playable experience", () => {
   it("teaches two small puzzles and takes the player into a full Relaxed board", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: "Show me how" }));
+    await user.click(screen.getByRole("button", { name: "How to play" }));
     expect(
       screen.getByRole("heading", { name: lessons[0].title }),
     ).toHaveFocus();
@@ -77,7 +93,7 @@ describe("playable experience", () => {
   it("preserves selected words through shuffle, gives hints, and labels guided reveals", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: "Play Relaxed" }));
+    await user.click(screen.getByRole("button", { name: "Play now" }));
     await selectWords(user, ["ROBIN"]);
     await user.click(screen.getByRole("button", { name: "Shuffle" }));
     expect(screen.getByRole("button", { name: "ROBIN" })).toHaveAttribute(
@@ -106,6 +122,7 @@ describe("playable experience", () => {
   it("ends Challenge after four mistakes, reveals answers, and resets on replay", async () => {
     const user = userEvent.setup();
     render(<App />);
+    await user.click(screen.getByText("Choose a puzzle or challenge mode"));
     await user.click(screen.getByRole("button", { name: "Play Challenge" }));
     expect(
       screen.queryByRole("button", { name: "I'd like a hint" }),
@@ -132,6 +149,7 @@ describe("playable experience", () => {
   it("supports a selected study puzzle, a win, and a fresh next puzzle", async () => {
     const user = userEvent.setup();
     render(<App />);
+    await user.click(screen.getByText("Choose a puzzle or challenge mode"));
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Choose a puzzle" }),
       "1",

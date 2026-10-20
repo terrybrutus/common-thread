@@ -9,6 +9,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { type Group, type Puzzle, puzzles } from "../game/puzzles";
 import { CopyField } from "./CopyField";
+import { CreatorOptions } from "./CreatorOptions";
 import { Dictation } from "./Dictation";
 import { StoryLibraryControls } from "./StoryLibrary";
 import { StoryQuestions } from "./StoryQuestions";
@@ -31,12 +32,6 @@ interface CreatorProps {
   onHome: () => void;
   onPlay: (challenge: FriendChallenge) => void;
 }
-const stepTitles = [
-  "Who are we making this for?",
-  "What brings you together?",
-  "A little fun, or something to learn?",
-  "How should this puzzle feel?",
-];
 
 export function Creator({ onHome, onPlay }: CreatorProps) {
   const [library, setLibrary] = useState(readLibrary);
@@ -72,7 +67,6 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
       );
     }
   }, [library]);
-  const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<Puzzle | null>(null);
   const [source, setSource] = useState<FriendChallenge["source"]>("ai");
   const [pending, setPending] = useState(false);
@@ -85,7 +79,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: Move focus only when navigating steps or preview screens, never while editing a field.
   useEffect(() => {
     heading.current?.focus();
-  }, [step, hasDraft, hasShared]);
+  }, [hasDraft, hasShared]);
   function update<K extends keyof CreatorBrief>(
     key: K,
     value: CreatorBrief[K],
@@ -159,10 +153,10 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
       brief.extraAnswers?.some((item) => item.answer.trim()) ||
       brief.memories?.trim(),
   );
-  const canContinue =
-    step !== 1 || brief.interests.trim().length > 0 || hasStory;
   const canGenerate =
-    (brief.interests.trim().length > 0 || hasStory) &&
+    (brief.interests.trim().length > 0 ||
+      brief.topic.trim().length > 0 ||
+      hasStory) &&
     (brief.purpose !== "study" || brief.topic.trim().length > 0);
 
   return (
@@ -181,7 +175,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
               ? brief.style === "together"
                 ? "Keep a little mystery."
                 : "Your puzzle. Your finishing touch."
-              : stepTitles[step]}
+              : "Make it personal."}
         </h1>
         <p>
           {shared
@@ -190,9 +184,14 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
               ? brief.style === "together"
                 ? "The connections are hidden so you can discover them together."
                 : "AI does the heavy lifting. You get the final say."
-              : "A few quick steps. A puzzle with your people in mind."}
+              : "A little about you. Then a puzzle to play."}
         </p>
       </div>
+      {!draft && !shared && (
+        <p className="field-help" aria-live="polite">
+          {saveStatus}
+        </p>
+      )}
       {!draft && !shared && (
         <StoryLibraryControls
           profiles={library.profiles}
@@ -208,7 +207,6 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
               activeId: profile.id,
               profiles: [...current.profiles, profile].slice(-20),
             }));
-            setStep(0);
             setError("");
           }}
           onRename={(name) =>
@@ -437,408 +435,95 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
           </div>
         </>
       ) : (
-        <>
-          <ol className="creator-steps" aria-label="Puzzle creation steps">
-            {stepTitles.map((title, index) => (
-              <li
-                key={title}
-                aria-current={index === step ? "step" : undefined}
-              >
-                <span>{index < step ? <Check size={14} /> : index + 1}</span>
-                <span>
-                  {
-                    [
-                      "Your people",
-                      "Shared interests",
-                      "The occasion",
-                      "The feel",
-                    ][index]
-                  }
-                </span>
-              </li>
-            ))}
-          </ol>
-          <form
-            className="creator-panel"
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (step < 3 && canContinue) {
-                setError("");
-                setStep(step + 1);
-              } else if (step === 3 && canGenerate) void generate();
-            }}
+        <form
+          className="creator-panel"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (canGenerate) void generate();
+          }}
+        >
+          {brief.purpose === "fun" ? (
+            <StoryQuestions
+              key={currentStory.id}
+              answers={brief.storyAnswers || []}
+              onChange={(answers) => update("storyAnswers", answers)}
+              extraAnswers={brief.extraAnswers || []}
+              onExtraChange={(answers) => update("extraAnswers", answers)}
+            />
+          ) : (
+            <>
+              <label>
+                What are they learning?
+                <input
+                  value={brief.topic}
+                  maxLength={500}
+                  onChange={(event) => update("topic", event.target.value)}
+                  required
+                />
+              </label>
+              <label>
+                Study notes <span>(optional, up to 12,000 characters)</span>
+                <textarea
+                  value={brief.notes}
+                  maxLength={12000}
+                  rows={5}
+                  onChange={(event) => update("notes", event.target.value)}
+                />
+              </label>
+              <Dictation
+                value={brief.notes}
+                onChange={(value) => update("notes", value)}
+                maxLength={12000}
+              />
+            </>
+          )}
+          <CreatorOptions brief={brief} update={update} />
+          <p className="field-help">
+            {brief.style === "together"
+              ? "Answers stay hidden so you can play together."
+              : "You'll review the answers before sharing."}{" "}
+            {brief.mode === "challenge"
+              ? "Four mistakes, no hints."
+              : "Relaxed play with hints."}
+          </p>
+          <button
+            className="primary-button"
+            type="submit"
+            disabled={pending || !canGenerate}
           >
-            {step === 0 && (
+            {pending ? (
               <>
-                <fieldset className="choice-grid">
-                  <legend>How will you play?</legend>
-                  <label
-                    className={
-                      brief.style === "gift"
-                        ? "choice selected-choice"
-                        : "choice"
-                    }
-                  >
-                    <input
-                      type="radio"
-                      name="style"
-                      value="gift"
-                      checked={brief.style === "gift"}
-                      onChange={() => update("style", "gift")}
-                    />
-                    <strong>Make a challenge</strong>
-                    <span>You create and review. Your friend solves.</span>
-                  </label>
-                  <label
-                    className={
-                      brief.style === "together"
-                        ? "choice selected-choice"
-                        : "choice"
-                    }
-                  >
-                    <input
-                      type="radio"
-                      name="style"
-                      value="together"
-                      checked={brief.style === "together"}
-                      onChange={() => update("style", "together")}
-                    />
-                    <strong>Solve together · surprise us</strong>
-                    <span>Keep the answers a surprise for both of you.</span>
-                  </label>
-                </fieldset>
-                <div className="field-row">
-                  <label>
-                    Your nickname <span>(optional)</span>
-                    <input
-                      value={brief.creator}
-                      maxLength={40}
-                      onChange={(event) =>
-                        update("creator", event.target.value)
-                      }
-                      placeholder="e.g. Terry"
-                      autoComplete="off"
-                    />
-                  </label>
-                  <label>
-                    Friend's nickname <span>(optional)</span>
-                    <input
-                      value={brief.recipient}
-                      maxLength={40}
-                      onChange={(event) =>
-                        update("recipient", event.target.value)
-                      }
-                      placeholder="e.g. Jessica"
-                      autoComplete="off"
-                    />
-                  </label>
-                </div>
-                <p className="field-help">
-                  Nicknames are just for the invitation. They aren't sent to AI.
-                </p>
+                <LoaderCircle size={17} className="loading-icon" /> Finding your
+                threads…
+              </>
+            ) : (
+              <>
+                <Sparkles size={17} /> Make our puzzle
               </>
             )}
-            {step === 1 && (
-              <>
-                <label>
-                  What do you both enjoy?
-                  <textarea
-                    value={brief.interests}
-                    maxLength={2000}
-                    onChange={(event) =>
-                      update("interests", event.target.value)
-                    }
-                    placeholder="Basketball, baking, '90s music… whatever feels like you two."
-                    rows={3}
-                    required={!hasStory}
-                  />
-                </label>
-                <div className="interest-chips">
-                  {[
-                    "Music",
-                    "Food",
-                    "Nature",
-                    "Sports",
-                    "Movies",
-                    "Science",
-                  ].map((interest) => (
-                    <button
-                      key={interest}
-                      className="secondary-button"
-                      type="button"
-                      onClick={() =>
-                        update(
-                          "interests",
-                          (brief.interests
-                            ? `${brief.interests}, ${interest}`
-                            : interest
-                          ).slice(0, 2000),
-                        )
-                      }
-                    >
-                      {interest} +
-                    </button>
-                  ))}
-                </div>
-                <p className="field-help">
-                  A couple of interests is plenty. AI will find the connections.
-                </p>
-              </>
-            )}
-            {step === 2 && (
-              <>
-                <fieldset className="choice-grid">
-                  <legend>What's the occasion?</legend>
-                  <label
-                    className={
-                      brief.purpose === "fun"
-                        ? "choice selected-choice"
-                        : "choice"
-                    }
-                  >
-                    <input
-                      type="radio"
-                      name="purpose"
-                      checked={brief.purpose === "fun"}
-                      onChange={() => update("purpose", "fun")}
-                    />
-                    <strong>Just for fun</strong>
-                    <span>A little challenge made around your interests.</span>
-                  </label>
-                  <label
-                    className={
-                      brief.purpose === "study"
-                        ? "choice selected-choice"
-                        : "choice"
-                    }
-                  >
-                    <input
-                      type="radio"
-                      name="purpose"
-                      checked={brief.purpose === "study"}
-                      onChange={() => update("purpose", "study")}
-                    />
-                    <strong>Learn something</strong>
-                    <span>
-                      Practice vocabulary and relationships in a subject.
-                    </span>
-                  </label>
-                </fieldset>
-                <label>
-                  {brief.purpose === "study"
-                    ? "What are they learning?"
-                    : "A theme to weave in (optional)"}
-                  <input
-                    value={brief.topic}
-                    maxLength={500}
-                    onChange={(event) => update("topic", event.target.value)}
-                    required={brief.purpose === "study"}
-                    placeholder={
-                      brief.purpose === "study"
-                        ? "e.g. Introductory biology: the human body"
-                        : "e.g. Our next camping trip"
-                    }
-                  />
-                </label>
-                {brief.purpose === "fun" && (
-                  <label>
-                    How personal should it be?
-                    <select
-                      value={brief.personalization || "memories-only"}
-                      onChange={(event) =>
-                        update(
-                          "personalization",
-                          event.target.value as "mix" | "memories-only",
-                        )
-                      }
-                    >
-                      <option value="mix">
-                        Mostly personal · allow one related theme
-                      </option>
-                      <option value="memories-only">
-                        Our story · all four groups from our answers
-                      </option>
-                    </select>
-                    <span className="field-help">
-                      Saved memories take priority over interest chips. All four
-                      personal groups is the default; related themes are
-                      optional and limited to one group.
-                    </span>
-                  </label>
-                )}
-                {brief.purpose === "fun" && (
-                  <StoryQuestions
-                    key={currentStory.id}
-                    answers={brief.storyAnswers || []}
-                    onChange={(answers) => update("storyAnswers", answers)}
-                    extraAnswers={brief.extraAnswers || []}
-                    onExtraChange={(answers) => update("extraAnswers", answers)}
-                  />
-                )}
-                {brief.purpose === "study" && (
-                  <label>
-                    Study notes <span>(optional, up to 12,000 characters)</span>
-                    <textarea
-                      value={brief.notes}
-                      maxLength={12000}
-                      onChange={(event) => update("notes", event.target.value)}
-                      rows={5}
-                      placeholder="Paste a short vocabulary list or course excerpt to ground the puzzle."
-                    />
-                    <span className="field-help">
-                      Notes go to AI to create the puzzle. They aren't included
-                      in the invitation.
-                    </span>
-                  </label>
-                )}
-                {brief.purpose === "study" && (
-                  <Dictation
-                    value={brief.notes}
-                    onChange={(value) => update("notes", value)}
-                    maxLength={12000}
-                  />
-                )}
-                <label>
-                  A personal note <span>(optional)</span>
-                  <input
-                    value={brief.note}
-                    maxLength={180}
-                    onChange={(event) => update("note", event.target.value)}
-                    placeholder="Made this for your study break. You've got this!"
-                  />
-                </label>
-              </>
-            )}
-            {step === 3 && (
-              <>
-                <label>
-                  Puzzle difficulty
-                  <select
-                    value={brief.difficulty}
-                    onChange={(event) =>
-                      update(
-                        "difficulty",
-                        event.target.value as CreatorBrief["difficulty"],
-                      )
-                    }
-                  >
-                    <option value="easy">
-                      Gentle start · clear categories
-                    </option>
-                    <option value="balanced">
-                      A little twist · some overlapping meanings
-                    </option>
-                    <option value="tricky">
-                      Make us think · clever but fair
-                    </option>
-                  </select>
-                </label>
-                <label>
-                  How familiar is the topic?
-                  <select
-                    value={brief.familiarity}
-                    onChange={(event) =>
-                      update(
-                        "familiarity",
-                        event.target.value as CreatorBrief["familiarity"],
-                      )
-                    }
-                  >
-                    <option value="new">
-                      New to it · explain unfamiliar ideas
-                    </option>
-                    <option value="familiar">
-                      Know it already · build on what we know
-                    </option>
-                  </select>
-                </label>
-                <label>
-                  Starting play mode
-                  <select
-                    value={brief.mode}
-                    onChange={(event) =>
-                      update("mode", event.target.value as CreatorBrief["mode"])
-                    }
-                  >
-                    <option value="relaxed">
-                      Relaxed · unlimited guesses and hints
-                    </option>
-                    <option value="challenge">
-                      Challenge · four mistakes, no hints
-                    </option>
-                  </select>
-                </label>
-                <div className="brief-summary">
-                  <strong>Your thread</strong>
-                  <p>
-                    {brief.interests}
-                    {brief.topic ? ` · ${brief.topic}` : ""}
-                  </p>
-                  <p>
-                    {brief.style === "together"
-                      ? "Answers stay hidden for you both."
-                      : "You'll review the connections before sharing."}
-                  </p>
-                </div>
-                <p className="field-help">
-                  {import.meta.env.DEV
-                    ? "Generation can take a little while."
-                    : "A private Claude window will open. Sign in with the ChatGPT account that owns the service, then press Make my puzzle there. Return here for your board."}{" "}
-                  We'll check the board's structure; review the connections
-                  before sharing.
-                </p>
-              </>
-            )}
-            <div className="creator-actions">
-              {step > 0 && (
-                <button
-                  className="secondary-button"
-                  type="button"
-                  disabled={pending}
-                  onClick={() => {
-                    setStep(step - 1);
-                    setError("");
-                  }}
-                >
-                  Back
-                </button>
-              )}
-              <button
-                className="primary-button"
-                type="submit"
-                disabled={
-                  pending || !canContinue || (step === 3 && !canGenerate)
-                }
-              >
-                {pending ? (
-                  <>
-                    <LoaderCircle size={17} className="loading-icon" /> Finding
-                    your threads…
-                  </>
-                ) : step === 3 ? (
-                  <>
-                    <Sparkles size={17} /> Make our puzzle
-                  </>
-                ) : (
-                  <>
-                    Continue
-                    <ArrowRight size={17} />
-                  </>
-                )}
-              </button>
-            </div>
-            {step === 3 && (
-              <button
-                className="text-button example-button"
-                type="button"
-                disabled={pending}
-                onClick={useExample}
-              >
-                Explore the creator with an example puzzle
-              </button>
-            )}
-          </form>
-        </>
+          </button>
+          {!canGenerate && (
+            <p className="field-help">
+              Add a memory to start, or choose a theme in Puzzle options.
+            </p>
+          )}
+          {!import.meta.env.DEV && (
+            <p className="field-help">
+              Your private Claude window will open to make the puzzle.
+            </p>
+          )}
+          <details className="creator-example">
+            <summary>Try an example instead</summary>
+            <button
+              className="text-button"
+              type="button"
+              disabled={pending}
+              onClick={useExample}
+            >
+              Explore the creator with an example puzzle
+            </button>
+          </details>
+        </form>
       )}
       {pending && (
         <output className="creator-status" aria-live="polite">
@@ -855,7 +540,6 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
               type="button"
               className="text-button"
               onClick={() => {
-                setStep(2);
                 setError("");
               }}
             >

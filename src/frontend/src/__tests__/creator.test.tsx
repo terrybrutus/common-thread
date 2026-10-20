@@ -26,6 +26,11 @@ async function reachFinalStep(
   await user.click(
     screen.getByRole("button", { name: "Create a personal puzzle" }),
   );
+  await user.type(
+    screen.getByRole("textbox", { name: /early memory/ }),
+    "We enjoy the garden together",
+  );
+  await user.click(screen.getByText("Puzzle options", { exact: true }));
   await user.click(
     screen.getByRole("radio", {
       name: together ? /Solve together/ : /Make a challenge/,
@@ -39,21 +44,55 @@ async function reachFinalStep(
     screen.getByRole("textbox", { name: "Friend's nickname (optional)" }),
     "Jessica",
   );
-  await user.click(screen.getByRole("button", { name: "Continue" }));
-  expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
   await user.type(
-    screen.getByRole("textbox", { name: "What do you both enjoy?" }),
+    screen.getByRole("textbox", { name: "Extra interests (optional)" }),
     "Nature and gardening",
   );
-  await user.click(screen.getByRole("button", { name: "Continue" }));
   await user.type(
     screen.getByRole("textbox", { name: "A personal note (optional)" }),
     "A little study break for you!",
   );
-  await user.click(screen.getByRole("button", { name: "Continue" }));
 }
 
 describe("personal creator and friend challenges", () => {
+  it("opens directly on the story and generates without selecting interests", async () => {
+    const user = userEvent.setup();
+    vi.mocked(generatePuzzle).mockResolvedValue(validatePuzzle(puzzles[0]));
+    render(<App />);
+    await user.click(
+      screen.getByRole("button", { name: "Create a personal puzzle" }),
+    );
+    expect(
+      screen.getByRole("textbox", { name: "Extra interests (optional)" }),
+    ).not.toBeVisible();
+    expect(
+      screen.getByRole("textbox", { name: "Story name" }),
+    ).not.toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: "Continue" }),
+    ).not.toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "Skip this question" }),
+    );
+    await user.type(
+      screen.getByRole("textbox", { name: /Which places mean/ }),
+      "We both lived by the river.",
+    );
+    expect(
+      screen.getByRole("button", { name: "Make our puzzle" }),
+    ).toBeEnabled();
+    await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
+    expect(generatePuzzle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        interests: "",
+        storyAnswers: ["", "We both lived by the river.", "", ""],
+      }),
+      expect.anything(),
+    );
+    expect(
+      await screen.findByText("Four connections. No spoilers."),
+    ).toBeVisible();
+  });
   it("generates from the answers, previews the puzzle, and shares a playable challenge code", async () => {
     const user = userEvent.setup();
     vi.mocked(generatePuzzle).mockResolvedValue(validatePuzzle(puzzles[0]));
@@ -88,6 +127,7 @@ describe("personal creator and friend challenges", () => {
     const user = userEvent.setup();
     render(<App />);
     await reachFinalStep(user, true);
+    await user.click(screen.getByText("Try an example instead"));
     await user.click(
       screen.getByRole("button", {
         name: "Explore the creator with an example puzzle",
@@ -180,6 +220,6 @@ describe("personal creator and friend challenges", () => {
     window.history.replaceState(null, "", "/#thread=broken");
     render(<App />);
     expect(screen.getByRole("alert")).toHaveTextContent("fresh copy");
-    expect(screen.getByRole("button", { name: "Play Relaxed" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Play now" })).toBeVisible();
   });
 });

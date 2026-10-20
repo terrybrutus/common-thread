@@ -116,14 +116,20 @@ export function StoryQuestions({
         </>
       ) : (
         <>
-          <dl className="story-review">
-            {prompts.map((prompt, index) => (
-              <div key={prompt}>
-                <dt>{prompt}</dt>
-                <dd>{values[index]?.trim() || "Skipped"}</dd>
-              </div>
-            ))}
-          </dl>
+          <details className="story-review-details">
+            <summary>
+              Review saved answers (
+              {values.filter((value) => value.trim()).length})
+            </summary>
+            <dl className="story-review">
+              {prompts.map((prompt, index) => (
+                <div key={prompt}>
+                  <dt>{prompt}</dt>
+                  <dd>{values[index]?.trim() || "Skipped"}</dd>
+                </div>
+              ))}
+            </dl>
+          </details>
           <button
             type="button"
             className="text-button"
@@ -138,7 +144,8 @@ export function StoryQuestions({
             </p>
           )}
           {onExtraChange && extraAnswers.length < 8 && (
-            <div className="story-followup">
+            <details className="story-followup">
+              <summary>Add a new memory</summary>
               <p>
                 Add a detail when you feel like it. Your earlier answers stay
                 saved.
@@ -197,14 +204,12 @@ export function StoryQuestions({
               >
                 Add my question
               </button>
-            </div>
+            </details>
           )}
         </>
       )}
       <p className="field-help">
-        A few specific details help: name the place and why it matters, or list
-        foods, games, shows, and routines you share. Your story is the primary
-        source for the puzzle. These answers aren't included in the invitation.
+        People, places, favorites—short lists work. You can add more later.
       </p>
     </section>
   );
