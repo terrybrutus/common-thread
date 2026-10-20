@@ -103,6 +103,10 @@ export function CreatorOptions({
             <option value="tricky">Make us think</option>
           </select>
         </label>
+        <p className="field-help">
+          Difficulty changes the connections and wordplay. Play mode below
+          controls mistakes and hints.
+        </p>
         {brief.purpose === "study" && (
           <label>
             Topic familiarity
@@ -132,6 +136,38 @@ export function CreatorOptions({
             <option value="challenge">Challenge · four mistakes</option>
           </select>
         </label>
+        <div className="field-row">
+          <label>
+            Your name in the puzzle
+            <input
+              value={brief.people?.you || ""}
+              maxLength={40}
+              onChange={(event) =>
+                update("people", {
+                  you: event.target.value,
+                  partner: brief.people?.partner || "",
+                })
+              }
+            />
+          </label>
+          <label>
+            Other person's name in the puzzle
+            <input
+              value={brief.people?.partner || ""}
+              maxLength={40}
+              onChange={(event) =>
+                update("people", {
+                  you: brief.people?.you || "",
+                  partner: event.target.value,
+                })
+              }
+            />
+          </label>
+        </div>
+        <p className="field-help">
+          These optional names go to Claude to make the wording personal. The
+          invitation nicknames below stay out of the model request.
+        </p>
         <div className="field-row">
           <label>
             Your nickname <span>(optional)</span>

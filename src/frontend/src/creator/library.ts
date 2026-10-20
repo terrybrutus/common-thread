@@ -35,6 +35,8 @@ export function parseProfile(value: unknown): StoryProfile {
     topic: 500,
     notes: 12000,
     memories: 30000,
+    freeStory: 12000,
+    conversation: 12000,
   })) {
     if (input[key] !== undefined) {
       if (typeof input[key] !== "string" || input[key].length > limit)
@@ -49,9 +51,22 @@ export function parseProfile(value: unknown): StoryProfile {
     difficulty: ["easy", "balanced", "tricky"],
     familiarity: ["new", "familiar"],
     mode: ["relaxed", "challenge"],
+    inputMode: ["guided", "free"],
   })) {
     if (choices.includes(String(input[key])))
       Object.assign(brief, { [key]: input[key] });
+  }
+  if (input.people !== undefined) {
+    const people = input.people as Record<string, unknown>;
+    if (
+      !people ||
+      typeof people.you !== "string" ||
+      people.you.length > 40 ||
+      typeof people.partner !== "string" ||
+      people.partner.length > 40
+    )
+      throw new Error("Check the conversation participants' names.");
+    brief.people = { you: people.you, partner: people.partner };
   }
   if (input.storyAnswers !== undefined) {
     if (

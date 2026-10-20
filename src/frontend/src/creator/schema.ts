@@ -10,6 +10,10 @@ export interface CreatorBrief {
   topic: string;
   notes: string;
   memories?: string;
+  freeStory?: string;
+  conversation?: string;
+  inputMode?: "guided" | "free";
+  people?: { you: string; partner: string };
   storyAnswers?: string[];
   personalization?: "mix" | "memories-only";
   extraAnswers?: { question: string; answer: string }[];
@@ -28,9 +32,9 @@ export const defaultBrief: CreatorBrief = {
   interests: "",
   topic: "",
   notes: "",
-  difficulty: "easy",
+  difficulty: "balanced",
   familiarity: "new",
-  mode: "relaxed",
+  mode: "challenge",
 };
 export interface FriendChallenge {
   version: 1;

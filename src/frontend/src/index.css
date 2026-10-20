@@ -988,6 +988,16 @@ summary {
   border-top: 1px solid #dce0d6;
   padding-top: 8px;
 }
+.conversation-preview {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 18rem;
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid #dce0d6;
+  border-radius: 6px;
+  font: inherit;
+}
 .quick-start .field-help {
   font-size: 13px;
   line-height: 1.6;

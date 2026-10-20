@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { type Group, type Puzzle, puzzles } from "../game/puzzles";
+import { ConversationImport } from "./ConversationImport";
 import { CopyField } from "./CopyField";
 import { CreatorOptions } from "./CreatorOptions";
 import { Dictation } from "./Dictation";
@@ -151,7 +152,9 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
   const hasStory = Boolean(
     brief.storyAnswers?.some((answer) => answer.trim()) ||
       brief.extraAnswers?.some((item) => item.answer.trim()) ||
-      brief.memories?.trim(),
+      brief.memories?.trim() ||
+      brief.freeStory?.trim() ||
+      brief.conversation?.trim(),
   );
   const canGenerate =
     (brief.interests.trim().length > 0 ||
@@ -443,13 +446,85 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
           }}
         >
           {brief.purpose === "fun" ? (
-            <StoryQuestions
-              key={currentStory.id}
-              answers={brief.storyAnswers || []}
-              onChange={(answers) => update("storyAnswers", answers)}
-              extraAnswers={brief.extraAnswers || []}
-              onExtraChange={(answers) => update("extraAnswers", answers)}
-            />
+            <>
+              <button
+                type="button"
+                className="text-button"
+                onClick={() =>
+                  update(
+                    "inputMode",
+                    brief.inputMode === "free" ? "guided" : "free",
+                  )
+                }
+              >
+                {brief.inputMode === "free"
+                  ? "Guide me with questions"
+                  : "Paste or speak freely"}
+              </button>
+              {brief.inputMode === "free" ? (
+                <>
+                  <label>
+                    Tell your story
+                    <textarea
+                      value={brief.freeStory || ""}
+                      maxLength={12000}
+                      rows={9}
+                      onChange={(event) =>
+                        update("freeStory", event.target.value)
+                      }
+                    />
+                  </label>
+                  <p className="field-help">
+                    Paste everything you've already written or just talk. Up to
+                    12,000 characters. Your guided answers stay saved and are
+                    used too.
+                  </p>
+                  <Dictation
+                    value={brief.freeStory || ""}
+                    maxLength={12000}
+                    onChange={(value) => update("freeStory", value)}
+                  />
+                  {brief.conversation && (
+                    <details className="creator-options">
+                      <summary>Review imported conversation</summary>
+                      <label>
+                        Saved conversation
+                        <textarea
+                          rows={8}
+                          value={brief.conversation}
+                          maxLength={12000}
+                          onChange={(event) =>
+                            update("conversation", event.target.value)
+                          }
+                        />
+                      </label>
+                    </details>
+                  )}
+                </>
+              ) : (
+                <StoryQuestions
+                  key={currentStory.id}
+                  answers={brief.storyAnswers || []}
+                  onChange={(answers) => update("storyAnswers", answers)}
+                  extraAnswers={brief.extraAnswers || []}
+                  onExtraChange={(answers) => update("extraAnswers", answers)}
+                />
+              )}
+              <ConversationImport
+                key={`conversation-${currentStory.id}`}
+                people={brief.people}
+                onAdd={(text, people) => {
+                  const conversation = [brief.conversation || "", text]
+                    .filter(Boolean)
+                    .join("\n\n");
+                  if (conversation.length > 12000)
+                    throw new Error(
+                      "Your existing conversation stays saved. Edit it in Paste or speak freely before adding another excerpt; the combined limit is 12,000 characters.",
+                    );
+                  setBrief((current) => ({ ...current, conversation, people }));
+                }}
+              />
+            </>
           ) : (
             <>
               <label>

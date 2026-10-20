@@ -21,12 +21,31 @@ export function generationRequest(brief: CreatorBrief) {
       brief.purpose === "study"
         ? brief.notes.trim()
         : brief.storyAnswers
-          ? storyNotes(brief.storyAnswers, brief.extraAnswers)
-          : (brief.memories || "").trim(),
+          ? [
+              storyNotes(brief.storyAnswers, brief.extraAnswers),
+              brief.freeStory || "",
+              brief.conversation
+                ? `Reviewed conversation:\n${brief.conversation}`
+                : "",
+            ]
+              .filter(Boolean)
+              .join("\n\n")
+              .trim()
+          : [
+              brief.memories || "",
+              brief.freeStory || "",
+              brief.conversation
+                ? `Reviewed conversation:\n${brief.conversation}`
+                : "",
+            ]
+              .filter(Boolean)
+              .join("\n\n")
+              .trim(),
     difficulty: brief.difficulty,
     familiarity: brief.familiarity,
     personalization: brief.personalization || "memories-only",
     usedTerms: brief.usedTerms || [],
+    ...(brief.people ? { people: brief.people } : {}),
   };
 }
 

@@ -70,3 +70,34 @@ test("private stories survive loads, stay scoped to owner, and protect newer ver
   await worker.fetch(request(), { DB: db, RECOVERED_STORY_JSON: JSON.stringify(recovered) });
   assert.equal(db.sqlite.prepare("SELECT name FROM stories WHERE id = ?").get("recovered").name, "Edited story");
 });
+
+test("verified wordplay permits reversed names but rejects arbitrary spelling and report-like prose", () => {
+  const puzzle = { title: "Personal puzzle", topic: "Us", description: "Connections for you both" };
+  let notes = "";
+  for (const [i, prefix] of ["A", "B", "C"].entries()) {
+    const g = { category: "Our favorites", clue: "Think of your favorites", explanation: "These are favorites you share.", kind: "personal", operation: "literal", fixedText: "" };
+    for (let j = 0; j < 4; j++) { const letter = "ABCD"[j], source = `${prefix}${j + 1}`; g[letter.toLowerCase()] = source; g[`source${letter}`] = source; g[`evidence${letter}`] = source; notes += `${source} `; }
+    puzzle[`group${i + 1}`] = g;
+  }
+  const names = ["ALAN", "BETH", "CORA", "DREW"];
+  notes += names.join(" ");
+  const g = { category: "Our parents, in reverse", clue: "Read these another way", explanation: "Read each name backward to find a parent you both know.", kind: "personal", operation: "reverse", fixedText: "" };
+  for (let j = 0; j < 4; j++) { const letter = "ABCD"[j]; g[letter.toLowerCase()] = Array.from(names[j]).reverse().join(""); g[`source${letter}`] = names[j]; g[`evidence${letter}`] = names[j]; }
+  puzzle.group4 = g;
+  const brief = { purpose: "fun", notes, personalization: "memories-only" };
+  assert.equal(JSON.parse(parseOutput(JSON.stringify({ puzzle }), brief)).groups[3].words[0], "NALA");
+  g.a = "ALA";
+  assert.throws(() => parseOutput(JSON.stringify({ puzzle }), brief), /consistent rule/);
+  g.a = "NALA"; g.category = "Parents named in the notes";
+  assert.throws(() => parseOutput(JSON.stringify({ puzzle }), brief), /impersonal wording/);
+  g.category = "Our parents, in reverse"; g.operation = "fill-blank"; g.fixedText = "___ CLUB";
+  assert.throws(() => parseOutput(JSON.stringify({ puzzle }), brief), /consistent phrase/);
+  const dates = ["1991", "JANUARY 3RD", "MARCH 2ND 1988", "APRIL 4TH"];
+  g.operation = "literal"; g.fixedText = "";
+  for (let j = 0; j < 4; j++) { const letter = "ABCD"[j]; g[letter.toLowerCase()] = dates[j]; g[`source${letter}`] = dates[j]; g[`evidence${letter}`] = dates[j]; }
+  assert.throws(() => parseOutput(JSON.stringify({ puzzle }), { ...brief, notes: notes + dates.join(" ") }), /mixed years/);
+  g.operation = "fill-blank"; g.fixedText = "___ PARK"; g.category = "Our ___ Park places";
+  const tiles = ["ELM", "OAK", "PINE", "BIRCH"];
+  for (let j = 0; j < 4; j++) { const letter = "ABCD"[j]; g[letter.toLowerCase()] = tiles[j]; g[`source${letter}`] = `${tiles[j]} PARK`; g[`evidence${letter}`] = `${tiles[j]} PARK`; }
+  assert.equal(JSON.parse(parseOutput(JSON.stringify({ puzzle }), { ...brief, notes: notes + " " + tiles.map(v => `${v} PARK`).join(" ") })).groups[3].words[0], "ELM");
+});
