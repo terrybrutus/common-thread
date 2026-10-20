@@ -535,6 +535,26 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                     }
                   />
                 </label>
+                {brief.purpose === "fun" && (
+                  <label>
+                    Your shared story{" "}
+                    <span>(optional, up to 1,200 characters)</span>
+                    <textarea
+                      value={brief.memories || ""}
+                      maxLength={1200}
+                      onChange={(event) =>
+                        update("memories", event.target.value)
+                      }
+                      rows={5}
+                      placeholder="Tell us a few things only you two would know: how you met, favorite routines, places and little memories. Short answers are perfect."
+                    />
+                    <span className="field-help">
+                      These details go to AI to personalize all four groups. It
+                      may ask a quick follow-up if it needs more facts. This
+                      text isn't included in the invitation.
+                    </span>
+                  </label>
+                )}
                 {brief.purpose === "study" && (
                   <label>
                     Study notes <span>(optional, up to 1,200 characters)</span>

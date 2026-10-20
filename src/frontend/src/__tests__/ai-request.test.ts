@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { generationRequest } from "../creator/ai";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { generatePuzzle, generationRequest } from "../creator/ai";
 import { defaultBrief } from "../creator/schema";
 
 describe("AI request privacy and subject context", () => {
@@ -35,5 +35,58 @@ describe("AI request privacy and subject context", () => {
         notes: "Previous study notes",
       }).notes,
     ).toBe("");
+  });
+  it("sends the chosen personal story but excludes it after switching to study", () => {
+    const brief = {
+      ...defaultBrief,
+      memories: " First date at the arcade ",
+      notes: "Biology notes",
+    };
+    expect(generationRequest(brief).notes).toBe("First date at the arcade");
+    expect(generationRequest({ ...brief, purpose: "study" }).notes).toBe(
+      "Biology notes",
+    );
+  });
+});
+
+describe("local Claude transport", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  it("rejects incomplete AI boards rather than returning a playable example", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          text: JSON.stringify({ title: "Incomplete", groups: [] }),
+        }),
+      }),
+    );
+    await expect(generatePuzzle(defaultBrief)).rejects.toThrow(
+      "four complete groups",
+    );
+  });
+  it("shows the missing-memory question and budget errors", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          text: JSON.stringify({
+            error: "What else did you do on your first date?",
+          }),
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ error: "Daily allowance used" }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(generatePuzzle(defaultBrief)).rejects.toThrow(
+      "What else did you do",
+    );
+    await expect(generatePuzzle(defaultBrief)).rejects.toThrow(
+      "Daily allowance used",
+    );
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });

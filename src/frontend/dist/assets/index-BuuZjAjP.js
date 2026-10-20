@@ -1,4 +1,3 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/index-DQlDyNsK.js","assets/StorageClient-B-B-7qnt.js","assets/backend-DtHw2-0r.js"])))=>i.map(i=>d[i]);
 var __typeError = (msg) => {
   throw TypeError(msg);
 };
@@ -361,17 +360,6 @@ function replaceEqualDeep(a, b, depth = 0) {
   }
   return aSize === bSize && equalItems === aSize ? a : copy;
 }
-function shallowEqualObjects(a, b) {
-  if (!b || Object.keys(a).length !== Object.keys(b).length) {
-    return false;
-  }
-  for (const key in a) {
-    if (a[key] !== b[key]) {
-      return false;
-    }
-  }
-  return true;
-}
 function isPlainArray(value) {
   return Array.isArray(value) && value.length === Object.keys(value).length;
 }
@@ -428,12 +416,6 @@ function ensureQueryFn(options, fetchOptions) {
     return () => Promise.reject(new Error(`Missing queryFn: '${options.queryHash}'`));
   }
   return options.queryFn;
-}
-function shouldThrowError(throwOnError, params) {
-  if (typeof throwOnError === "function") {
-    return throwOnError(...params);
-  }
-  return !!throwOnError;
 }
 function addConsumeAwareSignal(object, getSignal, onCancelled) {
   let consumed = false;
@@ -2526,13 +2508,6 @@ var reactExports = react.exports;
 var QueryClientContext = reactExports.createContext(
   void 0
 );
-var useQueryClient = (queryClient2) => {
-  const client2 = reactExports.useContext(QueryClientContext);
-  if (!client2) {
-    throw new Error("No QueryClient set, use QueryClientProvider to set one");
-  }
-  return client2;
-};
 var QueryClientProvider = ({
   client: client2,
   children
@@ -14566,70 +14541,6 @@ function CopyField({ value, label }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx("output", { "aria-live": "polite", children: status })
   ] });
 }
-const scriptRel = "modulepreload";
-const assetsURL = function(dep) {
-  return "/" + dep;
-};
-const seen = {};
-const __vitePreload = function preload2(baseModule, deps, importerUrl) {
-  let promise = Promise.resolve();
-  if (deps && deps.length > 0) {
-    document.getElementsByTagName("link");
-    const cspNonceMeta = document.querySelector(
-      "meta[property=csp-nonce]"
-    );
-    const cspNonce = (cspNonceMeta == null ? void 0 : cspNonceMeta.nonce) || (cspNonceMeta == null ? void 0 : cspNonceMeta.getAttribute("nonce"));
-    promise = Promise.allSettled(
-      deps.map((dep) => {
-        dep = assetsURL(dep);
-        if (dep in seen) return;
-        seen[dep] = true;
-        const isCss = dep.endsWith(".css");
-        const cssSelector = isCss ? '[rel="stylesheet"]' : "";
-        if (document.querySelector(`link[href="${dep}"]${cssSelector}`)) {
-          return;
-        }
-        const link = document.createElement("link");
-        link.rel = isCss ? "stylesheet" : scriptRel;
-        if (!isCss) {
-          link.as = "script";
-        }
-        link.crossOrigin = "";
-        link.href = dep;
-        if (cspNonce) {
-          link.setAttribute("nonce", cspNonce);
-        }
-        document.head.appendChild(link);
-        if (isCss) {
-          return new Promise((res, rej) => {
-            link.addEventListener("load", res);
-            link.addEventListener(
-              "error",
-              () => rej(new Error(`Unable to preload CSS for ${dep}`))
-            );
-          });
-        }
-      })
-    );
-  }
-  function handlePreloadError(err) {
-    const e = new Event("vite:preloadError", {
-      cancelable: true
-    });
-    e.payload = err;
-    window.dispatchEvent(e);
-    if (!e.defaultPrevented) {
-      throw err;
-    }
-  }
-  return promise.then((res) => {
-    for (const item of res || []) {
-      if (item.status !== "rejected") continue;
-      handlePreloadError(item.reason);
-    }
-    return baseModule().catch(handlePreloadError);
-  });
-};
 const defaultBrief = {
   creator: "",
   recipient: "",
@@ -14699,18 +14610,6 @@ function validatePuzzle(value) {
     groups
   };
 }
-function parseGeneratedPuzzle(response) {
-  if (response.length > 16e3)
-    throw new Error("That response was too long. Try generating again.");
-  const plain = response.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
-  let data;
-  try {
-    data = JSON.parse(plain);
-  } catch {
-    throw new Error("AI didn't return a complete puzzle. Please try again.");
-  }
-  return validatePuzzle(data);
-}
 function validateChallenge(value) {
   const raw = record(value);
   if (raw.version !== 1)
@@ -14752,24 +14651,10 @@ function generationErrorMessage(error) {
     return "This local preview isn't connected to the Caffeine backend. You can try the example below and test live generation after importing into Caffeine.";
   return error.message.length < 350 ? error.message : "Please try again in a moment.";
 }
-function generationRequest(brief) {
-  return {
-    purpose: brief.purpose,
-    interests: brief.interests.trim(),
-    topic: brief.topic.trim(),
-    notes: brief.purpose === "study" ? brief.notes.trim() : "",
-    difficulty: brief.difficulty,
-    familiarity: brief.familiarity
-  };
-}
 async function generatePuzzle(brief) {
-  const [{ createActorWithConfig }, { createActor }] = await Promise.all([
-    __vitePreload(() => import("./index-DQlDyNsK.js"), true ? __vite__mapDeps([0,1]) : void 0),
-    __vitePreload(() => import("./backend-DtHw2-0r.js"), true ? __vite__mapDeps([2,1]) : void 0)
-  ]);
-  const actor = await createActorWithConfig(createActor);
-  const response = await actor.generatePersonalPuzzle(generationRequest(brief));
-  return parseGeneratedPuzzle(response);
+  throw new Error(
+    "Claude generation is available in the local tester. A hosted private endpoint must be connected before public AI generation can be enabled."
+  );
 }
 function encodeChallenge(challenge) {
   const clean = validateChallenge(challenge);
@@ -15275,6 +15160,22 @@ function Creator({ onHome, onPlay }) {
                     placeholder: brief.purpose === "study" ? "e.g. Introductory biology: the human body" : "e.g. Our next camping trip"
                   }
                 )
+              ] }),
+              brief.purpose === "fun" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+                "Your shared story",
+                " ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional, up to 1,200 characters)" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "textarea",
+                  {
+                    value: brief.memories || "",
+                    maxLength: 1200,
+                    onChange: (event) => update("memories", event.target.value),
+                    rows: 5,
+                    placeholder: "Tell us a few things only you two would know: how you met, favorite routines, places and little memories. Short answers are perfect."
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "field-help", children: "These details go to AI to personalize all four groups. It may ask a quick follow-up if it needs more facts. This text isn't included in the invitation." })
               ] }),
               brief.purpose === "study" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
                 "Study notes ",
@@ -16276,23 +16177,3 @@ const queryClient = new QueryClient();
 ReactDOM.createRoot(document.getElementById("root")).render(
   /* @__PURE__ */ jsxRuntimeExports.jsx(QueryClientProvider, { client: queryClient, children: /* @__PURE__ */ jsxRuntimeExports.jsx(App, {}) })
 );
-export {
-  Subscribable as S,
-  resolveStaleTime as a,
-  timeoutManager as b,
-  fetchState as c,
-  replaceData as d,
-  environmentManager as e,
-  focusManager as f,
-  notifyManager as g,
-  reactExports as h,
-  isValidTimeout as i,
-  shouldThrowError as j,
-  getDefaultExportFromCjs as k,
-  noop$6 as n,
-  pendingThenable as p,
-  resolveEnabled as r,
-  shallowEqualObjects as s,
-  timeUntilStale as t,
-  useQueryClient as u
-};

@@ -47,9 +47,19 @@ Choose **Create a personal puzzle** (or **Make something for a friend**) and ans
 - The local preview can open codes, but localhost links only work on the same computer. Published Caffeine links use the app's actual domain.
 - Results can be copied manually after a personal round. Nothing sends messages to friends automatically.
 
-AI generation uses `caffeineai-inference-client` in Motoko, `Config.fromEnv<system>()` per request, and model `router`. No browser API key, key settings, or external frontend AI service is used. The backend caps request sizes, output tokens, and response length and has a transient app-wide 20-second generation cooldown. It persists no generated puzzle data and adds no stable schema fields.
+### Private Claude tester
 
-The local development frontend has no deployed backend configuration. **Explore the creator with an example puzzle** is an explicit, labeled demonstration; a failed AI call never falls back to an example. Real generation needs the backend running in the Caffeine platform. Compile checks and mocked frontend tests do not verify live inference credentials or output quality; smoke-test generation after importing into Caffeine.
+Local `pnpm dev` generation now calls Anthropic through Vite's server middleware, using `claude-haiku-5-5` with low-effort adaptive reasoning and a 4,000 output-token maximum. Add `ANTHROPIC_API_KEY` to `src/frontend/.env.local` (see `.env.example`) and restart the dev server. The key stays in that ignored file; never use a `VITE_` variable for it. Use a supported Node.js runtime with native fetch (Node 20+). The middleware only accepts same-origin JSON requests from loopback clients.
+
+The creator's optional **Your shared story** box sends up to 1,200 characters of personal facts. Study notes and personal-story text are separate: only the context for the selected purpose is sent. Neither is embedded in friend links. The prompt asks for all four groups to be grounded in supplied memories, or a short missing-information question; answer that question in the story box before generating again. Nicknames and invitation notes remain excluded unless the user explicitly repeats them in the story.
+
+The tester reserves $0.01 per attempted API call, at most ten calls / $0.10 per UTC day, before making a request. Reservations persist in ignored `.cache/claude-test-budget.json`; failures count too. This is a conservative local allowance at the verified short-context prices ($0.10/M input, $0.50/M output), not an account-wide billing measurement. Input bytes and output tokens are bounded, calls are serialized, a 20-second cooldown applies, and requests have a 60-second timeout. No automatic retries. This is a private experiment, not public per-person quotas or a deployed spending-control service.
+
+The prior Motoko Caffeine Inference endpoint remains in the export, but the frontend no longer calls it. Production builds explicitly report that a hosted private Claude endpoint is still needed; GitHub import alone will not deploy this Vite development middleware. This avoids spending the Caffeine AI allowance through the creator. Solo play, examples, and existing challenge links still work.
+
+**Explore the creator with an example puzzle** remains an explicit, labeled demonstration; a failed AI call never falls back to an example. Authentication and two real personal generation requests were tested. Those outputs were invalid (duplicates or incomplete groups), so do not claim puzzle quality is verified. Low-effort reasoning was enabled afterward and still needs a live retest. Schema checks cannot establish factual truth or puzzle fairness; review drafts before sharing.
+
+Additional middleware checks: `node --test src/frontend/claude-dev.test.mjs`.
 
 AI output is checked for schema, lengths, four groups of four, and unique normalized words. These checks do not prove factual accuracy or exclude every alternative grouping. Study content should be reviewed by the creator. Friend links carry the complete answer data in their fragment: this is casual, unranked sharing, not cheat-resistant competitive multiplayer. Progress is independent on each screen; there are no live rooms, synced boards, or shared leaderboards yet. Saved vocabulary and shared Worduel accounts remain later milestones.
 

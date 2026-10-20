@@ -9,6 +9,7 @@ export interface CreatorBrief {
   interests: string;
   topic: string;
   notes: string;
+  memories?: string;
   difficulty: "easy" | "balanced" | "tricky";
   familiarity: "new" | "familiar";
   mode: "relaxed" | "challenge";

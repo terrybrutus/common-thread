@@ -7,3 +7,5 @@ dist/
 .cache/
 .icp/
 *.buildlock
+.env*
+!.env.example

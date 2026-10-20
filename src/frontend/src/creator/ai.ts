@@ -14,20 +14,28 @@ export function generationRequest(brief: CreatorBrief) {
     purpose: brief.purpose,
     interests: brief.interests.trim(),
     topic: brief.topic.trim(),
-    notes: brief.purpose === "study" ? brief.notes.trim() : "",
+    notes:
+      brief.purpose === "study"
+        ? brief.notes.trim()
+        : (brief.memories || "").trim(),
     difficulty: brief.difficulty,
     familiarity: brief.familiarity,
   };
 }
 
 export async function generatePuzzle(brief: CreatorBrief) {
-  // Load the canister client only when the player requests generation.
-  // Nicknames and personal notes stay out of the AI request.
-  const [{ createActorWithConfig }, { createActor }] = await Promise.all([
-    import("@caffeineai/core-infrastructure"),
-    import("../backend"),
-  ]);
-  const actor = await createActorWithConfig(createActor);
-  const response = await actor.generatePersonalPuzzle(generationRequest(brief));
-  return parseGeneratedPuzzle(response);
+  if (import.meta.env.DEV) {
+    const response = await fetch("/__local-ai/puzzle", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(generationRequest(brief)),
+    });
+    const data = await response.json();
+    if (!response.ok)
+      throw new Error(data.error || "Claude couldn't generate a puzzle.");
+    return parseGeneratedPuzzle(data.text);
+  }
+  throw new Error(
+    "Claude generation is available in the local tester. A hosted private endpoint must be connected before public AI generation can be enabled.",
+  );
 }
