@@ -1,3 +1,4 @@
+import { StoryQuestionError, cleanStoryQuestion } from "./followUp";
 import { underlyingWords } from "./history";
 import { hostedGeneration } from "./hosted";
 import type { StoryProfile } from "./library";
@@ -40,6 +41,9 @@ export function generationRequest(brief: CreatorBrief) {
               .trim()
           : [
               brief.memories || "",
+              brief.extraAnswers?.length
+                ? storyNotes([], brief.extraAnswers)
+                : "",
               brief.freeStory || "",
               brief.conversation
                 ? `Reviewed conversation:\n${brief.conversation}`
@@ -78,6 +82,8 @@ export async function generatePuzzle(
       body: JSON.stringify(generationRequest(brief)),
     });
     const data = await response.json();
+    if (!response.ok && data.code === "needs_story")
+      throw new StoryQuestionError(cleanStoryQuestion(data.question));
     if (!response.ok)
       throw new Error(data.error || "Claude couldn't generate a puzzle.");
     return parseGeneratedPuzzle(data.text);

@@ -155,10 +155,25 @@ export function nextFreshQuestion(brief: CreatorBrief): string {
   const categories = (brief.playedConnections || [])
     .map((item) => item.category)
     .join(" ");
+  const facts = [
+    brief.storyAnswers?.join(" "),
+    ...(brief.extraAnswers || []).map((item) => item.answer),
+    brief.memories,
+    brief.freeStory,
+    brief.conversation,
+  ]
+    .filter(Boolean)
+    .join(" ");
   const asked = (brief.extraAnswers || [])
     .map((item) => item.question)
     .join(" ");
   const choices = [
+    {
+      from: /trip|vacation|travel|beach/i,
+      asked: /favorite stops|remember from that trip/i,
+      question:
+        "You mentioned trips together. What are a few favorite stops or places you remember?",
+    },
     {
       from: /show|game|tv/i,
       asked: /film|series/i,
@@ -187,7 +202,8 @@ export function nextFreshQuestion(brief: CreatorBrief): string {
   ];
   return (
     choices.find(
-      (choice) => choice.from.test(categories) && !choice.asked.test(asked),
+      (choice) =>
+        choice.from.test(`${facts} ${categories}`) && !choice.asked.test(asked),
     )?.question ||
     "What's one new memory you'd like to add since your last puzzle?"
   );

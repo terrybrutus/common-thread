@@ -1366,3 +1366,41 @@ summary {
     animation: none;
   }
 }
+
+.memory-dialog {
+  box-sizing: border-box;
+  width: min(540px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: clamp(22px, 5vw, 34px);
+  border: 1px solid #dce0d6;
+  border-radius: 18px;
+  background: var(--paper, #fcfbf7);
+  color: var(--ink, #183c36);
+  box-shadow: 0 24px 80px #123d342b;
+}
+.memory-dialog::backdrop {
+  background: #142d286b;
+}
+.memory-dialog h2 {
+  margin: 12px 0;
+}
+.memory-dialog label {
+  display: block;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 20px 0 10px;
+}
+.memory-dialog textarea {
+  box-sizing: border-box;
+  width: 100%;
+  font: inherit;
+  line-height: 1.6;
+  padding: 12px;
+  border: 1px solid #cbd1c5;
+  border-radius: 8px;
+  resize: vertical;
+}
+.memory-dialog .field-help {
+  line-height: 1.7;
+}

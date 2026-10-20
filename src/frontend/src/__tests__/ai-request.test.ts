@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { generatePuzzle, generationRequest } from "../creator/ai";
+import { StoryQuestionError } from "../creator/followUp";
 import { defaultBrief } from "../creator/schema";
 
 describe("AI request privacy and subject context", () => {
@@ -68,6 +69,30 @@ describe("AI request privacy and subject context", () => {
 
 describe("local Claude transport", () => {
   afterEach(() => vi.unstubAllGlobals());
+  it("keeps requests for more story distinct from technical failures", async () => {
+    const question = "What stops do you remember from your beach trips?";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        json: async () => ({
+          code: "needs_story",
+          error: "More memories",
+          question,
+        }),
+      }),
+    );
+    await expect(generatePuzzle(defaultBrief)).rejects.toEqual(
+      new StoryQuestionError(question),
+    );
+    expect(
+      generationRequest({
+        ...defaultBrief,
+        memories: "Old story",
+        extraAnswers: [{ question, answer: "The lighthouse" }],
+      }).notes,
+    ).toContain("The lighthouse");
+  });
   it("rejects incomplete AI boards rather than returning a playable example", async () => {
     vi.stubGlobal(
       "fetch",

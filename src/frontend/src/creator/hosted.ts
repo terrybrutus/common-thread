@@ -1,3 +1,5 @@
+import { StoryQuestionError, cleanStoryQuestion } from "./followUp";
+
 export const CLAUDE_SERVICE =
   "https://common-thread-claude-service.terrbrutus.chatgpt.site";
 
@@ -46,7 +48,12 @@ export function hostedOperation(
       }
       if (event.data.type === "common-thread-error") {
         clean();
-        reject(new Error(String(event.data.error).slice(0, 1000)));
+        reject(
+          event.data.code === "needs_story" && operation === "generate"
+            ? new StoryQuestionError(cleanStoryQuestion(event.data.question))
+            : new Error(String(event.data.error).slice(0, 1000)),
+        );
+        window.focus();
       }
     };
     window.addEventListener("message", receive);

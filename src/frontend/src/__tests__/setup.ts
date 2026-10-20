@@ -23,6 +23,13 @@ Element.prototype.hasPointerCapture ??= () => false;
 Element.prototype.setPointerCapture ??= () => {};
 Element.prototype.releasePointerCapture ??= () => {};
 Element.prototype.scrollIntoView ??= () => {};
+// jsdom has dialog elements but no native top-layer implementation.
+HTMLDialogElement.prototype.showModal ??= function () {
+  this.setAttribute("open", "");
+};
+HTMLDialogElement.prototype.close ??= function () {
+  this.removeAttribute("open");
+};
 
 const platformMock = vi.hoisted(() => ({
   useActor: vi.fn(),

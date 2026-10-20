@@ -1,4 +1,5 @@
 import type { Group, Puzzle } from "../game/puzzles";
+import { cleanStoryQuestion } from "./followUp";
 import type { FreshnessPrompt, PlayedConnection } from "./history";
 
 export interface CreatorBrief {
@@ -118,7 +119,9 @@ export function validatePuzzle(value: unknown): Puzzle {
     groups,
   };
 }
-export function parseGeneratedPuzzle(response: string): Puzzle {
+export function parseGeneratedPuzzle(
+  response: string,
+): Puzzle & { followUpQuestion?: string } {
   if (response.length > 16000)
     throw new Error("That response was too long. Try generating again.");
   const plain = response
@@ -131,7 +134,9 @@ export function parseGeneratedPuzzle(response: string): Puzzle {
   } catch {
     throw new Error("AI didn't return a complete puzzle. Please try again.");
   }
-  return validatePuzzle(data);
+  const puzzle = validatePuzzle(data);
+  const followUpQuestion = cleanStoryQuestion(record(data).followUpQuestion);
+  return { ...puzzle, ...(followUpQuestion ? { followUpQuestion } : {}) };
 }
 export function validateChallenge(value: unknown): FriendChallenge {
   const raw = record(value);

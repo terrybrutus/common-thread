@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "../App";
 import { Creator } from "../creator/Creator";
 import { generatePuzzle, generationRequest } from "../creator/ai";
+import { StoryQuestionError } from "../creator/followUp";
 import {
   addFreshMemory,
   familiarCount,
@@ -198,17 +199,17 @@ describe("played connections and optional fresh memories", () => {
     vi.mocked(generatePuzzle).mockResolvedValue(board);
     const first = render(<Creator onHome={vi.fn()} onPlay={vi.fn()} />);
     expect(
-      screen.queryByRole("complementary", { name: "One optional memory" }),
+      screen.queryByRole("dialog", { name: "One quick question" }),
     ).toBeNull();
     await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
     expect(await screen.findByText(/A familiar remix/)).toBeVisible();
     expect(
-      screen.getByRole("complementary", { name: "One optional memory" }),
+      screen.getByRole("dialog", { name: "One quick question" }),
     ).toBeVisible();
     expect(
       screen.queryByText(board.groups[0].category, { exact: true }),
     ).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Not now" }));
+    await user.click(screen.getByRole("button", { name: "Skip for now" }));
     expect(generatePuzzle).toHaveBeenCalledTimes(1);
     await user.click(
       screen.getByRole("button", { name: "Try another puzzle" }),
@@ -217,12 +218,12 @@ describe("played connections and optional fresh memories", () => {
       await screen.findByRole("button", { name: "Try another puzzle" }),
     ).toBeEnabled();
     expect(
-      screen.queryByRole("complementary", { name: "One optional memory" }),
+      screen.queryByRole("dialog", { name: "One quick question" }),
     ).toBeNull();
     first.unmount();
     render(<Creator onHome={vi.fn()} onPlay={vi.fn()} />);
     expect(
-      screen.queryByRole("complementary", { name: "One optional memory" }),
+      screen.queryByRole("dialog", { name: "One quick question" }),
     ).toBeNull();
     expect(readLibrary().profiles[0].brief.freshnessPrompt?.dismissed).toBe(
       true,
@@ -234,8 +235,8 @@ describe("played connections and optional fresh memories", () => {
     vi.mocked(generatePuzzle).mockResolvedValue(board);
     render(<Creator onHome={vi.fn()} onPlay={vi.fn()} />);
     await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
-    const card = await screen.findByRole("complementary", {
-      name: "One optional memory",
+    const card = await screen.findByRole("dialog", {
+      name: "One quick question",
     });
     fireEvent.change(within(card).getByRole("textbox"), {
       target: { value: "We visited the pier and the lighthouse" },
@@ -244,7 +245,7 @@ describe("played connections and optional fresh memories", () => {
       "lighthouse",
     );
     await user.click(
-      within(card).getByRole("button", { name: "Save & make another" }),
+      within(card).getByRole("button", { name: "Add to story & make puzzle" }),
     );
     expect(generatePuzzle).toHaveBeenCalledTimes(2);
     expect(
@@ -254,7 +255,7 @@ describe("played connections and optional fresh memories", () => {
       "Our garden walks",
     );
     expect(
-      screen.queryByRole("complementary", { name: "One optional memory" }),
+      screen.queryByRole("dialog", { name: "One quick question" }),
     ).toBeNull();
   });
   it("keeps a fresh generation uncluttered and associates actual play with its original story", async () => {
@@ -268,7 +269,7 @@ describe("played connections and optional fresh memories", () => {
     await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
     await screen.findByRole("button", { name: "Use this puzzle" });
     expect(
-      screen.queryByRole("complementary", { name: "One optional memory" }),
+      screen.queryByRole("dialog", { name: "One quick question" }),
     ).toBeNull();
     expect(readLibrary().profiles[0].brief.playedConnections).toHaveLength(0);
     await user.click(screen.getByRole("button", { name: "Use this puzzle" }));
@@ -278,5 +279,96 @@ describe("played connections and optional fresh memories", () => {
     expect(
       readLibrary().profiles[0].brief.playedConnections?.[0].words,
     ).toEqual(board.groups[0].words);
+  });
+  it("turns Claude's specific missing-memory request into a focused modal, saves the answer and continues", async () => {
+    seed(false);
+    const user = userEvent.setup();
+    const question = "What are a few favorite stops from your beach trips?";
+    vi.mocked(generatePuzzle)
+      .mockRejectedValueOnce(new StoryQuestionError(question))
+      .mockResolvedValueOnce(board);
+    render(<Creator onHome={vi.fn()} onPlay={vi.fn()} />);
+    await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
+    const modal = await screen.findByRole("dialog", {
+      name: "One quick question",
+    });
+    const answer = within(modal).getByRole("textbox", { name: question });
+    expect(answer).toHaveFocus();
+    expect(screen.queryByRole("alert")).toBeNull();
+    fireEvent.change(answer, {
+      target: { value: "The lighthouse and the pier" },
+    });
+    await user.click(
+      within(modal).getByRole("button", { name: "Add to story & make puzzle" }),
+    );
+    expect(generatePuzzle).toHaveBeenCalledTimes(2);
+    expect(readLibrary().profiles[0].brief.extraAnswers?.[0]).toEqual({
+      question,
+      answer: "The lighthouse and the pier",
+    });
+    expect(
+      await screen.findByRole("button", { name: "Use this puzzle" }),
+    ).toBeEnabled();
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+  it("uses a story-based fallback for broad requests and lets Escape skip without another paid request", async () => {
+    const profile = seed(false);
+    profile.brief.storyAnswers[0] = "Our first vacation was at the beach";
+    localStorage.setItem(
+      STORY_KEY,
+      JSON.stringify({ activeId: profile.id, profiles: [profile] }),
+    );
+    vi.mocked(generatePuzzle).mockRejectedValue(new StoryQuestionError());
+    const user = userEvent.setup();
+    render(<Creator onHome={vi.fn()} onPlay={vi.fn()} />);
+    await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
+    const modal = await screen.findByRole("dialog", {
+      name: "One quick question",
+    });
+    expect(
+      within(modal).getByRole("textbox", { name: /favorite stops/ }),
+    ).toBeVisible();
+    fireEvent(modal, new Event("cancel", { bubbles: true, cancelable: true }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Make our puzzle" }),
+    ).toHaveFocus();
+    expect(generatePuzzle).toHaveBeenCalledTimes(1);
+    expect(readLibrary().profiles[0].brief.storyAnswers?.[0]).toContain(
+      "beach",
+    );
+  });
+  it("uses Claude's branching question for an exhausted board without putting it in a friend link", async () => {
+    seed();
+    const question = "What other places did you stop on your trips together?";
+    vi.mocked(generatePuzzle).mockResolvedValue({
+      ...board,
+      followUpQuestion: question,
+    });
+    const user = userEvent.setup();
+    render(<Creator onHome={vi.fn()} onPlay={vi.fn()} />);
+    await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
+    const modal = await screen.findByRole("dialog", {
+      name: "One quick question",
+    });
+    expect(
+      within(modal).getByRole("textbox", { name: question }),
+    ).toBeVisible();
+    await user.click(
+      within(modal).getByRole("button", { name: "Skip for now" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Use this puzzle" }));
+    expect(
+      screen.getByRole("textbox", { name: "Challenge link" }),
+    ).not.toHaveValue(expect.stringContaining("followUpQuestion"));
+    expect(
+      JSON.stringify(
+        makeChallenge(
+          defaultBrief,
+          { ...board, followUpQuestion: question } as typeof board,
+          "ai",
+        ),
+      ),
+    ).not.toContain(question);
   });
 });

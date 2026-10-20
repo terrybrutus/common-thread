@@ -14790,49 +14790,100 @@ function Dictation({
 function FreshnessQuestion({
   prompt,
   pending,
+  error,
+  returnFocus,
   onAnswer,
   onSave,
   onSkip
 }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "story-followup", "aria-label": "One optional memory", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "Want something fresher?" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "This story is starting to revisit familiar connections. One little memory could open up more. This is optional." }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "fresh-memory", children: prompt.question }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "textarea",
-      {
-        id: "fresh-memory",
-        rows: 2,
-        maxLength: 3e3,
-        value: prompt.answer,
-        onChange: (event) => onAnswer(event.target.value),
-        disabled: pending
-      }
-    ),
-    !pending && /* @__PURE__ */ jsxRuntimeExports.jsx(Dictation, { value: prompt.answer, onChange: onAnswer, maxLength: 3e3 }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          className: "secondary-button",
-          disabled: pending || !prompt.answer.trim(),
-          onClick: onSave,
-          children: "Save & make another"
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          className: "text-button",
-          disabled: pending,
-          onClick: onSkip,
-          children: "Not now"
-        }
-      )
-    ] })
-  ] });
+  const dialog = reactExports.useRef(null);
+  const answer = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    var _a2;
+    const previous = document.activeElement;
+    const element = dialog.current;
+    element == null ? void 0 : element.showModal();
+    (_a2 = answer.current) == null ? void 0 : _a2.focus({ preventScroll: true });
+    return () => {
+      var _a3;
+      element == null ? void 0 : element.close();
+      (_a3 = returnFocus.current || previous) == null ? void 0 : _a3.focus({ preventScroll: true });
+    };
+  }, [returnFocus]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "dialog",
+    {
+      ref: dialog,
+      className: "memory-dialog",
+      "aria-labelledby": "memory-title",
+      "aria-describedby": "memory-help",
+      onCancel: (event) => {
+        event.preventDefault();
+        if (!pending) onSkip();
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "YOUR STORY KEEPS GROWING" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { id: "memory-title", children: "One quick question" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: "memory-help", className: "field-help", children: "A little more about you could open up new connections. A short answer or list is plenty." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "fresh-memory", children: prompt.question }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "textarea",
+          {
+            ref: answer,
+            id: "fresh-memory",
+            rows: 3,
+            maxLength: 3e3,
+            value: prompt.answer,
+            onChange: (event) => onAnswer(event.target.value),
+            disabled: pending
+          }
+        ),
+        !pending && /* @__PURE__ */ jsxRuntimeExports.jsx(Dictation, { value: prompt.answer, onChange: onAnswer, maxLength: 3e3 }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Your answer joins your saved story, ready for future puzzles too." }),
+        error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-error", role: "alert", children: error }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              className: "primary-button",
+              disabled: pending || !prompt.answer.trim(),
+              onClick: onSave,
+              children: "Add to story & make puzzle"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              type: "button",
+              className: "text-button",
+              disabled: pending,
+              onClick: onSkip,
+              children: "Skip for now"
+            }
+          )
+        ] })
+      ]
+    }
+  );
+}
+function cleanStoryQuestion(value) {
+  if (typeof value !== "string") return;
+  const question = value.trim();
+  if (!question || question.length > 180 || Array.from(question).some(
+    (char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127
+  ) || (question.match(/\?/g) || []).length !== 1 || !question.endsWith("?") || /\b(?:four|4|at least|fresh personal groups|named things|fair groups)\b/i.test(
+    question
+  ))
+    return;
+  return question;
+}
+class StoryQuestionError extends Error {
+  constructor(question) {
+    super("One more memory could help make your puzzle.");
+    this.question = question;
+    this.name = "StoryQuestionError";
+  }
 }
 const CLAUDE_SERVICE = "https://common-thread-claude-service.terrbrutus.chatgpt.site";
 function hostedOperation(operation, brief) {
@@ -14870,7 +14921,10 @@ function hostedOperation(operation, brief) {
       }
       if (event.data.type === "common-thread-error") {
         clean();
-        reject(new Error(String(event.data.error).slice(0, 1e3)));
+        reject(
+          event.data.code === "needs_story" && operation === "generate" ? new StoryQuestionError(cleanStoryQuestion(event.data.question)) : new Error(String(event.data.error).slice(0, 1e3))
+        );
+        window.focus();
       }
     };
     window.addEventListener("message", receive);
@@ -14988,10 +15042,22 @@ function storyKey(brief) {
   return `${text2.length.toString(16)}-${(hash >>> 0).toString(16)}`;
 }
 function nextFreshQuestion(brief) {
-  var _a2;
+  var _a2, _b2;
   const categories = (brief.playedConnections || []).map((item) => item.category).join(" ");
+  const facts = [
+    (_a2 = brief.storyAnswers) == null ? void 0 : _a2.join(" "),
+    ...(brief.extraAnswers || []).map((item) => item.answer),
+    brief.memories,
+    brief.freeStory,
+    brief.conversation
+  ].filter(Boolean).join(" ");
   const asked = (brief.extraAnswers || []).map((item) => item.question).join(" ");
   const choices = [
+    {
+      from: /trip|vacation|travel|beach/i,
+      asked: /favorite stops|remember from that trip/i,
+      question: "You mentioned trips together. What are a few favorite stops or places you remember?"
+    },
     {
       from: /show|game|tv/i,
       asked: /film|series/i,
@@ -15018,9 +15084,9 @@ function nextFreshQuestion(brief) {
       question: "What are a few sayings or inside jokes you both recognize?"
     }
   ];
-  return ((_a2 = choices.find(
-    (choice) => choice.from.test(categories) && !choice.asked.test(asked)
-  )) == null ? void 0 : _a2.question) || "What's one new memory you'd like to add since your last puzzle?";
+  return ((_b2 = choices.find(
+    (choice) => choice.from.test(`${facts} ${categories}`) && !choice.asked.test(asked)
+  )) == null ? void 0 : _b2.question) || "What's one new memory you'd like to add since your last puzzle?";
 }
 function addFreshMemory(brief, question, answer) {
   const value = answer.trim();
@@ -15125,7 +15191,9 @@ function parseGeneratedPuzzle(response) {
   } catch {
     throw new Error("AI didn't return a complete puzzle. Please try again.");
   }
-  return validatePuzzle(data);
+  const puzzle = validatePuzzle(data);
+  const followUpQuestion = cleanStoryQuestion(record(data).followUpQuestion);
+  return { ...puzzle, ...followUpQuestion ? { followUpQuestion } : {} };
 }
 function validateChallenge(value) {
   const raw = record(value);
@@ -15656,7 +15724,7 @@ function generationErrorMessage(error) {
   return error.message.length < 1e3 ? error.message : "Please try again in a moment.";
 }
 function generationRequest(brief) {
-  var _a2, _b2, _c2;
+  var _a2, _b2, _c2, _d2;
   const people = {
     you: (brief.creator || ((_a2 = brief.people) == null ? void 0 : _a2.you) || "").trim(),
     partner: (brief.recipient || ((_b2 = brief.people) == null ? void 0 : _b2.partner) || "").trim()
@@ -15672,6 +15740,7 @@ function generationRequest(brief) {
 ${brief.conversation}` : ""
     ].filter(Boolean).join("\n\n").trim() : [
       brief.memories || "",
+      ((_c2 = brief.extraAnswers) == null ? void 0 : _c2.length) ? storyNotes([], brief.extraAnswers) : "",
       brief.freeStory || "",
       brief.conversation ? `Reviewed conversation:
 ${brief.conversation}` : ""
@@ -15680,7 +15749,7 @@ ${brief.conversation}` : ""
     familiarity: brief.familiarity,
     personalization: brief.personalization || "memories-only",
     usedTerms: brief.usedTerms || [],
-    ...((_c2 = brief.playedConnections) == null ? void 0 : _c2.length) ? {
+    ...((_d2 = brief.playedConnections) == null ? void 0 : _d2.length) ? {
       playedConnections: brief.playedConnections.slice(-40).map((item) => ({
         category: item.category,
         words: underlyingWords(item),
@@ -15773,6 +15842,7 @@ function Creator({ onHome, onPlay }) {
   const [error, setError] = reactExports.useState("");
   const [shared, setShared] = reactExports.useState(null);
   const heading = reactExports.useRef(null);
+  const generateButton = reactExports.useRef(null);
   const hasDraft = draft !== null;
   const hasShared = shared !== null;
   reactExports.useEffect(() => {
@@ -15811,7 +15881,7 @@ function Creator({ onHome, onPlay }) {
                   ])
                 ].slice(-320),
                 freshnessPrompt: allFamiliar && offerQuestion ? ((_a3 = profile.brief.freshnessPrompt) == null ? void 0 : _a3.forStory) === forStory ? profile.brief.freshnessPrompt : {
-                  question: nextFreshQuestion(requestBrief),
+                  question: puzzle.followUpQuestion || nextFreshQuestion(requestBrief),
                   forStory,
                   dismissed: false,
                   answer: ""
@@ -15826,7 +15896,31 @@ function Creator({ onHome, onPlay }) {
         setSource("ai");
       }
     } catch (error2) {
-      if (activeStory.current === story.id)
+      if (error2 instanceof StoryQuestionError && requestBrief.purpose === "fun") {
+        const forStory = storyKey(requestBrief);
+        const question = error2.question || nextFreshQuestion(requestBrief);
+        setLibrary((current) => ({
+          ...current,
+          profiles: current.profiles.map(
+            (profile) => {
+              var _a3;
+              return profile.id !== story.id ? profile : {
+                ...profile,
+                updatedAt: Date.now(),
+                brief: {
+                  ...profile.brief,
+                  freshnessPrompt: {
+                    question,
+                    forStory,
+                    dismissed: false,
+                    answer: ((_a3 = profile.brief.freshnessPrompt) == null ? void 0 : _a3.forStory) === forStory && profile.brief.freshnessPrompt.question === question ? profile.brief.freshnessPrompt.answer : ""
+                  }
+                }
+              };
+            }
+          )
+        }));
+      } else if (activeStory.current === story.id)
         setError(generationErrorMessage(error2));
     } finally {
       pendingRef.current = false;
@@ -15860,9 +15954,17 @@ function Creator({ onHome, onPlay }) {
     {
       prompt: freshnessPrompt,
       pending,
-      onAnswer: (answer) => update("freshnessPrompt", { ...freshnessPrompt, answer }),
+      error,
+      returnFocus: generateButton,
+      onAnswer: (answer) => {
+        setError("");
+        update("freshnessPrompt", { ...freshnessPrompt, answer });
+      },
       onSave: saveFreshMemory,
-      onSkip: () => update("freshnessPrompt", { ...freshnessPrompt, dismissed: true })
+      onSkip: () => {
+        setError("");
+        update("freshnessPrompt", { ...freshnessPrompt, dismissed: true });
+      }
     }
   );
   function useExample() {
@@ -16006,7 +16108,6 @@ function Creator({ onHome, onPlay }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: brief.style === "together" ? "Your personal puzzle is ready." : draft.title }),
       brief.style === "gift" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: draft.description }),
       source !== "example" && familiarCount(draft, brief.playedConnections) >= 3 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "A familiar remix · some connections revisit your earlier games." }),
-      source !== "example" && freshQuestion,
       brief.style === "gift" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "review-note", children: "You're the puzzle maker, so you'll see the answers. Check that each group makes sense, especially for study topics. Structural checks can't verify every fact or possible connection." }),
         draft.groups.map((group, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -16118,6 +16219,7 @@ function Creator({ onHome, onPlay }) {
             className: "secondary-button",
             type: "button",
             onClick: generate,
+            ref: generateButton,
             disabled: pending,
             children: pending ? "Making another…" : source === "example" ? "Generate from my answers" : "Try another puzzle"
           }
@@ -16146,7 +16248,6 @@ function Creator({ onHome, onPlay }) {
         },
         children: [
           brief.purpose === "fun" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            freshQuestion,
             brief.inputMode === "free" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
                 "Tell your story",
@@ -16252,6 +16353,7 @@ function Creator({ onHome, onPlay }) {
             {
               className: "primary-button",
               type: "submit",
+              ref: generateButton,
               disabled: pending || !canGenerate,
               children: pending ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(LoaderCircle, { size: 17, className: "loading-icon" }),
@@ -16281,7 +16383,8 @@ function Creator({ onHome, onPlay }) {
       }
     ),
     pending && /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "creator-status", "aria-live": "polite", children: "Finish in the private Claude window: sign in if asked, then press Make my puzzle. Your board will arrive here." }),
-    error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-error", role: "alert", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: error }) })
+    error && !freshnessPrompt && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-error", role: "alert", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: error }) }),
+    !shared && (!draft || source !== "example") && freshQuestion
   ] });
 }
 function FriendHub({

@@ -15,6 +15,7 @@ import { FreshnessQuestion } from "./FreshnessQuestion";
 import { StoryLibraryControls } from "./StoryLibrary";
 import { StoryQuestions } from "./StoryQuestions";
 import { generatePuzzle, generationErrorMessage } from "./ai";
+import { StoryQuestionError } from "./followUp";
 import {
   addFreshMemory,
   familiarCount,
@@ -83,6 +84,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
   const [error, setError] = useState("");
   const [shared, setShared] = useState<FriendChallenge | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const generateButton = useRef<HTMLButtonElement>(null);
   const hasDraft = draft !== null;
   const hasShared = shared !== null;
   // biome-ignore lint/correctness/useExhaustiveDependencies: Move focus only when navigating steps or preview screens, never while editing a field.
@@ -135,7 +137,9 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                       ? profile.brief.freshnessPrompt?.forStory === forStory
                         ? profile.brief.freshnessPrompt
                         : {
-                            question: nextFreshQuestion(requestBrief),
+                            question:
+                              puzzle.followUpQuestion ||
+                              nextFreshQuestion(requestBrief),
                             forStory,
                             dismissed: false,
                             answer: "",
@@ -153,7 +157,37 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
         setSource("ai");
       }
     } catch (error) {
-      if (activeStory.current === story.id)
+      if (
+        error instanceof StoryQuestionError &&
+        requestBrief.purpose === "fun"
+      ) {
+        const forStory = storyKey(requestBrief);
+        const question = error.question || nextFreshQuestion(requestBrief);
+        setLibrary((current) => ({
+          ...current,
+          profiles: current.profiles.map((profile) =>
+            profile.id !== story.id
+              ? profile
+              : {
+                  ...profile,
+                  updatedAt: Date.now(),
+                  brief: {
+                    ...profile.brief,
+                    freshnessPrompt: {
+                      question,
+                      forStory,
+                      dismissed: false,
+                      answer:
+                        profile.brief.freshnessPrompt?.forStory === forStory &&
+                        profile.brief.freshnessPrompt.question === question
+                          ? profile.brief.freshnessPrompt.answer
+                          : "",
+                    },
+                  },
+                },
+          ),
+        }));
+      } else if (activeStory.current === story.id)
         setError(generationErrorMessage(error));
     } finally {
       pendingRef.current = false;
@@ -191,13 +225,17 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
     <FreshnessQuestion
       prompt={freshnessPrompt}
       pending={pending}
-      onAnswer={(answer) =>
-        update("freshnessPrompt", { ...freshnessPrompt, answer })
-      }
+      error={error}
+      returnFocus={generateButton}
+      onAnswer={(answer) => {
+        setError("");
+        update("freshnessPrompt", { ...freshnessPrompt, answer });
+      }}
       onSave={saveFreshMemory}
-      onSkip={() =>
-        update("freshnessPrompt", { ...freshnessPrompt, dismissed: true })
-      }
+      onSkip={() => {
+        setError("");
+        update("freshnessPrompt", { ...freshnessPrompt, dismissed: true });
+      }}
     />
   );
   function useExample() {
@@ -404,7 +442,6 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                   games.
                 </p>
               )}
-            {source !== "example" && freshQuestion}
             {brief.style === "gift" ? (
               <>
                 <p className="review-note">
@@ -518,6 +555,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                 className="secondary-button"
                 type="button"
                 onClick={generate}
+                ref={generateButton}
                 disabled={pending}
               >
                 {pending
@@ -550,7 +588,6 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
         >
           {brief.purpose === "fun" ? (
             <>
-              {freshQuestion}
               {brief.inputMode === "free" ? (
                 <>
                   <label>
@@ -654,6 +691,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
           <button
             className="primary-button"
             type="submit"
+            ref={generateButton}
             disabled={pending || !canGenerate}
           >
             {pending ? (
@@ -697,11 +735,12 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
             : "Finish in the private Claude window: sign in if asked, then press Make my puzzle. Your board will arrive here."}
         </output>
       )}
-      {error && (
+      {error && !freshnessPrompt && (
         <div className="form-error" role="alert">
           <p>{error}</p>
         </div>
       )}
+      {!shared && (!draft || source !== "example") && freshQuestion}
     </section>
   );
 }

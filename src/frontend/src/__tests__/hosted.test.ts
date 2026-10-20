@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { StoryQuestionError } from "../creator/followUp";
 import { CLAUDE_SERVICE, hostedGeneration } from "../creator/hosted";
 
 describe("private hosted connection", () => {
@@ -38,5 +39,31 @@ describe("private hosted connection", () => {
   it("explains blocked popups", async () => {
     vi.spyOn(window, "open").mockReturnValue(null);
     await expect(hostedGeneration({})).rejects.toThrow("Allow pop-ups");
+  });
+  it("preserves a structured story question through the trusted private window", async () => {
+    const popup = { closed: false, postMessage: vi.fn() };
+    const open = vi
+      .spyOn(window, "open")
+      .mockReturnValue(popup as unknown as Window);
+    vi.spyOn(window, "focus").mockImplementation(() => {});
+    const promise = hostedGeneration({});
+    const question = "Which places do you remember from that trip?";
+    const channel = new URL(String(open.mock.calls[0][0])).searchParams.get(
+      "channel",
+    );
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        origin: CLAUDE_SERVICE,
+        source: popup as unknown as Window,
+        data: {
+          channel,
+          type: "common-thread-error",
+          code: "needs_story",
+          question,
+          error: "A memory would help",
+        },
+      }),
+    );
+    await expect(promise).rejects.toEqual(new StoryQuestionError(question));
   });
 });

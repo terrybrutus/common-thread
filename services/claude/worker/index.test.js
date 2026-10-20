@@ -39,7 +39,7 @@ test("accepts longer factual context, strips metadata, and rejects duplicates or
   assert.equal(validateBrief(brief).notes.length, 12000);
   assert.equal(validateBrief(brief).creator, undefined);
   assert.throws(() => validateBrief({ ...brief, notes: "x".repeat(40001) }));
-  assert.throws(() => parseOutput('{"puzzle":null,"question":"Name four favorite foods"}'), /four favorite foods/);
+  assert.throws(() => parseOutput('{"puzzle":null,"question":"Name four favorite foods"}'), /One more memory/);
   const group = { category: "Category", a: "A", b: "B", c: "C", d: "D", clue: "Clue", explanation: "Explanation" };
   const puzzle = { title: "Title", topic: "Topic", description: "Description", group1: group, group2: group, group3: group, group4: group };
   assert.throws(() => parseOutput(JSON.stringify({ puzzle })), /repeated/);
@@ -258,4 +258,29 @@ test("private cloud retains history and optional drafts, merges older clients wi
   const other = await saveStory(db, "other-owner", { ...profile, brief: { storyAnswers: ["Unrelated"] } });
   assert.equal(other.brief.playedConnections, undefined);
   await assert.rejects(saveStory(db, "owner", { ...profile, updatedAt: 9 }), /newer version/);
+});
+
+test("missing story yields one bounded branching question rather than an unstructured generation error", async () => {
+  const original = globalThis.fetch;
+  const question = "What are a few favorite stops from your beach trips?";
+  let reply = question;
+  globalThis.fetch = async () => Response.json({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify({ puzzle: null, question: reply }) }] });
+  const make = () => new Request("https://service.example/api/puzzle", { method: "POST", headers: { "oai-authenticated-user-id": "owner", Origin: "https://service.example", "Content-Type": "application/json" }, body: JSON.stringify({ purpose: "fun", interests: "", notes: "We enjoy beach trips", topic: "", difficulty: "balanced", familiarity: "new" }) });
+  try {
+    const response = await worker.fetch(make(), { DB: database(), ANTHROPIC_API_KEY: "test-secret" });
+    assert.equal(response.status, 422);
+    const data = await response.json();
+    assert.equal(data.code, "needs_story"); assert.equal(data.question, question);
+    reply = "Could you share at least four new named things you've shared, such as shows, restaurants, relatives and places so I can build four fresh personal groups?";
+    const broad = await (await worker.fetch(make(), { DB: database(), ANTHROPIC_API_KEY: "test-secret" })).json();
+    assert.equal(broad.code, "needs_story"); assert.equal(broad.question, undefined);
+  } finally { globalThis.fetch = original; }
+});
+
+test("a remix can carry an optional question without exposing source quotations", () => {
+  const groups = ["A", "B", "C", "D"].map(prefix => ({ category: "Our favorites", clue: "A clue", explanation: "Favorites you enjoy", operation: "literal", kind: "personal", entries: [1,2,3,4].map(i => ({ tile: prefix+i, source: prefix+i, evidence: prefix+i })) }));
+  const question = "What other places do you remember from your trips?";
+  const parsed = JSON.parse(parseOutput(JSON.stringify({ question, puzzle: { title: "Our puzzle", topic: "Us", description: "A puzzle for you", groups } }), { purpose: "fun", notes: "", personalization: "memories-only" }));
+  assert.equal(parsed.followUpQuestion, question);
+  assert.ok(!JSON.stringify(parsed).includes('"evidence"'));
 });
