@@ -9,6 +9,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { type Group, type Puzzle, puzzles } from "../game/puzzles";
 import { CopyField } from "./CopyField";
+import { Dictation } from "./Dictation";
 import { StoryQuestions } from "./StoryQuestions";
 import { generatePuzzle, generationErrorMessage } from "./ai";
 import {
@@ -62,9 +63,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
       setDraft(await generatePuzzle(brief));
       setSource("ai");
     } catch (error) {
-      setError(
-        `We couldn't make this puzzle. ${generationErrorMessage(error)}`,
-      );
+      setError(generationErrorMessage(error));
     } finally {
       pendingRef.current = false;
       setPending(false);
@@ -440,7 +439,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                   What do you both enjoy?
                   <textarea
                     value={brief.interests}
-                    maxLength={240}
+                    maxLength={2000}
                     onChange={(event) =>
                       update("interests", event.target.value)
                     }
@@ -468,7 +467,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                           (brief.interests
                             ? `${brief.interests}, ${interest}`
                             : interest
-                          ).slice(0, 240),
+                          ).slice(0, 2000),
                         )
                       }
                     >
@@ -526,7 +525,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                     : "A theme to weave in (optional)"}
                   <input
                     value={brief.topic}
-                    maxLength={120}
+                    maxLength={500}
                     onChange={(event) => update("topic", event.target.value)}
                     required={brief.purpose === "study"}
                     placeholder={
@@ -537,6 +536,32 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                   />
                 </label>
                 {brief.purpose === "fun" && (
+                  <label>
+                    How personal should it be?
+                    <select
+                      value={brief.personalization || "mix"}
+                      onChange={(event) =>
+                        update(
+                          "personalization",
+                          event.target.value as "mix" | "memories-only",
+                        )
+                      }
+                    >
+                      <option value="mix">
+                        Personal mix · memories plus related themes
+                      </option>
+                      <option value="memories-only">
+                        Only our memories · may need more details
+                      </option>
+                    </select>
+                    <span className="field-help">
+                      Personal mix makes it easier to start playing: real
+                      memories where they fit, plus clearly themed connections.
+                      It won't claim themed words are things you've done.
+                    </span>
+                  </label>
+                )}
+                {brief.purpose === "fun" && (
                   <StoryQuestions
                     answers={brief.storyAnswers || []}
                     onChange={(answers) => update("storyAnswers", answers)}
@@ -544,10 +569,10 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                 )}
                 {brief.purpose === "study" && (
                   <label>
-                    Study notes <span>(optional, up to 1,200 characters)</span>
+                    Study notes <span>(optional, up to 12,000 characters)</span>
                     <textarea
                       value={brief.notes}
-                      maxLength={1200}
+                      maxLength={12000}
                       onChange={(event) => update("notes", event.target.value)}
                       rows={5}
                       placeholder="Paste a short vocabulary list or course excerpt to ground the puzzle."
@@ -557,6 +582,13 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                       in the invitation.
                     </span>
                   </label>
+                )}
+                {brief.purpose === "study" && (
+                  <Dictation
+                    value={brief.notes}
+                    onChange={(value) => update("notes", value)}
+                    maxLength={12000}
+                  />
                 )}
                 <label>
                   A personal note <span>(optional)</span>
@@ -641,8 +673,11 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                   </p>
                 </div>
                 <p className="field-help">
-                  Generation can take a little while. We'll check the board's
-                  structure; review factual study content before sharing.
+                  {import.meta.env.DEV
+                    ? "Generation can take a little while."
+                    : "A private Claude window will open. Sign in with the ChatGPT account that owns the service, then press Make my puzzle there. Return here for your board."}{" "}
+                  We'll check the board's structure; review the connections
+                  before sharing.
                 </p>
               </>
             )}
@@ -699,14 +734,27 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
       )}
       {pending && (
         <output className="creator-status" aria-live="polite">
-          AI is weaving your interests into a puzzle. Please keep this page
-          open.
+          {import.meta.env.DEV
+            ? "Claude is finding your threads. Please keep this page open."
+            : "Finish in the private Claude window: sign in if asked, then press Make my puzzle. Your board will arrive here."}
         </output>
       )}
       {error && (
-        <p className="form-error" role="alert">
-          {error}
-        </p>
+        <div className="form-error" role="alert">
+          <p>{error}</p>
+          {!draft && (
+            <button
+              type="button"
+              className="text-button"
+              onClick={() => {
+                setStep(2);
+                setError("");
+              }}
+            >
+              Edit my answers
+            </button>
+          )}
+        </div>
       )}
     </section>
   );

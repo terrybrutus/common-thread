@@ -1,3 +1,4 @@
+import { hostedGeneration } from "./hosted";
 import { type CreatorBrief, parseGeneratedPuzzle } from "./schema";
 import { storyNotes } from "./story";
 
@@ -5,7 +6,7 @@ export function generationErrorMessage(error: unknown): string {
   if (!(error instanceof Error)) return "Please try again in a moment.";
   if (error.message.includes("CANISTER_ID_BACKEND"))
     return "This local preview isn't connected to the Caffeine backend. You can try the example below and test live generation after importing into Caffeine.";
-  return error.message.length < 350
+  return error.message.length < 1000
     ? error.message
     : "Please try again in a moment.";
 }
@@ -23,6 +24,7 @@ export function generationRequest(brief: CreatorBrief) {
           : (brief.memories || "").trim(),
     difficulty: brief.difficulty,
     familiarity: brief.familiarity,
+    personalization: brief.personalization || "mix",
   };
 }
 
@@ -38,7 +40,5 @@ export async function generatePuzzle(brief: CreatorBrief) {
       throw new Error(data.error || "Claude couldn't generate a puzzle.");
     return parseGeneratedPuzzle(data.text);
   }
-  throw new Error(
-    "Claude generation is available in the local tester. A hosted private endpoint must be connected before public AI generation can be enabled.",
-  );
+  return parseGeneratedPuzzle(await hostedGeneration(generationRequest(brief)));
 }

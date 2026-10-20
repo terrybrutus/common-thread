@@ -14132,29 +14132,29 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$e = [
+const __iconNode$g = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$e);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$g);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$d = [
+const __iconNode$f = [
   ["path", { d: "M5 12h14", key: "1ays0h" }],
   ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
 ];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$d);
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$f);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$c = [
+const __iconNode$e = [
   ["path", { d: "M12 7v14", key: "1akyts" }],
   [
     "path",
@@ -14164,15 +14164,38 @@ const __iconNode$c = [
     }
   ]
 ];
-const BookOpen = createLucideIcon("book-open", __iconNode$c);
+const BookOpen = createLucideIcon("book-open", __iconNode$e);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$b = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$b);
+const __iconNode$d = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$d);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$c = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
+  ["path", { d: "M12 17h.01", key: "p32p05" }]
+];
+const CircleHelp = createLucideIcon("circle-help", __iconNode$c);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$b = [
+  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
+  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
+];
+const Copy = createLucideIcon("copy", __iconNode$b);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -14180,29 +14203,6 @@ const Check = createLucideIcon("check", __iconNode$b);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$a = [
-  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
-  ["path", { d: "M12 17h.01", key: "p32p05" }]
-];
-const CircleHelp = createLucideIcon("circle-help", __iconNode$a);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$9 = [
-  ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2", key: "17jyea" }],
-  ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2", key: "zix9uf" }]
-];
-const Copy = createLucideIcon("copy", __iconNode$9);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$8 = [
   [
     "path",
     {
@@ -14220,14 +14220,14 @@ const __iconNode$8 = [
   ["path", { d: "m18 15-2-2", key: "60u0ii" }],
   ["path", { d: "m15 18-2-2", key: "6p76be" }]
 ];
-const HeartHandshake = createLucideIcon("heart-handshake", __iconNode$8);
+const HeartHandshake = createLucideIcon("heart-handshake", __iconNode$a);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$7 = [
+const __iconNode$9 = [
   [
     "path",
     {
@@ -14238,15 +14238,38 @@ const __iconNode$7 = [
   ["path", { d: "M9 18h6", key: "x1upvd" }],
   ["path", { d: "M10 22h4", key: "ceow96" }]
 ];
-const Lightbulb = createLucideIcon("lightbulb", __iconNode$7);
+const Lightbulb = createLucideIcon("lightbulb", __iconNode$9);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$6 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
-const LoaderCircle = createLucideIcon("loader-circle", __iconNode$6);
+const __iconNode$8 = [["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]];
+const LoaderCircle = createLucideIcon("loader-circle", __iconNode$8);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$7 = [
+  ["path", { d: "M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z", key: "131961" }],
+  ["path", { d: "M19 10v2a7 7 0 0 1-14 0v-2", key: "1vc78b" }],
+  ["line", { x1: "12", x2: "12", y1: "19", y2: "22", key: "x3vr5v" }]
+];
+const Mic = createLucideIcon("mic", __iconNode$7);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$6 = [
+  ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
+  ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
+];
+const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$6);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -14254,10 +14277,13 @@ const LoaderCircle = createLucideIcon("loader-circle", __iconNode$6);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$5 = [
-  ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
-  ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
+  ["path", { d: "m18 14 4 4-4 4", key: "10pe0f" }],
+  ["path", { d: "m18 2 4 4-4 4", key: "pucp1d" }],
+  ["path", { d: "M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22", key: "1ailkh" }],
+  ["path", { d: "M2 6h1.972a4 4 0 0 1 3.6 2.2", key: "km57vx" }],
+  ["path", { d: "M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45", key: "os18l9" }]
 ];
-const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$5);
+const Shuffle = createLucideIcon("shuffle", __iconNode$5);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -14265,20 +14291,6 @@ const RotateCcw = createLucideIcon("rotate-ccw", __iconNode$5);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$4 = [
-  ["path", { d: "m18 14 4 4-4 4", key: "10pe0f" }],
-  ["path", { d: "m18 2 4 4-4 4", key: "pucp1d" }],
-  ["path", { d: "M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6a4 4 0 0 1 3.3-1.7H22", key: "1ailkh" }],
-  ["path", { d: "M2 6h1.972a4 4 0 0 1 3.6 2.2", key: "km57vx" }],
-  ["path", { d: "M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45", key: "os18l9" }]
-];
-const Shuffle = createLucideIcon("shuffle", __iconNode$4);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$3 = [
   [
     "path",
     {
@@ -14291,14 +14303,14 @@ const __iconNode$3 = [
   ["path", { d: "M4 17v2", key: "vumght" }],
   ["path", { d: "M5 18H3", key: "zchphs" }]
 ];
-const Sparkles = createLucideIcon("sparkles", __iconNode$3);
+const Sparkles = createLucideIcon("sparkles", __iconNode$4);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$2 = [
+const __iconNode$3 = [
   ["path", { d: "M7 20h10", key: "e6iznv" }],
   ["path", { d: "M10 20c5.5-2.5.8-6.4 3-10", key: "161w41" }],
   [
@@ -14316,7 +14328,17 @@ const __iconNode$2 = [
     }
   ]
 ];
-const Sprout = createLucideIcon("sprout", __iconNode$2);
+const Sprout = createLucideIcon("sprout", __iconNode$3);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$2 = [
+  ["rect", { width: "18", height: "18", x: "3", y: "3", rx: "2", key: "afitv7" }]
+];
+const Square = createLucideIcon("square", __iconNode$2);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -14541,6 +14563,92 @@ function CopyField({ value, label }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx("output", { "aria-live": "polite", children: status })
   ] });
 }
+function Dictation({
+  value,
+  onChange,
+  maxLength
+}) {
+  const [listening, setListening] = reactExports.useState(false);
+  const [message, setMessage] = reactExports.useState("");
+  const active = reactExports.useRef(null);
+  const latest = reactExports.useRef({ value, onChange });
+  latest.current = { value, onChange };
+  const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+  reactExports.useEffect(
+    () => () => {
+      if (active.current) {
+        active.current.onresult = null;
+        active.current.onerror = null;
+        active.current.onend = null;
+        active.current.abort();
+      }
+    },
+    []
+  );
+  if (!Speech)
+    return /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Microphone dictation isn't available in this browser. Try Chrome or Edge, or use your keyboard's dictation." });
+  function start() {
+    if (active.current) {
+      active.current.stop();
+      return;
+    }
+    const recognition = new Speech();
+    active.current = recognition;
+    recognition.lang = navigator.language || "en-US";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.onresult = (event) => {
+      let words = "";
+      for (let i = event.resultIndex; i < event.results.length; i++)
+        if (event.results[i].isFinal)
+          words += ` ${event.results[i][0].transcript}`;
+      if (!words.trim()) return;
+      const next = `${latest.current.value.trimEnd()}${words}`.trimStart();
+      latest.current.value = next.slice(0, maxLength);
+      latest.current.onChange(next.slice(0, maxLength));
+      if (next.length >= maxLength) {
+        recognition.stop();
+        setMessage(
+          "This answer is full. You can continue in another question or shorten the transcript."
+        );
+      }
+    };
+    recognition.onerror = (event) => {
+      setMessage(
+        event.error === "not-allowed" ? "Microphone permission was denied. Allow it in your browser or type your answer." : "Dictation stopped. Check your microphone and connection, then try again."
+      );
+    };
+    recognition.onend = () => {
+      active.current = null;
+      setListening(false);
+    };
+    try {
+      recognition.start();
+      setListening(true);
+      setMessage("");
+    } catch {
+      active.current = null;
+      setListening(false);
+      setMessage("Couldn't start the microphone. Please try again.");
+    }
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "dictation-control", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      "button",
+      {
+        type: "button",
+        className: "secondary-button",
+        "aria-pressed": listening,
+        onClick: start,
+        children: [
+          listening ? /* @__PURE__ */ jsxRuntimeExports.jsx(Square, { size: 16 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Mic, { size: 16 }),
+          listening ? "Stop dictation" : "Speak your answer"
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "field-help", children: message || (listening ? "Listening… speak naturally. You can edit the transcript." : "Your browser handles speech recognition and may send audio to its speech service. Only the text goes to Claude when you generate.") })
+  ] });
+}
 const storyQuestions = [
   "How did you meet, or what's an early memory you share?",
   "Which places mean something to you both?",
@@ -14553,6 +14661,14 @@ const storyHints = [
   "Games, meals, hobbies, shows, or a favorite weekend routine.",
   "An inside joke, a nickname's origin, the weather on a special day, or a small tradition."
 ];
+function storyNotes(answers) {
+  return storyQuestions.flatMap((question, index2) => {
+    var _a2;
+    const answer = (_a2 = answers[index2]) == null ? void 0 : _a2.trim();
+    return answer ? [`${question}
+${answer}`] : [];
+  }).join("\n\n");
+}
 function StoryQuestions({
   answers,
   onChange
@@ -14584,15 +14700,24 @@ function StoryQuestions({
           id: "story-answer",
           "aria-describedby": "story-answer-help",
           value: answers[question] || "",
-          maxLength: 220,
-          rows: 3,
+          maxLength: 3e3,
+          rows: 5,
           onChange: (event) => answer(event.target.value)
         }
       ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "field-help", children: [
         (answers[question] || "").length,
-        "/220 characters"
+        "/3,000 characters"
       ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Dictation,
+        {
+          value: answers[question] || "",
+          onChange: answer,
+          maxLength: 3e3
+        },
+        question
+      ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
         question > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -14644,8 +14769,68 @@ function StoryQuestions({
       ),
       !answers.some((value) => value.trim()) && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "No memories added. We'll use your shared interests for a themed puzzle." })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Only your answers go to AI as personal facts. It may ask for another detail if there isn't enough for four fair groups. These answers aren't included in the invitation." })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "A few specific details help: name the place and why it matters, or list foods, games, shows, and routines you share. Personal mix can fill gaps with related themes, without inventing memories. These answers aren't included in the invitation." })
   ] });
+}
+const CLAUDE_SERVICE = "https://common-thread-claude-service.terrbrutus.chatgpt.site";
+function hostedGeneration(brief) {
+  const channel = crypto.randomUUID();
+  const popup = window.open(
+    `${CLAUDE_SERVICE}/bridge?channel=${encodeURIComponent(channel)}&origin=${encodeURIComponent(window.location.origin)}`,
+    "_blank",
+    "popup,width=600,height=740"
+  );
+  if (!popup)
+    return Promise.reject(
+      new Error(
+        "Allow pop-ups for Common Thread, then press Make our puzzle again to open your private Claude connection."
+      )
+    );
+  return new Promise((resolve, reject) => {
+    const clean = () => {
+      window.removeEventListener("message", receive);
+      clearTimeout(timeout);
+      clearInterval(closed);
+    };
+    const receive = (event) => {
+      var _a2;
+      if (event.origin !== CLAUDE_SERVICE || event.source !== popup || ((_a2 = event.data) == null ? void 0 : _a2.channel) !== channel)
+        return;
+      if (event.data.type === "common-thread-ready")
+        popup.postMessage(
+          { type: "common-thread-brief", channel, brief },
+          CLAUDE_SERVICE
+        );
+      if (event.data.type === "common-thread-result" && typeof event.data.text === "string") {
+        clean();
+        resolve(event.data.text);
+        window.focus();
+      }
+      if (event.data.type === "common-thread-error") {
+        clean();
+        reject(new Error(String(event.data.error).slice(0, 1e3)));
+      }
+    };
+    window.addEventListener("message", receive);
+    const timeout = setTimeout(() => {
+      clean();
+      reject(
+        new Error(
+          "The private Claude window timed out. Sign in there if needed, return here, and try again. Your answers are saved."
+        )
+      );
+    }, 3e5);
+    const closed = setInterval(() => {
+      if (popup.closed) {
+        clean();
+        reject(
+          new Error(
+            "The Claude window was closed before the puzzle arrived. Your answers are saved; try again when ready."
+          )
+        );
+      }
+    }, 1e3);
+  });
 }
 const defaultBrief = {
   creator: "",
@@ -14716,6 +14901,18 @@ function validatePuzzle(value) {
     groups
   };
 }
+function parseGeneratedPuzzle(response) {
+  if (response.length > 16e3)
+    throw new Error("That response was too long. Try generating again.");
+  const plain = response.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+  let data;
+  try {
+    data = JSON.parse(plain);
+  } catch {
+    throw new Error("AI didn't return a complete puzzle. Please try again.");
+  }
+  return validatePuzzle(data);
+}
 function validateChallenge(value) {
   const raw = record(value);
   if (raw.version !== 1)
@@ -14755,12 +14952,21 @@ function generationErrorMessage(error) {
   if (!(error instanceof Error)) return "Please try again in a moment.";
   if (error.message.includes("CANISTER_ID_BACKEND"))
     return "This local preview isn't connected to the Caffeine backend. You can try the example below and test live generation after importing into Caffeine.";
-  return error.message.length < 350 ? error.message : "Please try again in a moment.";
+  return error.message.length < 1e3 ? error.message : "Please try again in a moment.";
+}
+function generationRequest(brief) {
+  return {
+    purpose: brief.purpose,
+    interests: brief.interests.trim(),
+    topic: brief.topic.trim(),
+    notes: brief.purpose === "study" ? brief.notes.trim() : brief.storyAnswers ? storyNotes(brief.storyAnswers) : (brief.memories || "").trim(),
+    difficulty: brief.difficulty,
+    familiarity: brief.familiarity,
+    personalization: brief.personalization || "mix"
+  };
 }
 async function generatePuzzle(brief) {
-  throw new Error(
-    "Claude generation is available in the local tester. A hosted private endpoint must be connected before public AI generation can be enabled."
-  );
+  return parseGeneratedPuzzle(await hostedGeneration(generationRequest(brief)));
 }
 function encodeChallenge(challenge) {
   const clean = validateChallenge(challenge);
@@ -14837,9 +15043,7 @@ function Creator({ onHome, onPlay }) {
       setDraft(await generatePuzzle(brief));
       setSource("ai");
     } catch (error2) {
-      setError(
-        `We couldn't make this puzzle. ${generationErrorMessage(error2)}`
-      );
+      setError(generationErrorMessage(error2));
     } finally {
       pendingRef.current = false;
       setPending(false);
@@ -15179,7 +15383,7 @@ function Creator({ onHome, onPlay }) {
                   "textarea",
                   {
                     value: brief.interests,
-                    maxLength: 240,
+                    maxLength: 2e3,
                     onChange: (event) => update("interests", event.target.value),
                     placeholder: "Basketball, baking, '90s music… whatever feels like you two.",
                     rows: 3,
@@ -15201,7 +15405,7 @@ function Creator({ onHome, onPlay }) {
                   type: "button",
                   onClick: () => update(
                     "interests",
-                    (brief.interests ? `${brief.interests}, ${interest}` : interest).slice(0, 240)
+                    (brief.interests ? `${brief.interests}, ${interest}` : interest).slice(0, 2e3)
                   ),
                   children: [
                     interest,
@@ -15260,12 +15464,30 @@ function Creator({ onHome, onPlay }) {
                   "input",
                   {
                     value: brief.topic,
-                    maxLength: 120,
+                    maxLength: 500,
                     onChange: (event) => update("topic", event.target.value),
                     required: brief.purpose === "study",
                     placeholder: brief.purpose === "study" ? "e.g. Introductory biology: the human body" : "e.g. Our next camping trip"
                   }
                 )
+              ] }),
+              brief.purpose === "fun" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+                "How personal should it be?",
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  "select",
+                  {
+                    value: brief.personalization || "mix",
+                    onChange: (event) => update(
+                      "personalization",
+                      event.target.value
+                    ),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "mix", children: "Personal mix · memories plus related themes" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "memories-only", children: "Only our memories · may need more details" })
+                    ]
+                  }
+                ),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "field-help", children: "Personal mix makes it easier to start playing: real memories where they fit, plus clearly themed connections. It won't claim themed words are things you've done." })
               ] }),
               brief.purpose === "fun" && /* @__PURE__ */ jsxRuntimeExports.jsx(
                 StoryQuestions,
@@ -15276,12 +15498,12 @@ function Creator({ onHome, onPlay }) {
               ),
               brief.purpose === "study" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
                 "Study notes ",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional, up to 1,200 characters)" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional, up to 12,000 characters)" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   "textarea",
                   {
                     value: brief.notes,
-                    maxLength: 1200,
+                    maxLength: 12e3,
                     onChange: (event) => update("notes", event.target.value),
                     rows: 5,
                     placeholder: "Paste a short vocabulary list or course excerpt to ground the puzzle."
@@ -15289,6 +15511,14 @@ function Creator({ onHome, onPlay }) {
                 ),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "field-help", children: "Notes go to AI to create the puzzle. They aren't included in the invitation." })
               ] }),
+              brief.purpose === "study" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Dictation,
+                {
+                  value: brief.notes,
+                  onChange: (value) => update("notes", value),
+                  maxLength: 12e3
+                }
+              ),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
                 "A personal note ",
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional)" }),
@@ -15361,7 +15591,11 @@ function Creator({ onHome, onPlay }) {
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: brief.style === "together" ? "Answers stay hidden for you both." : "You'll review the connections before sharing." })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Generation can take a little while. We'll check the board's structure; review factual study content before sharing." })
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "field-help", children: [
+                "A private Claude window will open. Sign in with the ChatGPT account that owns the service, then press Make my puzzle there. Return here for your board.",
+                " ",
+                "We'll check the board's structure; review the connections before sharing."
+              ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
               step > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -15410,8 +15644,22 @@ function Creator({ onHome, onPlay }) {
         }
       )
     ] }),
-    pending && /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "creator-status", "aria-live": "polite", children: "AI is weaving your interests into a puzzle. Please keep this page open." }),
-    error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-error", role: "alert", children: error })
+    pending && /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "creator-status", "aria-live": "polite", children: "Finish in the private Claude window: sign in if asked, then press Make my puzzle. Your board will arrive here." }),
+    error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-error", role: "alert", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: error }),
+      !draft && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          className: "text-button",
+          onClick: () => {
+            setStep(2);
+            setError("");
+          },
+          children: "Edit my answers"
+        }
+      )
+    ] })
   ] });
 }
 function FriendHub({

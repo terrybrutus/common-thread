@@ -25,7 +25,7 @@ The next authorized milestone adds Caffeine Inference for personalized puzzle cr
 
 ## Learnings
 
-- The current AI experiment uses local-only Claude Haiku through Vite middleware. Keep `ANTHROPIC_API_KEY` server-side in ignored `.env.local`; never push secrets or put them in browser variables. Production creator calls are disabled until a protected hosted endpoint is connected. Do not resume Caffeine Inference automatically. Preserve the local daily reservation ledger and output limits.
+- Production Claude generation uses the private Sites service through a sign-in popup and origin/channel-checked messages. Keep `ANTHROPIC_API_KEY` only in hosted secret storage or ignored local `.env.local`. Never push keys or service bypass tokens or put them in browser variables. Do not resume Caffeine Inference. Preserve persistent hosted budget reservations (two/person/day, ten/day, 400 lifetime), local test ledger, and input/output limits. Service source is mirrored under services/claude; its independent private deployment must be updated separately from Caffeine imports. Personal mix is the default; memories-only remains available without invented facts.
 
 - Solo gameplay uses local puzzle data and a pure reducer; it does not depend on backend queries or sign-in. Keep the initial route usable without configured canister IDs.
 - Empty OQL entity list in src/backend/main.mo is correct when the actor persists no state; no entity, sample or selector rows are required.

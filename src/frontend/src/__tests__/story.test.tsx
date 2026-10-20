@@ -68,8 +68,8 @@ describe("guided shared story", () => {
     expect(notes).not.toContain(storyQuestions[1]);
     expect(notes).not.toContain("first hangout");
     expect(
-      storyNotes(Array(4).fill("x".repeat(220))).length,
-    ).toBeLessThanOrEqual(1200);
+      storyNotes(Array(4).fill("x".repeat(3000))).length,
+    ).toBeLessThanOrEqual(13000);
     expect(
       generationRequest({ ...brief, purpose: "study", notes: "Course notes" })
         .notes,

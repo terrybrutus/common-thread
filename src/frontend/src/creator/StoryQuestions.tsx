@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Dictation } from "./Dictation";
 import { storyHints, storyQuestions } from "./story";
 
 export function StoryQuestions({
@@ -45,13 +46,19 @@ export function StoryQuestions({
             id="story-answer"
             aria-describedby="story-answer-help"
             value={answers[question] || ""}
-            maxLength={220}
-            rows={3}
+            maxLength={3000}
+            rows={5}
             onChange={(event) => answer(event.target.value)}
           />
           <p className="field-help">
-            {(answers[question] || "").length}/220 characters
+            {(answers[question] || "").length}/3,000 characters
           </p>
+          <Dictation
+            key={question}
+            value={answers[question] || ""}
+            onChange={answer}
+            maxLength={3000}
+          />
           <div className="creator-actions">
             {question > 0 && (
               <button
@@ -107,8 +114,9 @@ export function StoryQuestions({
         </>
       )}
       <p className="field-help">
-        Only your answers go to AI as personal facts. It may ask for another
-        detail if there isn't enough for four fair groups. These answers aren't
+        A few specific details help: name the place and why it matters, or list
+        foods, games, shows, and routines you share. Personal mix can fill gaps
+        with related themes, without inventing memories. These answers aren't
         included in the invitation.
       </p>
     </section>

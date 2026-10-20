@@ -11,6 +11,7 @@ export interface CreatorBrief {
   notes: string;
   memories?: string;
   storyAnswers?: string[];
+  personalization?: "mix" | "memories-only";
   difficulty: "easy" | "balanced" | "tricky";
   familiarity: "new" | "familiar";
   mode: "relaxed" | "challenge";

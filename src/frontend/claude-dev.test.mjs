@@ -8,7 +8,7 @@ import { claudeDevPlugin, MODEL, validateBrief } from "./claude-dev.mjs";
 
 const brief = { purpose: "fun", interests: "games", topic: "", notes: "", difficulty: "easy", familiarity: "new" };
 test("rejects oversized briefs and strips unexpected private fields", () => {
-  assert.throws(() => validateBrief({ ...brief, notes: "x".repeat(1201) }));
+  assert.throws(() => validateBrief({ ...brief, notes: "x".repeat(13001) }));
   assert.equal(validateBrief({ ...brief, creator: "Private" }).creator, undefined);
 });
 
@@ -38,14 +38,14 @@ test("local tester protects origin, reserves budget before requests, and blocks 
     assert.equal(url, "https://api.anthropic.com/v1/messages");
     assert.equal(JSON.parse(options.body).model, MODEL);
     assert.equal(JSON.parse(readFileSync(ledger, "utf8")).reserved, 0.01);
-    return { ok: true, json: async () => ({ stop_reason: "end_turn", content: [{ type: "text", text: '{"error":"Tell me another memory"}' }] }) };
+    return { ok: true, json: async () => ({ stop_reason: "end_turn", content: [{ type: "text", text: '{"puzzle":null,"question":"Tell me four foods you both enjoy"}' }] }) };
   };
   try {
     const fn = handler();
     assert.equal((await request(fn, "https://other.example")).status, 403);
     assert.equal(calls, 0);
     const success = await request(fn, "http://127.0.0.1:5173");
-    assert.equal(success.status, 200);
+    assert.equal(success.status, 422);
     assert.ok(!JSON.stringify(success).includes("test-secret"));
     assert.equal((await request(fn, "http://127.0.0.1:5173")).status, 429);
     writeFileSync(ledger, JSON.stringify({ day: new Date().toISOString().slice(0, 10), reserved: 0.10 }));
