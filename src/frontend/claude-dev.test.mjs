@@ -8,7 +8,7 @@ import { claudeDevPlugin, MODEL, validateBrief } from "./claude-dev.mjs";
 
 const brief = { purpose: "fun", interests: "games", topic: "", notes: "", difficulty: "easy", familiarity: "new" };
 test("rejects oversized briefs and strips unexpected private fields", () => {
-  assert.throws(() => validateBrief({ ...brief, notes: "x".repeat(13001) }));
+  assert.throws(() => validateBrief({ ...brief, notes: "x".repeat(40001) }));
   assert.equal(validateBrief({ ...brief, creator: "Private" }).creator, undefined);
 });
 

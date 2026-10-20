@@ -17,7 +17,8 @@ describe("AI request privacy and subject context", () => {
       familiarity: "familiar",
     });
     expect(request).toEqual({
-      personalization: "mix",
+      personalization: "memories-only",
+      usedTerms: [],
       purpose: "study",
       interests: "Sports",
       topic: "Biology",

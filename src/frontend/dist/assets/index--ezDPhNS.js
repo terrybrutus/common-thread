@@ -14649,131 +14649,8 @@ function Dictation({
     /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "field-help", children: message || (listening ? "Listening… speak naturally. You can edit the transcript." : "Your browser handles speech recognition and may send audio to its speech service. Only the text goes to Claude when you generate.") })
   ] });
 }
-const storyQuestions = [
-  "How did you meet, or what's an early memory you share?",
-  "Which places mean something to you both?",
-  "What do you both get excited about or do together?",
-  "Any little details only you two would recognize?"
-];
-const storyHints = [
-  "A first hangout, the month you met, or something funny that happened.",
-  "Hometowns, a favorite trip, or somewhere you've lived. Tell us why each place matters.",
-  "Games, meals, hobbies, shows, or a favorite weekend routine.",
-  "An inside joke, a nickname's origin, the weather on a special day, or a small tradition."
-];
-function storyNotes(answers) {
-  return storyQuestions.flatMap((question, index2) => {
-    var _a2;
-    const answer = (_a2 = answers[index2]) == null ? void 0 : _a2.trim();
-    return answer ? [`${question}
-${answer}`] : [];
-  }).join("\n\n");
-}
-function StoryQuestions({
-  answers,
-  onChange
-}) {
-  const [question, setQuestion] = reactExports.useState(0);
-  const heading = reactExports.useRef(null);
-  const moved = reactExports.useRef(false);
-  reactExports.useEffect(() => {
-    var _a2;
-    if (moved.current) (_a2 = heading.current) == null ? void 0 : _a2.focus();
-    moved.current = true;
-  }, [question]);
-  function answer(value) {
-    onChange(
-      storyQuestions.map(
-        (_, index2) => index2 === question ? value : answers[index2] || ""
-      )
-    );
-  }
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "story-questions", "aria-label": "Your shared story", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { ref: heading, tabIndex: -1, children: question < 4 ? `A little about you two · ${question + 1} of 4` : "Your story so far" }),
-    question < 4 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Short answers are perfect. Every question is optional." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "story-answer", children: storyQuestions[question] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: "story-answer-help", className: "field-help", children: storyHints[question] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "textarea",
-        {
-          id: "story-answer",
-          "aria-describedby": "story-answer-help",
-          value: answers[question] || "",
-          maxLength: 3e3,
-          rows: 5,
-          onChange: (event) => answer(event.target.value)
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "field-help", children: [
-        (answers[question] || "").length,
-        "/3,000 characters"
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Dictation,
-        {
-          value: answers[question] || "",
-          onChange: answer,
-          maxLength: 3e3
-        },
-        question
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
-        question > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            type: "button",
-            className: "text-button",
-            onClick: () => setQuestion(question - 1),
-            children: "Previous question"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            type: "button",
-            className: "secondary-button",
-            onClick: () => setQuestion(question + 1),
-            children: question === 3 ? "Review my answers" : "Next question"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "button",
-          {
-            type: "button",
-            className: "text-button",
-            onClick: () => {
-              answer("");
-              setQuestion(question + 1);
-            },
-            children: "Skip this question"
-          }
-        )
-      ] })
-    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("dl", { className: "story-review", children: storyQuestions.map((prompt, index2) => {
-        var _a2;
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { children: prompt }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { children: ((_a2 = answers[index2]) == null ? void 0 : _a2.trim()) || "Skipped" })
-        ] }, prompt);
-      }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          className: "text-button",
-          onClick: () => setQuestion(0),
-          children: "Edit my story answers"
-        }
-      ),
-      !answers.some((value) => value.trim()) && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "No memories added. We'll use your shared interests for a themed puzzle." })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "A few specific details help: name the place and why it matters, or list foods, games, shows, and routines you share. Personal mix can fill gaps with related themes, without inventing memories. These answers aren't included in the invitation." })
-  ] });
-}
 const CLAUDE_SERVICE = "https://common-thread-claude-service.terrbrutus.chatgpt.site";
-function hostedGeneration(brief) {
+function hostedOperation(operation, brief) {
   const channel = crypto.randomUUID();
   const popup = window.open(
     `${CLAUDE_SERVICE}/bridge?channel=${encodeURIComponent(channel)}&origin=${encodeURIComponent(window.location.origin)}`,
@@ -14798,12 +14675,12 @@ function hostedGeneration(brief) {
         return;
       if (event.data.type === "common-thread-ready")
         popup.postMessage(
-          { type: "common-thread-brief", channel, brief },
+          { type: "common-thread-brief", channel, brief, operation },
           CLAUDE_SERVICE
         );
-      if (event.data.type === "common-thread-result" && typeof event.data.text === "string") {
+      if (event.data.type === "common-thread-result" && (typeof event.data.text === "string" || event.data.value !== void 0)) {
         clean();
-        resolve(event.data.text);
+        resolve(event.data.value ?? event.data.text);
         window.focus();
       }
       if (event.data.type === "common-thread-error") {
@@ -14832,11 +14709,18 @@ function hostedGeneration(brief) {
     }, 1e3);
   });
 }
+async function hostedGeneration(brief) {
+  const result = await hostedOperation("generate", brief);
+  if (typeof result !== "string")
+    throw new Error("The private service returned an invalid puzzle.");
+  return result;
+}
 const defaultBrief = {
   creator: "",
   recipient: "",
   note: "",
-  style: "gift",
+  style: "together",
+  personalization: "memories-only",
   purpose: "fun",
   interests: "",
   topic: "",
@@ -14948,6 +14832,432 @@ function makeChallenge(brief, puzzle, source) {
     source
   });
 }
+const STORY_KEY = "common-thread-stories-v1";
+function newProfile() {
+  return {
+    id: crypto.randomUUID(),
+    name: "Our story",
+    brief: { ...defaultBrief },
+    updatedAt: Date.now()
+  };
+}
+function parseProfile(value) {
+  if (!value || typeof value !== "object")
+    throw new Error("Choose a Common Thread story backup.");
+  const raw = value;
+  const input = raw.brief;
+  if (!input || typeof input !== "object")
+    throw new Error("This story backup is missing its answers.");
+  const brief = { ...defaultBrief };
+  for (const [key, limit] of Object.entries({
+    creator: 40,
+    recipient: 40,
+    note: 180,
+    interests: 2e3,
+    topic: 500,
+    notes: 12e3,
+    memories: 3e4
+  })) {
+    if (input[key] !== void 0) {
+      if (typeof input[key] !== "string" || input[key].length > limit)
+        throw new Error("A story field is too long or invalid.");
+      Object.assign(brief, { [key]: input[key] });
+    }
+  }
+  for (const [key, choices] of Object.entries({
+    style: ["gift", "together"],
+    purpose: ["fun", "study"],
+    personalization: ["mix", "memories-only"],
+    difficulty: ["easy", "balanced", "tricky"],
+    familiarity: ["new", "familiar"],
+    mode: ["relaxed", "challenge"]
+  })) {
+    if (choices.includes(String(input[key])))
+      Object.assign(brief, { [key]: input[key] });
+  }
+  if (input.storyAnswers !== void 0) {
+    if (!Array.isArray(input.storyAnswers) || input.storyAnswers.length > 4 || input.storyAnswers.some((v) => typeof v !== "string" || v.length > 3e3))
+      throw new Error("This story has invalid answers.");
+    brief.storyAnswers = input.storyAnswers;
+  }
+  if (input.extraAnswers !== void 0) {
+    if (!Array.isArray(input.extraAnswers) || input.extraAnswers.length > 8 || input.extraAnswers.some(
+      (v) => !v || typeof v.question !== "string" || v.question.length > 180 || typeof v.answer !== "string" || v.answer.length > 3e3
+    ))
+      throw new Error("This story has invalid follow-up answers.");
+    brief.extraAnswers = input.extraAnswers.map((v) => ({
+      question: v.question,
+      answer: v.answer
+    }));
+  }
+  if (Array.isArray(input.usedTerms))
+    brief.usedTerms = input.usedTerms.filter((v) => typeof v === "string" && v.length <= 24).slice(-320);
+  return {
+    id: typeof raw.id === "string" && raw.id.length <= 80 ? raw.id : crypto.randomUUID(),
+    name: typeof raw.name === "string" ? raw.name.slice(0, 80) : "Our story",
+    brief,
+    updatedAt: typeof raw.updatedAt === "number" && Number.isFinite(raw.updatedAt) ? raw.updatedAt : Date.now()
+  };
+}
+function readLibrary() {
+  try {
+    const text2 = localStorage.getItem(STORY_KEY);
+    if (text2 && text2.length < 3e6) {
+      const raw = JSON.parse(text2);
+      const profiles = raw.profiles.slice(0, 20).map(parseProfile);
+      if (profiles.length)
+        return {
+          activeId: profiles.some((p) => p.id === raw.activeId) ? raw.activeId : profiles[0].id,
+          profiles
+        };
+    }
+  } catch {
+  }
+  const profile = newProfile();
+  return { activeId: profile.id, profiles: [profile] };
+}
+function StoryLibraryControls({
+  profiles,
+  current,
+  onSelect,
+  onNew,
+  onRename,
+  onImport,
+  status
+}) {
+  const [message, setMessage] = reactExports.useState("");
+  const [busy, setBusy] = reactExports.useState(false);
+  async function cloud(action) {
+    setBusy(true);
+    setMessage("");
+    try {
+      const data = await hostedOperation(
+        action,
+        action === "save-story" ? current : { id: current.id }
+      );
+      if (action === "load-story") {
+        const result = data;
+        if (!Array.isArray(result.profiles) || !result.profiles.length)
+          throw new Error(
+            "No cloud story yet. Save this story to private cloud first."
+          );
+        const choices = result.profiles.map(parseProfile);
+        for (const profile of choices.reverse()) onImport(profile);
+        setMessage("Cloud stories loaded. Choose one above to continue.");
+      } else
+        setMessage(
+          "Saved to private cloud. Load it on your other computer with the same ChatGPT sign-in."
+        );
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Couldn't connect to story storage."
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+  function download() {
+    const blob = new Blob(
+      [JSON.stringify({ version: 1, ...current }, null, 2)],
+      { type: "application/json" }
+    );
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "common-thread-story.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "creator-panel story-library", "aria-label": "Saved stories", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Your living stories" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Keep your answers, add new memories, and make another puzzle without starting over." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+      "Saved story",
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "select",
+        {
+          value: current.id,
+          onChange: (event) => onSelect(event.target.value),
+          children: profiles.map((profile) => /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: profile.id, children: profile.name }, profile.id))
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+      "Story name",
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          value: current.name,
+          maxLength: 80,
+          onChange: (event) => onRename(event.target.value)
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "field-help", children: status }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          className: "secondary-button",
+          disabled: busy,
+          onClick: () => void cloud("load-story"),
+          children: "Load private cloud stories"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          className: "secondary-button",
+          disabled: busy,
+          onClick: () => void cloud("save-story"),
+          children: "Save to private cloud"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "text-button", onClick: onNew, children: "Start another story" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("button", { type: "button", className: "text-button", onClick: download, children: "Download story backup" })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+      "Import story backup",
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          type: "file",
+          accept: "application/json,.json",
+          onChange: async (event) => {
+            var _a2;
+            const file = (_a2 = event.target.files) == null ? void 0 : _a2[0];
+            if (!file) return;
+            try {
+              if (file.size > 3e5)
+                throw new Error("That backup is too large.");
+              onImport(parseProfile(JSON.parse(await file.text())));
+              setMessage("Story imported. Your answers are ready.");
+            } catch (error) {
+              setMessage(
+                error instanceof Error ? error.message : "Couldn't import that story."
+              );
+            }
+            event.target.value = "";
+          }
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Browser saving stays on this device and site address. Private cloud saving works across computers. Backups contain your personal answers; keep them private." }),
+    message && /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "field-help", children: message })
+  ] });
+}
+const storyQuestions = [
+  "How did you meet, or what's an early memory you share?",
+  "Which places mean something to you both?",
+  "What do you both get excited about or do together?",
+  "Any little details only you two would recognize?"
+];
+const storyHints = [
+  "A first hangout, the month you met, or something funny that happened.",
+  "Hometowns, a favorite trip, or somewhere you've lived. Tell us why each place matters.",
+  "Games, meals, hobbies, shows, or a favorite weekend routine.",
+  "An inside joke, a nickname's origin, the weather on a special day, or a small tradition."
+];
+function storyNotes(answers, extra = []) {
+  return [
+    ...storyQuestions.map((question, index2) => ({
+      question,
+      answer: answers[index2] || ""
+    })),
+    ...extra
+  ].flatMap(({ question, answer: value }) => {
+    const answer = value.trim();
+    return answer ? [`${question}
+${answer}`] : [];
+  }).join("\n\n");
+}
+function StoryQuestions({
+  answers,
+  onChange,
+  extraAnswers = [],
+  onExtraChange
+}) {
+  const prompts = [
+    ...storyQuestions,
+    ...extraAnswers.map((item) => item.question)
+  ];
+  const values = [
+    ...storyQuestions.map((_, index2) => answers[index2] || ""),
+    ...extraAnswers.map((item) => item.answer)
+  ];
+  const [question, setQuestion] = reactExports.useState(
+    () => answers.some((value) => value.trim()) ? prompts.length : 0
+  );
+  const [customQuestion, setCustomQuestion] = reactExports.useState("");
+  const heading = reactExports.useRef(null);
+  const moved = reactExports.useRef(false);
+  reactExports.useEffect(() => {
+    var _a2;
+    if (moved.current) (_a2 = heading.current) == null ? void 0 : _a2.focus();
+    moved.current = true;
+  }, [question]);
+  function answer(value) {
+    if (question >= 4) {
+      onExtraChange == null ? void 0 : onExtraChange(
+        extraAnswers.map(
+          (item, index2) => index2 === question - 4 ? { ...item, answer: value } : item
+        )
+      );
+      return;
+    }
+    onChange(
+      storyQuestions.map(
+        (_, index2) => index2 === question ? value : answers[index2] || ""
+      )
+    );
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "story-questions", "aria-label": "Your shared story", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { ref: heading, tabIndex: -1, children: question < prompts.length ? `A little about you two · ${question + 1} of ${prompts.length}` : "Your story so far" }),
+    question < prompts.length ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Short answers are perfect. Every question is optional." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "story-answer", children: prompts[question] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: "story-answer-help", className: "field-help", children: storyHints[question] || "Add names or details you both recognize. You can skip this or return later." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "textarea",
+        {
+          id: "story-answer",
+          "aria-describedby": "story-answer-help",
+          value: values[question] || "",
+          maxLength: 3e3,
+          rows: 5,
+          onChange: (event) => answer(event.target.value)
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "field-help", children: [
+        (values[question] || "").length,
+        "/3,000 characters"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Dictation,
+        {
+          value: values[question] || "",
+          onChange: answer,
+          maxLength: 3e3
+        },
+        question
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
+        question > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            className: "text-button",
+            onClick: () => setQuestion(question - 1),
+            children: "Previous question"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            className: "secondary-button",
+            onClick: () => setQuestion(question + 1),
+            children: question === prompts.length - 1 ? "Review my answers" : "Next question"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            className: "text-button",
+            onClick: () => {
+              answer("");
+              setQuestion(question + 1);
+            },
+            children: "Skip this question"
+          }
+        )
+      ] })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("dl", { className: "story-review", children: prompts.map((prompt, index2) => {
+        var _a2;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { children: prompt }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { children: ((_a2 = values[index2]) == null ? void 0 : _a2.trim()) || "Skipped" })
+        ] }, prompt);
+      }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          className: "text-button",
+          onClick: () => setQuestion(0),
+          children: "Edit my story answers"
+        }
+      ),
+      !answers.some((value) => value.trim()) && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "No memories added. We'll use your shared interests for a themed puzzle." }),
+      onExtraChange && extraAnswers.length < 8 && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "story-followup", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Add a detail when you feel like it. Your earlier answers stay saved." }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            className: "secondary-button",
+            onClick: () => {
+              const options = [
+                "Which restaurants or foods are part of your story? Name a few favorites.",
+                "Who are the family members or friends you both know, and how are they connected?",
+                "Which shows, films, or games have you enjoyed together?",
+                "What places have you lived in or visited, and what happened there?",
+                "What nicknames, sayings, or inside jokes do you share?",
+                "What new memory would you like to add today?",
+                "What traditions or celebrations do you share?",
+                "What hobbies or plans are you looking forward to together?"
+              ];
+              const next = options.find(
+                (prompt) => !prompts.includes(prompt)
+              );
+              if (next) {
+                onExtraChange([
+                  ...extraAnswers,
+                  { question: next, answer: "" }
+                ]);
+                setQuestion(prompts.length);
+              }
+            },
+            children: "Ask me another question"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          "Or add your own question",
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              value: customQuestion,
+              maxLength: 180,
+              onChange: (event) => setCustomQuestion(event.target.value)
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            className: "text-button",
+            disabled: !customQuestion.trim() || prompts.includes(customQuestion.trim()),
+            onClick: () => {
+              onExtraChange([
+                ...extraAnswers,
+                { question: customQuestion.trim(), answer: "" }
+              ]);
+              setQuestion(prompts.length);
+              setCustomQuestion("");
+            },
+            children: "Add my question"
+          }
+        )
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "A few specific details help: name the place and why it matters, or list foods, games, shows, and routines you share. Your story is the primary source for the puzzle. These answers aren't included in the invitation." })
+  ] });
+}
 function generationErrorMessage(error) {
   if (!(error instanceof Error)) return "Please try again in a moment.";
   if (error.message.includes("CANISTER_ID_BACKEND"))
@@ -14959,14 +15269,17 @@ function generationRequest(brief) {
     purpose: brief.purpose,
     interests: brief.interests.trim(),
     topic: brief.topic.trim(),
-    notes: brief.purpose === "study" ? brief.notes.trim() : brief.storyAnswers ? storyNotes(brief.storyAnswers) : (brief.memories || "").trim(),
+    notes: brief.purpose === "study" ? brief.notes.trim() : brief.storyAnswers ? storyNotes(brief.storyAnswers, brief.extraAnswers) : (brief.memories || "").trim(),
     difficulty: brief.difficulty,
     familiarity: brief.familiarity,
-    personalization: brief.personalization || "mix"
+    personalization: brief.personalization || "memories-only",
+    usedTerms: brief.usedTerms || []
   };
 }
-async function generatePuzzle(brief) {
-  return parseGeneratedPuzzle(await hostedGeneration(generationRequest(brief)));
+async function generatePuzzle(brief, story) {
+  return parseGeneratedPuzzle(
+    await hostedGeneration({ ...generationRequest(brief), story })
+  );
 }
 function encodeChallenge(challenge) {
   const clean = validateChallenge(challenge);
@@ -15016,7 +15329,33 @@ const stepTitles = [
   "How should this puzzle feel?"
 ];
 function Creator({ onHome, onPlay }) {
-  const [brief, setBrief] = reactExports.useState({ ...defaultBrief });
+  var _a2, _b2, _c2;
+  const [library, setLibrary] = reactExports.useState(readLibrary);
+  const currentStory = library.profiles.find((profile) => profile.id === library.activeId) || library.profiles[0];
+  const brief = currentStory.brief;
+  const [saveStatus, setSaveStatus] = reactExports.useState("Saving on this device…");
+  function setBrief(update2) {
+    setLibrary((current) => ({
+      ...current,
+      profiles: current.profiles.map(
+        (profile) => profile.id === current.activeId ? {
+          ...profile,
+          brief: typeof update2 === "function" ? update2(profile.brief) : update2,
+          updatedAt: Date.now()
+        } : profile
+      )
+    }));
+  }
+  reactExports.useEffect(() => {
+    try {
+      localStorage.setItem(STORY_KEY, JSON.stringify(library));
+      setSaveStatus("Saved automatically on this device.");
+    } catch {
+      setSaveStatus(
+        "Browser saving is unavailable. Download a backup or save to private cloud to keep these answers."
+      );
+    }
+  }, [library]);
   const [step, setStep] = reactExports.useState(0);
   const [draft, setDraft] = reactExports.useState(null);
   const [source, setSource] = reactExports.useState("ai");
@@ -15028,8 +15367,8 @@ function Creator({ onHome, onPlay }) {
   const hasDraft = draft !== null;
   const hasShared = shared !== null;
   reactExports.useEffect(() => {
-    var _a2;
-    (_a2 = heading.current) == null ? void 0 : _a2.focus();
+    var _a3;
+    (_a3 = heading.current) == null ? void 0 : _a3.focus();
   }, [step, hasDraft, hasShared]);
   function update(key, value) {
     setBrief((current) => ({ ...current, [key]: value }));
@@ -15040,7 +15379,17 @@ function Creator({ onHome, onPlay }) {
     setPending(true);
     setError("");
     try {
-      setDraft(await generatePuzzle(brief));
+      const puzzle = await generatePuzzle(brief, currentStory);
+      setDraft(puzzle);
+      setBrief((current) => ({
+        ...current,
+        usedTerms: [
+          .../* @__PURE__ */ new Set([
+            ...current.usedTerms || [],
+            ...puzzle.groups.flatMap((group) => group.words)
+          ])
+        ].slice(-320)
+      }));
       setSource("ai");
     } catch (error2) {
       setError(generationErrorMessage(error2));
@@ -15082,8 +15431,11 @@ function Creator({ onHome, onPlay }) {
       );
     }
   }
-  const canContinue = step !== 1 || brief.interests.trim().length > 0;
-  const canGenerate = brief.interests.trim().length > 0 && (brief.purpose !== "study" || brief.topic.trim().length > 0);
+  const hasStory = Boolean(
+    ((_a2 = brief.storyAnswers) == null ? void 0 : _a2.some((answer) => answer.trim())) || ((_b2 = brief.extraAnswers) == null ? void 0 : _b2.some((item) => item.answer.trim())) || ((_c2 = brief.memories) == null ? void 0 : _c2.trim())
+  );
+  const canContinue = step !== 1 || brief.interests.trim().length > 0 || hasStory;
+  const canGenerate = (brief.interests.trim().length > 0 || hasStory) && (brief.purpose !== "study" || brief.topic.trim().length > 0);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "creator-page", "aria-labelledby": "creator-title", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "text-button", type: "button", onClick: onHome, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 16 }),
@@ -15097,6 +15449,48 @@ function Creator({ onHome, onPlay }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { id: "creator-title", ref: heading, tabIndex: -1, children: shared ? "A little challenge, ready to send." : draft ? brief.style === "together" ? "Keep a little mystery." : "Your puzzle. Your finishing touch." : stepTitles[step] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: shared ? "Send the link yourself, or copy a challenge code. No account needed to solve it." : draft ? brief.style === "together" ? "The connections are hidden so you can discover them together." : "AI does the heavy lifting. You get the final say." : "A few quick steps. A puzzle with your people in mind." })
     ] }),
+    !draft && !shared && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      StoryLibraryControls,
+      {
+        profiles: library.profiles,
+        current: currentStory,
+        status: saveStatus,
+        onSelect: (id) => {
+          setLibrary((current) => ({ ...current, activeId: id }));
+          setError("");
+        },
+        onNew: () => {
+          const profile = newProfile();
+          setLibrary((current) => ({
+            activeId: profile.id,
+            profiles: [...current.profiles, profile].slice(-20)
+          }));
+          setStep(0);
+          setError("");
+        },
+        onRename: (name) => setLibrary((current) => ({
+          ...current,
+          profiles: current.profiles.map(
+            (profile) => profile.id === current.activeId ? { ...profile, name, updatedAt: Date.now() } : profile
+          )
+        })),
+        onImport: (profile) => {
+          setLibrary((current) => {
+            const local = current.profiles.find(
+              (item) => item.id === profile.id
+            );
+            return {
+              activeId: profile.id,
+              profiles: [
+                ...current.profiles.filter((item) => item.id !== profile.id),
+                local && local.updatedAt > profile.updatedAt ? local : profile
+              ].slice(-20)
+            };
+          });
+          setError("");
+        }
+      }
+    ),
     shared ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-panel share-panel", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(HeartHandshake, { size: 28 }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: shared.puzzle.title }),
@@ -15140,8 +15534,8 @@ function Creator({ onHome, onPlay }) {
       ] })
     ] }) : draft ? /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-panel", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `source-label ${source}`, children: source === "example" ? "EXAMPLE PUZZLE · NOT AI-GENERATED" : source === "edited" ? "AI DRAFT · EDITED BY YOU" : "AI-GENERATED DRAFT" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: draft.title }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: draft.description }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: brief.style === "together" ? "Your personal puzzle is ready." : draft.title }),
+      brief.style === "gift" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: draft.description }),
       brief.style === "gift" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "review-note", children: "You're the puzzle maker, so you'll see the answers. Check that each group makes sense, especially for study topics. Structural checks can't verify every fact or possible connection." }),
         draft.groups.map((group, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -15338,7 +15732,7 @@ function Creator({ onHome, onPlay }) {
                           onChange: () => update("style", "together")
                         }
                       ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Solve together" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Solve together · surprise us" }),
                       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Keep the answers a surprise for both of you." })
                     ]
                   }
@@ -15387,7 +15781,7 @@ function Creator({ onHome, onPlay }) {
                     onChange: (event) => update("interests", event.target.value),
                     placeholder: "Basketball, baking, '90s music… whatever feels like you two.",
                     rows: 3,
-                    required: true
+                    required: !hasStory
                   }
                 )
               ] }),
@@ -15476,25 +15870,28 @@ function Creator({ onHome, onPlay }) {
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(
                   "select",
                   {
-                    value: brief.personalization || "mix",
+                    value: brief.personalization || "memories-only",
                     onChange: (event) => update(
                       "personalization",
                       event.target.value
                     ),
                     children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "mix", children: "Personal mix · memories plus related themes" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "memories-only", children: "Only our memories · may need more details" })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "mix", children: "Mostly personal · allow one related theme" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "memories-only", children: "Our story · all four groups from our answers" })
                     ]
                   }
                 ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "field-help", children: "Personal mix makes it easier to start playing: real memories where they fit, plus clearly themed connections. It won't claim themed words are things you've done." })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "field-help", children: "Saved memories take priority over interest chips. All four personal groups is the default; related themes are optional and limited to one group." })
               ] }),
               brief.purpose === "fun" && /* @__PURE__ */ jsxRuntimeExports.jsx(
                 StoryQuestions,
                 {
                   answers: brief.storyAnswers || [],
-                  onChange: (answers) => update("storyAnswers", answers)
-                }
+                  onChange: (answers) => update("storyAnswers", answers),
+                  extraAnswers: brief.extraAnswers || [],
+                  onExtraChange: (answers) => update("extraAnswers", answers)
+                },
+                currentStory.id
               ),
               brief.purpose === "study" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
                 "Study notes ",

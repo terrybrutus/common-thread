@@ -69,6 +69,7 @@ export function setIdentityForTest(
 }
 
 beforeEach(() => {
+  localStorage.clear();
   setIdentityForTest();
 });
 

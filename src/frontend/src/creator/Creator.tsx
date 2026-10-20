@@ -10,12 +10,18 @@ import { useEffect, useRef, useState } from "react";
 import { type Group, type Puzzle, puzzles } from "../game/puzzles";
 import { CopyField } from "./CopyField";
 import { Dictation } from "./Dictation";
+import { StoryLibraryControls } from "./StoryLibrary";
 import { StoryQuestions } from "./StoryQuestions";
 import { generatePuzzle, generationErrorMessage } from "./ai";
 import {
+  STORY_KEY,
+  type StoryProfile,
+  newProfile,
+  readLibrary,
+} from "./library";
+import {
   type CreatorBrief,
   type FriendChallenge,
-  defaultBrief,
   makeChallenge,
   validatePuzzle,
 } from "./schema";
@@ -33,7 +39,39 @@ const stepTitles = [
 ];
 
 export function Creator({ onHome, onPlay }: CreatorProps) {
-  const [brief, setBrief] = useState<CreatorBrief>({ ...defaultBrief });
+  const [library, setLibrary] = useState(readLibrary);
+  const currentStory =
+    library.profiles.find((profile) => profile.id === library.activeId) ||
+    library.profiles[0];
+  const brief = currentStory.brief;
+  const [saveStatus, setSaveStatus] = useState("Saving on this device…");
+  function setBrief(
+    update: CreatorBrief | ((current: CreatorBrief) => CreatorBrief),
+  ) {
+    setLibrary((current) => ({
+      ...current,
+      profiles: current.profiles.map((profile) =>
+        profile.id === current.activeId
+          ? {
+              ...profile,
+              brief:
+                typeof update === "function" ? update(profile.brief) : update,
+              updatedAt: Date.now(),
+            }
+          : profile,
+      ),
+    }));
+  }
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORY_KEY, JSON.stringify(library));
+      setSaveStatus("Saved automatically on this device.");
+    } catch {
+      setSaveStatus(
+        "Browser saving is unavailable. Download a backup or save to private cloud to keep these answers.",
+      );
+    }
+  }, [library]);
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<Puzzle | null>(null);
   const [source, setSource] = useState<FriendChallenge["source"]>("ai");
@@ -60,7 +98,17 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
     setPending(true);
     setError("");
     try {
-      setDraft(await generatePuzzle(brief));
+      const puzzle = await generatePuzzle(brief, currentStory);
+      setDraft(puzzle);
+      setBrief((current) => ({
+        ...current,
+        usedTerms: [
+          ...new Set([
+            ...(current.usedTerms || []),
+            ...puzzle.groups.flatMap((group) => group.words),
+          ]),
+        ].slice(-320),
+      }));
       setSource("ai");
     } catch (error) {
       setError(generationErrorMessage(error));
@@ -106,9 +154,15 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
       );
     }
   }
-  const canContinue = step !== 1 || brief.interests.trim().length > 0;
+  const hasStory = Boolean(
+    brief.storyAnswers?.some((answer) => answer.trim()) ||
+      brief.extraAnswers?.some((item) => item.answer.trim()) ||
+      brief.memories?.trim(),
+  );
+  const canContinue =
+    step !== 1 || brief.interests.trim().length > 0 || hasStory;
   const canGenerate =
-    brief.interests.trim().length > 0 &&
+    (brief.interests.trim().length > 0 || hasStory) &&
     (brief.purpose !== "study" || brief.topic.trim().length > 0);
 
   return (
@@ -139,6 +193,53 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
               : "A few quick steps. A puzzle with your people in mind."}
         </p>
       </div>
+      {!draft && !shared && (
+        <StoryLibraryControls
+          profiles={library.profiles}
+          current={currentStory}
+          status={saveStatus}
+          onSelect={(id) => {
+            setLibrary((current) => ({ ...current, activeId: id }));
+            setError("");
+          }}
+          onNew={() => {
+            const profile = newProfile();
+            setLibrary((current) => ({
+              activeId: profile.id,
+              profiles: [...current.profiles, profile].slice(-20),
+            }));
+            setStep(0);
+            setError("");
+          }}
+          onRename={(name) =>
+            setLibrary((current) => ({
+              ...current,
+              profiles: current.profiles.map((profile) =>
+                profile.id === current.activeId
+                  ? { ...profile, name, updatedAt: Date.now() }
+                  : profile,
+              ),
+            }))
+          }
+          onImport={(profile: StoryProfile) => {
+            setLibrary((current) => {
+              const local = current.profiles.find(
+                (item) => item.id === profile.id,
+              );
+              return {
+                activeId: profile.id,
+                profiles: [
+                  ...current.profiles.filter((item) => item.id !== profile.id),
+                  local && local.updatedAt > profile.updatedAt
+                    ? local
+                    : profile,
+                ].slice(-20),
+              };
+            });
+            setError("");
+          }}
+        />
+      )}
       {shared ? (
         <div className="creator-panel share-panel">
           <HeartHandshake size={28} />
@@ -194,8 +295,12 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                   ? "AI DRAFT · EDITED BY YOU"
                   : "AI-GENERATED DRAFT"}
             </span>
-            <h2>{draft.title}</h2>
-            <p>{draft.description}</p>
+            <h2>
+              {brief.style === "together"
+                ? "Your personal puzzle is ready."
+                : draft.title}
+            </h2>
+            {brief.style === "gift" && <p>{draft.description}</p>}
             {brief.style === "gift" ? (
               <>
                 <p className="review-note">
@@ -398,7 +503,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                       checked={brief.style === "together"}
                       onChange={() => update("style", "together")}
                     />
-                    <strong>Solve together</strong>
+                    <strong>Solve together · surprise us</strong>
                     <span>Keep the answers a surprise for both of you.</span>
                   </label>
                 </fieldset>
@@ -445,7 +550,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                     }
                     placeholder="Basketball, baking, '90s music… whatever feels like you two."
                     rows={3}
-                    required
+                    required={!hasStory}
                   />
                 </label>
                 <div className="interest-chips">
@@ -539,7 +644,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                   <label>
                     How personal should it be?
                     <select
-                      value={brief.personalization || "mix"}
+                      value={brief.personalization || "memories-only"}
                       onChange={(event) =>
                         update(
                           "personalization",
@@ -548,23 +653,26 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                       }
                     >
                       <option value="mix">
-                        Personal mix · memories plus related themes
+                        Mostly personal · allow one related theme
                       </option>
                       <option value="memories-only">
-                        Only our memories · may need more details
+                        Our story · all four groups from our answers
                       </option>
                     </select>
                     <span className="field-help">
-                      Personal mix makes it easier to start playing: real
-                      memories where they fit, plus clearly themed connections.
-                      It won't claim themed words are things you've done.
+                      Saved memories take priority over interest chips. All four
+                      personal groups is the default; related themes are
+                      optional and limited to one group.
                     </span>
                   </label>
                 )}
                 {brief.purpose === "fun" && (
                   <StoryQuestions
+                    key={currentStory.id}
                     answers={brief.storyAnswers || []}
                     onChange={(answers) => update("storyAnswers", answers)}
+                    extraAnswers={brief.extraAnswers || []}
+                    onExtraChange={(answers) => update("extraAnswers", answers)}
                   />
                 )}
                 {brief.purpose === "study" && (

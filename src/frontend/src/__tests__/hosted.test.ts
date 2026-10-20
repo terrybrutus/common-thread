@@ -29,7 +29,7 @@ describe("private hosted connection", () => {
     expect(popup.postMessage).not.toHaveBeenCalled();
     message(CLAUDE_SERVICE, "common-thread-ready");
     expect(popup.postMessage).toHaveBeenCalledWith(
-      { type: "common-thread-brief", channel, brief },
+      { type: "common-thread-brief", channel, brief, operation: "generate" },
       CLAUDE_SERVICE,
     );
     message(CLAUDE_SERVICE, "common-thread-result", "puzzle-json");

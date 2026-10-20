@@ -12,10 +12,19 @@ export const storyHints = [
   "An inside joke, a nickname's origin, the weather on a special day, or a small tradition.",
 ];
 
-export function storyNotes(answers: string[]): string {
-  return storyQuestions
-    .flatMap((question, index) => {
-      const answer = answers[index]?.trim();
+export function storyNotes(
+  answers: string[],
+  extra: { question: string; answer: string }[] = [],
+): string {
+  return [
+    ...storyQuestions.map((question, index) => ({
+      question,
+      answer: answers[index] || "",
+    })),
+    ...extra,
+  ]
+    .flatMap(({ question, answer: value }) => {
+      const answer = value.trim();
       return answer ? [`${question}\n${answer}`] : [];
     })
     .join("\n\n");

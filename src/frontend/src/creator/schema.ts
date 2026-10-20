@@ -12,6 +12,8 @@ export interface CreatorBrief {
   memories?: string;
   storyAnswers?: string[];
   personalization?: "mix" | "memories-only";
+  extraAnswers?: { question: string; answer: string }[];
+  usedTerms?: string[];
   difficulty: "easy" | "balanced" | "tricky";
   familiarity: "new" | "familiar";
   mode: "relaxed" | "challenge";
@@ -20,7 +22,8 @@ export const defaultBrief: CreatorBrief = {
   creator: "",
   recipient: "",
   note: "",
-  style: "gift",
+  style: "together",
+  personalization: "memories-only",
   purpose: "fun",
   interests: "",
   topic: "",

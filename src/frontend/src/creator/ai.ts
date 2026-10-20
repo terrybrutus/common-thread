@@ -1,4 +1,5 @@
 import { hostedGeneration } from "./hosted";
+import type { StoryProfile } from "./library";
 import { type CreatorBrief, parseGeneratedPuzzle } from "./schema";
 import { storyNotes } from "./story";
 
@@ -20,15 +21,19 @@ export function generationRequest(brief: CreatorBrief) {
       brief.purpose === "study"
         ? brief.notes.trim()
         : brief.storyAnswers
-          ? storyNotes(brief.storyAnswers)
+          ? storyNotes(brief.storyAnswers, brief.extraAnswers)
           : (brief.memories || "").trim(),
     difficulty: brief.difficulty,
     familiarity: brief.familiarity,
-    personalization: brief.personalization || "mix",
+    personalization: brief.personalization || "memories-only",
+    usedTerms: brief.usedTerms || [],
   };
 }
 
-export async function generatePuzzle(brief: CreatorBrief) {
+export async function generatePuzzle(
+  brief: CreatorBrief,
+  story?: StoryProfile,
+) {
   if (import.meta.env.DEV) {
     const response = await fetch("/__local-ai/puzzle", {
       method: "POST",
@@ -40,5 +45,7 @@ export async function generatePuzzle(brief: CreatorBrief) {
       throw new Error(data.error || "Claude couldn't generate a puzzle.");
     return parseGeneratedPuzzle(data.text);
   }
-  return parseGeneratedPuzzle(await hostedGeneration(generationRequest(brief)));
+  return parseGeneratedPuzzle(
+    await hostedGeneration({ ...generationRequest(brief), story }),
+  );
 }

@@ -1,7 +1,10 @@
 export const CLAUDE_SERVICE =
   "https://common-thread-claude-service.terrbrutus.chatgpt.site";
 
-export function hostedGeneration(brief: unknown): Promise<string> {
+export function hostedOperation(
+  operation: "generate" | "save-story" | "load-story",
+  brief: unknown,
+): Promise<unknown> {
   const channel = crypto.randomUUID();
   // Open synchronously during the player's button click, before the first await.
   const popup = window.open(
@@ -30,15 +33,15 @@ export function hostedGeneration(brief: unknown): Promise<string> {
         return;
       if (event.data.type === "common-thread-ready")
         popup.postMessage(
-          { type: "common-thread-brief", channel, brief },
+          { type: "common-thread-brief", channel, brief, operation },
           CLAUDE_SERVICE,
         );
       if (
         event.data.type === "common-thread-result" &&
-        typeof event.data.text === "string"
+        (typeof event.data.text === "string" || event.data.value !== undefined)
       ) {
         clean();
-        resolve(event.data.text);
+        resolve(event.data.value ?? event.data.text);
         window.focus();
       }
       if (event.data.type === "common-thread-error") {
@@ -66,4 +69,11 @@ export function hostedGeneration(brief: unknown): Promise<string> {
       }
     }, 1000);
   });
+}
+
+export async function hostedGeneration(brief: unknown): Promise<string> {
+  const result = await hostedOperation("generate", brief);
+  if (typeof result !== "string")
+    throw new Error("The private service returned an invalid puzzle.");
+  return result;
 }

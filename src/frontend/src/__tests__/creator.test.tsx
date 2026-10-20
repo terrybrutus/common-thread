@@ -26,8 +26,11 @@ async function reachFinalStep(
   await user.click(
     screen.getByRole("button", { name: "Create a personal puzzle" }),
   );
-  if (together)
-    await user.click(screen.getByRole("radio", { name: /Solve together/ }));
+  await user.click(
+    screen.getByRole("radio", {
+      name: together ? /Solve together/ : /Make a challenge/,
+    }),
+  );
   await user.type(
     screen.getByRole("textbox", { name: "Your nickname (optional)" }),
     "Terry",
@@ -64,6 +67,7 @@ describe("personal creator and friend challenges", () => {
         creator: "Terry",
         recipient: "Jessica",
       }),
+      expect.anything(),
     );
     expect(
       screen.getByText("MAPLE · BIRCH · WILLOW · CEDAR").closest("summary"),
@@ -148,6 +152,7 @@ describe("personal creator and friend challenges", () => {
         creator: "Terry",
         recipient: "Jessica",
         mode: "challenge",
+        style: "gift",
       },
       puzzles[1],
       "ai",

@@ -1,0 +1,120 @@
+import { type CreatorBrief, defaultBrief } from "./schema";
+
+export const STORY_KEY = "common-thread-stories-v1";
+export interface StoryProfile {
+  id: string;
+  name: string;
+  brief: CreatorBrief;
+  updatedAt: number;
+}
+export interface StoryLibrary {
+  activeId: string;
+  profiles: StoryProfile[];
+}
+export function newProfile(): StoryProfile {
+  return {
+    id: crypto.randomUUID(),
+    name: "Our story",
+    brief: { ...defaultBrief },
+    updatedAt: Date.now(),
+  };
+}
+export function parseProfile(value: unknown): StoryProfile {
+  if (!value || typeof value !== "object")
+    throw new Error("Choose a Common Thread story backup.");
+  const raw = value as Record<string, unknown>;
+  const input = raw.brief as Record<string, unknown>;
+  if (!input || typeof input !== "object")
+    throw new Error("This story backup is missing its answers.");
+  const brief = { ...defaultBrief };
+  for (const [key, limit] of Object.entries({
+    creator: 40,
+    recipient: 40,
+    note: 180,
+    interests: 2000,
+    topic: 500,
+    notes: 12000,
+    memories: 30000,
+  })) {
+    if (input[key] !== undefined) {
+      if (typeof input[key] !== "string" || input[key].length > limit)
+        throw new Error("A story field is too long or invalid.");
+      Object.assign(brief, { [key]: input[key] });
+    }
+  }
+  for (const [key, choices] of Object.entries({
+    style: ["gift", "together"],
+    purpose: ["fun", "study"],
+    personalization: ["mix", "memories-only"],
+    difficulty: ["easy", "balanced", "tricky"],
+    familiarity: ["new", "familiar"],
+    mode: ["relaxed", "challenge"],
+  })) {
+    if (choices.includes(String(input[key])))
+      Object.assign(brief, { [key]: input[key] });
+  }
+  if (input.storyAnswers !== undefined) {
+    if (
+      !Array.isArray(input.storyAnswers) ||
+      input.storyAnswers.length > 4 ||
+      input.storyAnswers.some((v) => typeof v !== "string" || v.length > 3000)
+    )
+      throw new Error("This story has invalid answers.");
+    brief.storyAnswers = input.storyAnswers;
+  }
+  if (input.extraAnswers !== undefined) {
+    if (
+      !Array.isArray(input.extraAnswers) ||
+      input.extraAnswers.length > 8 ||
+      input.extraAnswers.some(
+        (v) =>
+          !v ||
+          typeof v.question !== "string" ||
+          v.question.length > 180 ||
+          typeof v.answer !== "string" ||
+          v.answer.length > 3000,
+      )
+    )
+      throw new Error("This story has invalid follow-up answers.");
+    brief.extraAnswers = input.extraAnswers.map((v) => ({
+      question: v.question,
+      answer: v.answer,
+    }));
+  }
+  if (Array.isArray(input.usedTerms))
+    brief.usedTerms = input.usedTerms
+      .filter((v): v is string => typeof v === "string" && v.length <= 24)
+      .slice(-320);
+  return {
+    id:
+      typeof raw.id === "string" && raw.id.length <= 80
+        ? raw.id
+        : crypto.randomUUID(),
+    name: typeof raw.name === "string" ? raw.name.slice(0, 80) : "Our story",
+    brief,
+    updatedAt:
+      typeof raw.updatedAt === "number" && Number.isFinite(raw.updatedAt)
+        ? raw.updatedAt
+        : Date.now(),
+  };
+}
+export function readLibrary(): StoryLibrary {
+  try {
+    const text = localStorage.getItem(STORY_KEY);
+    if (text && text.length < 3000000) {
+      const raw = JSON.parse(text);
+      const profiles = raw.profiles.slice(0, 20).map(parseProfile);
+      if (profiles.length)
+        return {
+          activeId: profiles.some((p: StoryProfile) => p.id === raw.activeId)
+            ? raw.activeId
+            : profiles[0].id,
+          profiles,
+        };
+    }
+  } catch {
+    /* A broken backup must not prevent opening the app. */
+  }
+  const profile = newProfile();
+  return { activeId: profile.id, profiles: [profile] };
+}

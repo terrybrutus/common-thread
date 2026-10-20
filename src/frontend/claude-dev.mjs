@@ -50,7 +50,7 @@ export function claudeDevPlugin(env, root) {
           const response = await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: { "Content-Type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-            body: JSON.stringify({ model: MODEL, max_tokens: 4000, thinking: { type: "adaptive" }, output_config: { effort: "low", format: { type: "json_schema", schema: outputSchema } }, system: SYSTEM, messages: [{ role: "user", content: JSON.stringify(brief) }] }),
+            body: JSON.stringify({ model: MODEL, max_tokens: 5000, thinking: { type: "adaptive" }, output_config: { effort: "low", format: { type: "json_schema", schema: outputSchema } }, system: SYSTEM, messages: [{ role: "user", content: JSON.stringify(brief) }] }),
             signal: AbortSignal.timeout(60000),
           });
           if (!response.ok) return send(502, { error: response.status === 401 || response.status === 403 ? "Claude rejected the test credential. Check the account's API access." : "Claude couldn't generate a puzzle. Check API credit or try later." });
@@ -58,7 +58,7 @@ export function claudeDevPlugin(env, root) {
           if (data.stop_reason !== "end_turn") return send(502, { error: "Claude didn't finish the puzzle. Please try again." });
           const text = data.content.filter(block => block.type === "text").map(block => block.text).join("");
           if (text.length > 16000) return send(502, { error: "The AI response was too long." });
-          try { send(200, { text: parseOutput(text) }); } catch (error) { send(422, { error: error.message }); }
+          try { send(200, { text: parseOutput(text, brief) }); } catch (error) { send(422, { error: error.message }); }
         } catch {
           send(502, { error: "The local Claude connection failed. Check your connection and try again." });
         } finally { busy = false; }
