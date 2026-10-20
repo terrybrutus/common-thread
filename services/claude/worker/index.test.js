@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
-import worker, { parseOutput, validateBrief, saveStory } from "./index.js";
+import worker, { parseOutput, validateBrief, saveStory, outputSchema, claudeError, identitySource } from "./index.js";
 
 function database() {
   const sqlite = new DatabaseSync(":memory:");
@@ -106,4 +106,41 @@ test("verified wordplay permits reversed names but rejects arbitrary spelling an
   const tiles = ["ELM", "OAK", "PINE", "BIRCH"];
   for (let j = 0; j < 4; j++) { const letter = "ABCD"[j]; g[letter.toLowerCase()] = tiles[j]; g[`source${letter}`] = `${tiles[j]} PARK`; g[`evidence${letter}`] = `${tiles[j]} PARK`; }
   assert.equal(JSON.parse(parseOutput(JSON.stringify({ puzzle }), { ...brief, notes: notes + " " + tiles.map(v => `${v} PARK`).join(" ") })).groups[3].words[0], "ELM");
+});
+
+test("compact schema/parser keeps exact group and entry counts and strips internal provenance", () => {
+  assert.equal(outputSchema.properties.puzzle.anyOf[1].properties.groups.type, "array");
+  assert.ok(JSON.stringify(outputSchema).length < 2200);
+  const groups = ["A", "B", "C", "D"].map(prefix => ({
+    category: "Our favorites", clue: "Think of your favorites", explanation: "These are things you both enjoy.", kind: "personal", operation: "literal", fixedText: "",
+    entries: [1, 2, 3, 4].map(i => ({ tile: prefix + i, source: prefix + i, evidence: prefix + i })),
+  }));
+  const puzzle = { title: "Our puzzle", topic: "Our story", description: "A puzzle for you both", groups };
+  const brief = { purpose: "fun", personalization: "memories-only", notes: groups.flatMap(g => g.entries.map(e => e.source)).join(" ") };
+  const parsed = JSON.parse(parseOutput(JSON.stringify({ question: "", puzzle }), brief));
+  assert.equal(parsed.groups.length, 4);
+  assert.ok(!JSON.stringify(parsed).includes('"evidence"'));
+  groups[0].entries.pop();
+  assert.throws(() => parseOutput(JSON.stringify({ puzzle }), brief), /exactly four/);
+  groups.pop();
+  assert.throws(() => parseOutput(JSON.stringify({ puzzle }), brief), /incomplete/);
+});
+
+test("provider failures distinguish request format, account access and billing without exposing raw details", async () => {
+  assert.match(await claudeError(Response.json({ error: { message: "The compiled grammar is too large" } }, { status: 400 })), /puzzle format/);
+  assert.match(await claudeError(Response.json({ error: { message: "credit balance is low" } }, { status: 400 })), /billing or credit/);
+  assert.match(await claudeError(Response.json({ error: { message: "private test-secret" } }, { status: 401 })), /authenticate/);
+  assert.doesNotMatch(await claudeError(Response.json({ error: { message: "private test-secret" } }, { status: 500 })), /test-secret/);
+  assert.match(await claudeError(new Response("Unavailable", { status: 429 })), /limiting requests/);
+});
+
+test("small name typos resolve only to a unique confirmed participant", () => {
+  const names = { you: "Alice", partner: "Robin" };
+  assert.equal(identitySource("Alce", names), "Alice");
+  assert.equal(identitySource("Alixe", names), "Alice");
+  assert.equal(identitySource("Alice", names), "Alice");
+  assert.equal(identitySource("Unrelated", names), "Unrelated");
+  assert.equal(identitySource("Mark", { you: "Marc", partner: "Mary" }), "Mark");
+  assert.equal(identitySource("Alce", undefined), "Alce");
+  assert.equal(identitySource("Al", { you: "Ali", partner: "Bo" }), "Al");
 });

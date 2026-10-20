@@ -13,6 +13,10 @@ export function generationErrorMessage(error: unknown): string {
 }
 
 export function generationRequest(brief: CreatorBrief) {
+  const people = {
+    you: (brief.creator || brief.people?.you || "").trim(),
+    partner: (brief.recipient || brief.people?.partner || "").trim(),
+  };
   return {
     purpose: brief.purpose,
     interests: brief.interests.trim(),
@@ -45,7 +49,9 @@ export function generationRequest(brief: CreatorBrief) {
     familiarity: brief.familiarity,
     personalization: brief.personalization || "memories-only",
     usedTerms: brief.usedTerms || [],
-    ...(brief.people ? { people: brief.people } : {}),
+    ...(brief.purpose === "fun" && (people.you || people.partner)
+      ? { people }
+      : {}),
   };
 }
 

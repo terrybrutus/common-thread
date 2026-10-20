@@ -19,12 +19,15 @@ describe("living story persistence", () => {
       screen.getByText("Saved stories & backups", { exact: true }),
     );
     await user.click(screen.getByText("Puzzle options", { exact: true }));
-    expect(screen.getByRole("radio", { name: /Solve together/ })).toBeChecked();
+    await user.click(screen.getByText("Names & sharing (optional)"));
+    expect(
+      screen.getByRole("combobox", { name: "Answer visibility" }),
+    ).toHaveValue("together");
     fireEvent.change(screen.getByRole("textbox", { name: "Story name" }), {
       target: { value: "Our saved adventures" },
     });
     fireEvent.change(
-      screen.getByRole("textbox", { name: "Your nickname (optional)" }),
+      screen.getByRole("textbox", { name: "Your name (optional)" }),
       { target: { value: "Player" } },
     );
     fireEvent.change(screen.getByRole("textbox", { name: storyQuestions[0] }), {
@@ -45,11 +48,12 @@ describe("living story persistence", () => {
       screen.getByText("Saved stories & backups", { exact: true }),
     );
     await user.click(screen.getByText("Puzzle options", { exact: true }));
+    await user.click(screen.getByText("Names & sharing (optional)"));
     expect(screen.getByRole("textbox", { name: "Story name" })).toHaveValue(
       "Our saved adventures",
     );
     expect(
-      screen.getByRole("textbox", { name: "Your nickname (optional)" }),
+      screen.getByRole("textbox", { name: "Your name (optional)" }),
     ).toHaveValue("Player");
     expect(readLibrary().profiles[0].brief.storyAnswers?.[0]).toBe(
       "We met at the pier.",

@@ -254,7 +254,7 @@ export default function App() {
       </main>
       <footer className="site-footer">
         <span>Common Thread</span>
-        <span>Stay curious. Keep connecting.</span>
+        <span>Created by Terry Brutus</span>
       </footer>
     </div>
   );

@@ -49,6 +49,21 @@ describe("AI request privacy and subject context", () => {
       "Biology notes",
     );
   });
+  it("uses the single optional name pair for personal attribution without sending the invitation note", () => {
+    const brief = {
+      ...defaultBrief,
+      creator: "Alex",
+      recipient: "Casey",
+      note: "A surprise",
+      people: { you: "Old", partner: "Names" },
+    };
+    const request = generationRequest(brief);
+    expect(request.people).toEqual({ you: "Alex", partner: "Casey" });
+    expect(request).not.toHaveProperty("note");
+    expect(
+      generationRequest({ ...brief, purpose: "study" }),
+    ).not.toHaveProperty("people");
+  });
 });
 
 describe("local Claude transport", () => {

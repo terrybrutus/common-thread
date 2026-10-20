@@ -121,8 +121,13 @@ export function Dictation({
         {message ||
           (listening
             ? "Listening… speak naturally. You can edit the transcript."
-            : "Your browser handles speech recognition and may send audio to its speech service. Only the text goes to Claude when you generate.")}
+            : "Speak naturally. You can edit the words below.")}
       </output>
+      <details className="field-help">
+        <summary>About voice input</summary>
+        Your browser handles speech recognition and may send audio to its speech
+        service. Only the text goes to Claude when you generate.
+      </details>
     </div>
   );
 }

@@ -10,92 +10,38 @@ export function CreatorOptions({
     value: CreatorBrief[K],
   ) => void;
 }) {
+  function name(which: "you" | "partner", value: string) {
+    update(which === "you" ? "creator" : "recipient", value);
+    update("people", {
+      you: which === "you" ? value : brief.creator || brief.people?.you || "",
+      partner:
+        which === "partner"
+          ? value
+          : brief.recipient || brief.people?.partner || "",
+    });
+  }
   return (
     <details className="creator-options">
       <summary>Puzzle options</summary>
       <div className="editor-fields">
-        <fieldset className="choice-grid">
-          <legend>Who sees the answers?</legend>
-          <label className="choice">
-            <input
-              type="radio"
-              name="style"
-              checked={brief.style === "together"}
-              onChange={() => update("style", "together")}
-            />
-            <strong>Solve together · surprise us</strong>
-            <span>Keep the answers hidden for both of you.</span>
-          </label>
-          <label className="choice">
-            <input
-              type="radio"
-              name="style"
-              checked={brief.style === "gift"}
-              onChange={() => update("style", "gift")}
-            />
-            <strong>Make a challenge</strong>
-            <span>Review the answers before sharing.</span>
-          </label>
-        </fieldset>
         <label>
           Puzzle type
           <select
             value={brief.purpose}
-            onChange={(event) =>
-              update("purpose", event.target.value as CreatorBrief["purpose"])
+            onChange={(e) =>
+              update("purpose", e.target.value as CreatorBrief["purpose"])
             }
           >
             <option value="fun">Personal story</option>
             <option value="study">Learning puzzle</option>
           </select>
         </label>
-        {brief.purpose === "fun" && (
-          <>
-            <label>
-              Extra interests <span>(optional)</span>
-              <textarea
-                value={brief.interests}
-                maxLength={2000}
-                rows={2}
-                onChange={(event) => update("interests", event.target.value)}
-              />
-            </label>
-            <label>
-              A theme to weave in <span>(optional)</span>
-              <input
-                value={brief.topic}
-                maxLength={500}
-                onChange={(event) => update("topic", event.target.value)}
-              />
-            </label>
-            <label>
-              Personal connections
-              <select
-                value={brief.personalization || "memories-only"}
-                onChange={(event) =>
-                  update(
-                    "personalization",
-                    event.target.value as "mix" | "memories-only",
-                  )
-                }
-              >
-                <option value="memories-only">
-                  All four groups from our story
-                </option>
-                <option value="mix">Allow one related theme</option>
-              </select>
-            </label>
-          </>
-        )}
         <label>
           Puzzle difficulty
           <select
             value={brief.difficulty}
-            onChange={(event) =>
-              update(
-                "difficulty",
-                event.target.value as CreatorBrief["difficulty"],
-              )
+            onChange={(e) =>
+              update("difficulty", e.target.value as CreatorBrief["difficulty"])
             }
           >
             <option value="easy">Gentle start</option>
@@ -103,99 +49,129 @@ export function CreatorOptions({
             <option value="tricky">Make us think</option>
           </select>
         </label>
-        <p className="field-help">
-          Difficulty changes the connections and wordplay. Play mode below
-          controls mistakes and hints.
-        </p>
-        {brief.purpose === "study" && (
-          <label>
-            Topic familiarity
-            <select
-              value={brief.familiarity}
-              onChange={(event) =>
-                update(
-                  "familiarity",
-                  event.target.value as CreatorBrief["familiarity"],
-                )
-              }
-            >
-              <option value="new">New to it</option>
-              <option value="familiar">Know it already</option>
-            </select>
-          </label>
-        )}
         <label>
-          Starting play mode
+          Play mode
           <select
             value={brief.mode}
-            onChange={(event) =>
-              update("mode", event.target.value as CreatorBrief["mode"])
+            onChange={(e) =>
+              update("mode", e.target.value as CreatorBrief["mode"])
             }
           >
             <option value="relaxed">Relaxed · hints available</option>
             <option value="challenge">Challenge · four mistakes</option>
           </select>
         </label>
-        <div className="field-row">
-          <label>
-            Your name in the puzzle
-            <input
-              value={brief.people?.you || ""}
-              maxLength={40}
-              onChange={(event) =>
-                update("people", {
-                  you: event.target.value,
-                  partner: brief.people?.partner || "",
-                })
-              }
-            />
-          </label>
-          <label>
-            Other person's name in the puzzle
-            <input
-              value={brief.people?.partner || ""}
-              maxLength={40}
-              onChange={(event) =>
-                update("people", {
-                  you: brief.people?.you || "",
-                  partner: event.target.value,
-                })
-              }
-            />
-          </label>
-        </div>
-        <p className="field-help">
-          These optional names go to Claude to make the wording personal. The
-          invitation nicknames below stay out of the model request.
-        </p>
-        <div className="field-row">
-          <label>
-            Your nickname <span>(optional)</span>
-            <input
-              value={brief.creator}
-              maxLength={40}
-              onChange={(event) => update("creator", event.target.value)}
-              placeholder="e.g. Terry"
-            />
-          </label>
-          <label>
-            Friend's nickname <span>(optional)</span>
-            <input
-              value={brief.recipient}
-              maxLength={40}
-              onChange={(event) => update("recipient", event.target.value)}
-              placeholder="e.g. Jessica"
-            />
-          </label>
-        </div>
-        <label>
-          A personal note <span>(optional)</span>
-          <input
-            value={brief.note}
-            maxLength={180}
-            onChange={(event) => update("note", event.target.value)}
-          />
-        </label>
+        <details className="story-followup">
+          <summary>Names & sharing (optional)</summary>
+          <div className="editor-fields">
+            <div className="field-row">
+              <label>
+                Your name <span>(optional)</span>
+                <input
+                  value={brief.creator || brief.people?.you || ""}
+                  maxLength={40}
+                  onChange={(e) => name("you", e.target.value)}
+                />
+              </label>
+              <label>
+                Playing with <span>(optional)</span>
+                <input
+                  value={brief.recipient || brief.people?.partner || ""}
+                  maxLength={40}
+                  onChange={(e) => name("partner", e.target.value)}
+                />
+              </label>
+            </div>
+            <p className="field-help">
+              One pair of names for the puzzle and invitation. For personal
+              puzzles, Claude uses these to understand who's who. You can leave
+              them blank.
+            </p>
+            <label>
+              Answer visibility
+              <select
+                value={brief.style}
+                onChange={(e) =>
+                  update("style", e.target.value as CreatorBrief["style"])
+                }
+              >
+                <option value="together">Solve together · surprise us</option>
+                <option value="gift">Review answers before sharing</option>
+              </select>
+            </label>
+            <label>
+              A personal note <span>(optional)</span>
+              <input
+                value={brief.note}
+                maxLength={180}
+                onChange={(e) => update("note", e.target.value)}
+              />
+            </label>
+          </div>
+        </details>
+        <details className="story-followup">
+          <summary>
+            {brief.purpose === "fun"
+              ? "Themes & extra interests (optional)"
+              : "Learning preferences"}
+          </summary>
+          <div className="editor-fields">
+            {brief.purpose === "fun" ? (
+              <>
+                <label>
+                  Extra interests <span>(optional)</span>
+                  <textarea
+                    value={brief.interests}
+                    maxLength={2000}
+                    rows={2}
+                    onChange={(e) => update("interests", e.target.value)}
+                  />
+                </label>
+                <label>
+                  A theme to weave in <span>(optional)</span>
+                  <input
+                    value={brief.topic}
+                    maxLength={500}
+                    onChange={(e) => update("topic", e.target.value)}
+                  />
+                </label>
+                <label>
+                  Personal connections
+                  <select
+                    value={brief.personalization || "memories-only"}
+                    onChange={(e) =>
+                      update(
+                        "personalization",
+                        e.target.value as "mix" | "memories-only",
+                      )
+                    }
+                  >
+                    <option value="memories-only">
+                      All four groups from our story
+                    </option>
+                    <option value="mix">Allow one related theme</option>
+                  </select>
+                </label>
+              </>
+            ) : (
+              <label>
+                Topic familiarity
+                <select
+                  value={brief.familiarity}
+                  onChange={(e) =>
+                    update(
+                      "familiarity",
+                      e.target.value as CreatorBrief["familiarity"],
+                    )
+                  }
+                >
+                  <option value="new">New to it</option>
+                  <option value="familiar">Know it already</option>
+                </select>
+              </label>
+            )}
+          </div>
+        </details>
       </div>
     </details>
   );

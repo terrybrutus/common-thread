@@ -79,4 +79,35 @@ describe("browser dictation", () => {
     expect(recognition.abort).toHaveBeenCalledOnce();
     expect(screen.getByRole("heading", { name: /2 of 4/ })).toBeVisible();
   });
+  it("offers quiet typing without losing the answer and stops an active microphone", () => {
+    let recognition: any;
+    class MockRecognition {
+      start = vi.fn();
+      stop = vi.fn();
+      abort = vi.fn();
+      constructor() {
+        recognition = this;
+      }
+    }
+    vi.stubGlobal("webkitSpeechRecognition", MockRecognition);
+    const onChange = vi.fn();
+    render(<StoryQuestions answers={["At the cafe"]} onChange={onChange} />);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Edit my story answers" }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Speak your answer" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Type quietly instead" }),
+    );
+    expect(recognition.abort).toHaveBeenCalledOnce();
+    expect(
+      screen.queryByRole("button", { name: "Speak your answer" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox")).toHaveValue("At the cafe");
+    expect(screen.getByRole("textbox")).toHaveFocus();
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "Cafe, spring, rain" },
+    });
+    expect(onChange).toHaveBeenCalledWith(["Cafe, spring, rain", "", "", ""]);
+  });
 });

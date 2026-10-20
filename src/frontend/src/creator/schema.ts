@@ -158,8 +158,8 @@ export function makeChallenge(
   return validateChallenge({
     version: 1,
     puzzle,
-    creator: brief.creator,
-    recipient: brief.recipient,
+    creator: brief.creator || brief.people?.you || "",
+    recipient: brief.recipient || brief.people?.partner || "",
     note: brief.note,
     mode: brief.mode,
     style: brief.style,

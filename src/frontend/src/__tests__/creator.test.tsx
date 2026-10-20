@@ -31,30 +31,64 @@ async function reachFinalStep(
     "We enjoy the garden together",
   );
   await user.click(screen.getByText("Puzzle options", { exact: true }));
-  await user.click(
-    screen.getByRole("radio", {
-      name: together ? /Solve together/ : /Make a challenge/,
-    }),
+  await user.click(screen.getByText("Names & sharing (optional)"));
+  await user.selectOptions(
+    screen.getByRole("combobox", { name: "Answer visibility" }),
+    together ? "together" : "gift",
   );
   await user.type(
-    screen.getByRole("textbox", { name: "Your nickname (optional)" }),
+    screen.getByRole("textbox", { name: "Your name (optional)" }),
     "Terry",
   );
   await user.type(
-    screen.getByRole("textbox", { name: "Friend's nickname (optional)" }),
+    screen.getByRole("textbox", { name: "Playing with (optional)" }),
     "Jessica",
-  );
-  await user.type(
-    screen.getByRole("textbox", { name: "Extra interests (optional)" }),
-    "Nature and gardening",
   );
   await user.type(
     screen.getByRole("textbox", { name: "A personal note (optional)" }),
     "A little study break for you!",
   );
+  await user.click(screen.getByText("Themes & extra interests (optional)"));
+  await user.type(
+    screen.getByRole("textbox", { name: "Extra interests (optional)" }),
+    "Nature and gardening",
+  );
 }
 
 describe("personal creator and friend challenges", () => {
+  it("shows three basic options, keeps one optional name pair tucked away, and credits the creator", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    expect(screen.getByText("Created by Terry Brutus")).toBeVisible();
+    await user.click(
+      screen.getByRole("button", { name: "Create a personal puzzle" }),
+    );
+    await user.click(screen.getByText("Puzzle options", { exact: true }));
+    expect(screen.getByRole("combobox", { name: "Puzzle type" })).toBeVisible();
+    expect(
+      screen.getByRole("combobox", { name: "Puzzle difficulty" }),
+    ).toBeVisible();
+    expect(screen.getByRole("combobox", { name: "Play mode" })).toBeVisible();
+    expect(
+      screen.getByText("Names & sharing (optional)").closest("details"),
+    ).not.toHaveAttribute("open");
+    expect(
+      screen
+        .getByText("Themes & extra interests (optional)")
+        .closest("details"),
+    ).not.toHaveAttribute("open");
+    await user.click(screen.getByText("Names & sharing (optional)"));
+    expect(
+      screen.getByRole("textbox", { name: "Your name (optional)" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("textbox", { name: "Playing with (optional)" }),
+    ).toBeVisible();
+    expect(screen.queryByText(/Your nickname/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Your name in the puzzle/),
+    ).not.toBeInTheDocument();
+  });
   it("opens directly on the story and generates without selecting interests", async () => {
     const user = userEvent.setup();
     vi.mocked(generatePuzzle).mockResolvedValue(validatePuzzle(puzzles[0]));

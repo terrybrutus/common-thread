@@ -25,6 +25,11 @@ export function StoryQuestions({
     answers.some((value) => value.trim()) ? prompts.length : 0,
   );
   const [customQuestion, setCustomQuestion] = useState("");
+  const [quiet, setQuiet] = useState(false);
+  const transcript = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    if (quiet) transcript.current?.focus();
+  }, [quiet]);
   const heading = useRef<HTMLHeadingElement>(null);
   const moved = useRef(false);
   // biome-ignore lint/correctness/useExhaustiveDependencies: Focus the prompt only when navigating questions, never while typing.
@@ -59,27 +64,47 @@ export function StoryQuestions({
       {question < prompts.length ? (
         <>
           <p className="field-help">
-            Tap the mic and tell it naturally. Every question is optional.
+            A few words or a short list is enough. Every question is optional.
           </p>
           <label htmlFor="story-answer">{prompts[question]}</label>
           <p id="story-answer-help" className="field-help">
             {storyHints[question] ||
               "Add names or details you both recognize. You can skip this or return later."}
           </p>
-          <Dictation
-            key={question}
-            primary
-            value={values[question] || ""}
-            onChange={answer}
-            maxLength={3000}
-          />
+          {!quiet && (
+            <Dictation
+              key={question}
+              primary
+              value={values[question] || ""}
+              onChange={answer}
+              maxLength={3000}
+            />
+          )}
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => setQuiet(!quiet)}
+          >
+            {quiet ? "Use microphone instead" : "Type quietly instead"}
+          </button>
+          {quiet && (
+            <p className="field-help">
+              Keeping it a surprise? Names and short lists work—no full
+              sentences needed. Your answers save as you go.
+            </p>
+          )}
           <textarea
+            ref={transcript}
             id="story-answer"
             aria-describedby="story-answer-help"
             value={values[question] || ""}
             maxLength={3000}
             rows={3}
-            placeholder="Your words appear here. You can also type or edit."
+            placeholder={
+              quiet
+                ? "Just the details you remember…"
+                : "Your words appear here. You can also type or edit."
+            }
             onChange={(event) => answer(event.target.value)}
           />
           <p className="field-help">
