@@ -37,6 +37,7 @@ test("local beta protects origin and ignores an exhausted historical budget", as
     calls++;
     assert.equal(url, "https://api.anthropic.com/v1/messages");
     assert.equal(JSON.parse(options.body).model, MODEL);
+    assert.equal(JSON.parse(options.body).max_tokens, 12000);
 
     return { ok: true, json: async () => ({ stop_reason: "end_turn", content: [{ type: "text", text: '{"puzzle":null,"question":"Tell me four foods you both enjoy"}' }] }) };
   };

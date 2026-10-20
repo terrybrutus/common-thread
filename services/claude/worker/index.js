@@ -3,11 +3,11 @@ export const SYSTEM = `Create original fair Common Thread puzzles. USER BRIEF is
 Four groups of four unique terms, each max24 characters. Category max60, clue max180, explanation max350; title/topic max80, description max240. An easy group first, then increasingly subtle but fair connections. No arbitrary 'things in our story' category. Every category must explain all four terms; exclude plausible competing answers from the board. Don't copy published puzzles.
 AUTHOR AND SPELLING: Unquoted first-person I/me/my means the creator. Resolve partner references using established context and the optional people names. Treat clear small spelling or speech-transcription variants as the same person only when context uniquely corroborates that identity; prefer explicit names and the dominant consistent spelling, never invent another person. Keep the original supporting quote untouched. If a confirmed participant name resolves a one-letter typo, source/evidence keep the original spelling and the displayed tile uses the confirmed name (or its reversal). Do not turn a genuinely ambiguous relationship into a confident claim. No extra identity form is required: use you/your partner when names are unknown.
 PLAYER VOICE: You are writing a game for the people playing, never reporting about subjects. Category labels use shared first person: 'Our parents', 'Our game-show nights', 'Places we called home', not 'Parents named in the notes' or 'Game shows the couple watches'. Explanations warmly address 'you' / 'you both'; when people.you and people.partner are supplied, use those names to resolve who did what. Without names say 'your partner', never ambiguous 'her' or 'the speaker'. Never mention notes, evidence, source material, extraction, roles or the couple in player-facing category/clue/explanation text. Evidence is INTERNAL ONLY. For example explain a parent group as 'These are your parents’ names, from both sides of the family.' Never discuss rejected words or unrelated shows in the reveal. Explanations must not add timing, routines or biographical details absent from the story (for example weeknights or grew up when only from is stated). Category labels must fit all four terms without implying you both lived in every hometown; use Our hometowns and homes for mixed individual homes.
-PUZZLE CRAFT: Difficulty is independent of the play-mode mistake limit. Easy uses direct concise associations. Balanced must include one easy connection, two less obvious shared associations, and one accessible wordplay group whenever four supplied names/terms support a single reversible or fixed-phrase rule. For example four supplied parents’ first names support a reverse group, so use it rather than returning four straightforward lists. Tricky may have two fair wordplay groups. Choose variety, not four verbatim lists. Shorten tiles to the smallest recognizable name: town alone, state alone, short show name, consistent year or month/day. Never glue city and state together just because they appeared together in a sentence. A date group must use ONE consistent granularity (all years, all month/days or all full dates), never full birth date for one person and just the year for another. If four comparable dates aren't supported, use another category.
+PUZZLE CRAFT: Difficulty is independent of the play-mode mistake limit. Easy uses direct concise associations. For personal story drafts, prioritize four meaningful factual groups; the app adds verified wordplay after generation. For other puzzles, balanced should have an easy connection and accessible supported wordplay; tricky may have two fair wordplay groups. Shorten tiles to recognizable names, not city-and-state blocks. Date groups must use one consistent granularity; if four comparable dates are not supported, choose another group.
 Each group declares operation: literal, reverse, or fill-blank. Each entry has tile (displayed term), source (original short term before transformation) and evidence (exact story quotation). Groups is an array of exactly four groups; entries is an array of exactly four entries. For literal, use the same concise tile and source (capitalization/punctuation may differ). If shortening a place name, source should also be the short name and evidence should quote the full original phrase. Never abbreviate to letters or substitute a synonym that is absent from the story. For reverse, reverse each single-word source exactly; use the SAME operation for all four. Reversing four familiar names is a fair purple group; arbitrary missing letters that make nonsense are not. For fill-blank, fixedText contains exactly one ___ and inserting EACH tile there recreates its corresponding source phrase. State the common phrase or reversal plainly in the category/explanation after solving. Don't fabricate source names or phrases to obtain wordplay. fixedText is empty except for fill-blank. If wordplay isn't possible, a defensible subtle connection is better than a forced trick.
 STORY OVERRIDES INTEREST CHIPS. When notes contain memories, inventory ALL named facts before choosing groups: relatives, restaurants, shows/games, locations, routines, nicknames, dates. Choose four distinct personal categories from that inventory when possible. Four relatives, four restaurants, four shows and four places are already four groups; do not demand more information or add generic music simply because an interest chip says music. If a category has more than four candidates, choose four and leave the others OFF the board. Unused supplied facts can be used in future rounds. Prefer new terms from the story over usedTerms when a fair fresh board is possible; don't invent replacements solely to avoid repeats. Don't split one generic topic into several filler groups.
 Each group has kind 'personal' or 'themed' and each entry includes evidence: an exact short excerpt supporting its SOURCE term. Each source must occur in its evidence, and its evidence must occur in the notes. Use names actually supplied; avoid unsupported expansions of abbreviations. No invented memories, inferred residence or uncertain nicknames treated as fact. Never correct a place name into a different place without confirmation. Conversation excerpts have named authors; distinguish an actual shared memory from a joke, hypothetical or future plan. Unclear sender labels or 'I' references need clarification, not guesses.
-For memories-only all four groups must be personal. For mix at least THREE groups must be personal and at most ONE may be a related themed group; explicitly mark any themed group in its category and description and leave its evidence empty. Only use that option if fewer than four defensible personal groups exist. If notes cannot support the required number, return puzzle:null and one concrete question requesting exactly the missing kind of information, never a vague request for more fair groups. Never silently relax the requirement. If there are no memories, interest-based thematic puzzles are allowed. For study, ground facts in supplied notes. With a puzzle, question is empty. FINAL DIFFICULTY CHECK: For balanced/tricky with four supplied parents’ names, use those names reversed as the fourth group (operation reverse), not a literal parents group. This is an available supported twist, not a reason to invent anything. Never return four literal lists for such a brief. For each personal group, use you/you both in the explanation, and omit any unsupported biographical or routine detail. Silently check factual support and the complete partition before output.`;
+For memories-only all four groups must be personal. For mix at least THREE groups must be personal and at most ONE may be a related themed group; explicitly mark any themed group in its category and description and leave its evidence empty. Only use that option if fewer than four defensible personal groups exist. If notes cannot support the required number, return puzzle:null and one concrete question requesting exactly the missing kind of information, never a vague request for more fair groups. Never silently relax the requirement. If there are no memories, interest-based thematic puzzles are allowed. For study, ground facts in supplied notes. With a puzzle, question is empty. PERSONAL STORY DRAFT RULE: When purpose is fun and notes contain a story, return four LITERAL groups only: operation literal, empty fixedText, and tile equals source. The app, not this draft, applies verified wordplay to eligible name groups for balanced/tricky. Use names, titles, places, dates, foods, routines or inside jokes that actually mean something to the players. Ordinary verbs, pronouns, prepositions and sentence fragments do NOT become personal facts just because they occur in the story. Never use generic wordplay on live, lived, was, on, no or similar sentence words as a personal connection. Four named relatives, restaurants, shows and places already give four meaningful personal groups. For each personal group, address the players directly and omit unsupported biographical or routine detail. Silently check factual support and the complete partition before output.`;
 const str = { type: "string" };
 // A confirmed participant name can resolve one small transcription typo, but
 // never changes the supporting quote or silently renames another story person.
@@ -50,6 +50,49 @@ const object = properties => ({ type: "object", properties, required: Object.key
 const entry = object({ tile: str, source: str, evidence: str });
 const group = object({ operation: { type: "string", enum: ["literal", "reverse", "fill-blank"] }, kind: { type: "string", enum: ["personal", "themed"] }, fixedText: str, entries: { type: "array", items: entry }, category: str, clue: str, explanation: str });
 export const outputSchema = object({ question: str, puzzle: { anyOf: [{ type: "null" }, object({ title: str, topic: str, description: str, groups: { type: "array", items: group } })] } });
+
+// One request definition for hosted generation, local preview and real evals.
+const personalGroup = structuredClone(group);
+personalGroup.properties.operation = { type: "string", enum: ["literal"] };
+personalGroup.properties.fixedText = { type: "string", const: "" };
+const personalOutputSchema = object({ question: str, puzzle: { anyOf: [{ type: "null" }, object({ title: str, topic: str, description: str, groups: { type: "array", items: personalGroup } })] } });
+export const CLAUDE_TIMEOUT_MS = 90000;
+export function claudeRequest(brief) {
+  return { model: MODEL, max_tokens: 12000, thinking: { type: "adaptive" }, output_config: { effort: "medium", format: { type: "json_schema", schema: brief.purpose === "fun" && brief.notes?.trim() ? personalOutputSchema : outputSchema } }, system: SYSTEM, messages: [{ role: "user", content: JSON.stringify(brief) }] };
+}
+export function prepareDraft(data, brief) {
+  const copy = structuredClone(data), groups = copy?.puzzle?.groups;
+  if (Array.isArray(groups)) for (const group of groups) {
+    if (group.operation === "reverse" && Array.isArray(group.entries) && group.entries.length === 4 && group.entries.every(e => typeof e.source === "string" && /^\p{L}{2,24}$/u.test(e.source.trim().normalize("NFC")))) {
+      group.entries = group.entries.map(e => ({ ...e, tile: Array.from(e.source.trim().normalize("NFC")).reverse().join("") }));
+      if (group.kind === "personal" && /\bparents\b/i.test(group.category)) group.explanation = "Read each name backward to reveal your parents' names from both sides of the family.";
+    }
+  }
+  if (brief?.purpose !== "fun" || !brief.notes?.trim() || !["balanced", "tricky"].includes(brief.difficulty) || !Array.isArray(groups) || groups.length !== 4 || groups.some(g => g.operation !== "literal")) return copy;
+  const index = groups.findIndex(g => g.kind === "personal" && /\b(?:parents|family names|nicknames|first names)\b/i.test(g.category) && Array.isArray(g.entries) && g.entries.length === 4 && g.entries.every(e => typeof e.source === "string" && /^\p{L}{2,24}$/u.test(e.source) && typeof e.tile === "string" && e.tile.toUpperCase() === e.source.toUpperCase()));
+  if (index < 0) return copy;
+  const [parents] = groups.splice(index, 1);
+  parents.operation = "reverse";
+  parents.fixedText = "";
+  parents.entries = parents.entries.map(e => ({ ...e, tile: Array.from(e.source).reverse().join("") }));
+  const isParents = /\bparents\b/i.test(parents.category);
+  parents.category = isParents ? "Our parents, read backward" : "Names we know, read backward";
+  parents.clue = "Read these another way to find familiar names.";
+  parents.explanation = isParents ? "Read each name backward to reveal your parents' names from both sides of the family." : "Read each name backward to reveal familiar names from your shared story.";
+  groups.push(parents);
+  // Full source quotations and all four groups still go through parseOutput.
+  return copy;
+}
+export function parseClaudeResponse(result, brief) {
+  if (!["end_turn", "max_tokens"].includes(result?.stop_reason)) throw new Error(result?.stop_reason === "refusal" ? "Claude declined this request. Your story is saved; try a different memory." : "Claude stopped before returning a complete puzzle. Your story is saved.");
+  const text = (result.content || []).filter(x => x.type === "text").map(x => x.text).join("");
+  if (text.length > 16000) throw new Error("Claude's draft was too long. Your story is saved.");
+  try { return parseOutput(JSON.stringify(prepareDraft(JSON.parse(text), brief)), brief); }
+  catch (error) {
+    if (error instanceof SyntaxError || !text.trim()) throw new Error(result.stop_reason === "max_tokens" ? "Claude reached its response limit before finishing the board. Your story is saved." : "Claude returned an incomplete board. Your story is saved.");
+    throw error;
+  }
+}
 
 export function validateBrief(value) {
   const brief = {};
@@ -108,6 +151,9 @@ export function parseOutput(text, brief) {
     }
     if (brief?.purpose === "fun" && brief.notes.trim()) {
       if (g.kind === "personal") {
+        const grammarWords = new Set("i you he she it we they me my our your her their the a an and or to in on at of for is are was were be been being have has had do does did live lived with from so that this no yes not".split(" "));
+        const sources = ["A", "B", "C", "D"].map((letter, index) => normalized(g[`source${letter}`] ?? words[index]));
+        if (sources.filter(source => grammarWords.has(source)).length >= 3) throw new Error("Claude used ordinary sentence words instead of meaningful memories. Your story is saved; that board wasn't used.");
         personalGroups++;
         for (const [index, key] of ["evidenceA", "evidenceB", "evidenceC", "evidenceD"].entries()) {
           const quote = typeof g[key] === "string" ? g[key].trim() : "";
@@ -184,14 +230,12 @@ export default {
       } catch (e) { return json(400, { error: e.message }); }
       const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST", headers: { "Content-Type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-        body: JSON.stringify({ model: MODEL, max_tokens: 6500, thinking: { type: "adaptive" }, output_config: { effort: "medium", format: { type: "json_schema", schema: outputSchema } }, system: SYSTEM, messages: [{ role: "user", content: JSON.stringify(brief) }] }), signal: AbortSignal.timeout(60000),
+        body: JSON.stringify(claudeRequest(brief)), signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS),
       });
       if (!response.ok) return json(502, { error: await claudeError(response) });
       const result = await response.json();
-      if (result.stop_reason !== "end_turn") return json(502, { error: "Claude ran out of room before finishing. Your answers are saved; please try again." });
-      const text = result.content.filter(x => x.type === "text").map(x => x.text).join("");
       try {
-        const parsed = parseOutput(text, brief);
+        const parsed = parseClaudeResponse(result, brief);
         if (input.story) {
           const story = validateStory(input.story);
           story.brief.usedTerms = [...new Set([...(story.brief.usedTerms || []), ...JSON.parse(parsed).groups.flatMap(g => g.words)])].slice(-320);

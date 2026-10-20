@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
-import worker, { parseOutput, validateBrief, saveStory, outputSchema, claudeError, identitySource } from "./index.js";
+import worker, { parseOutput, validateBrief, saveStory, outputSchema, claudeError, identitySource, claudeRequest, parseClaudeResponse, prepareDraft, CLAUDE_TIMEOUT_MS } from "./index.js";
 
 function database() {
   const sqlite = new DatabaseSync(":memory:");
@@ -170,4 +170,55 @@ test("literal labels may be shorter quoted phrases, and exact names are never fo
   for (const item of groups[0].entries) item.tile = item.source;
   Object.assign(groups[0].entries[0], { tile: "Oakview", source: "Oakview New Jersey", evidence: "Oakview New Jersey" });
   assert.throws(parse, /wasn't supported/);
+});
+
+test("shared production request leaves room for reasoning and distinguishes truncated or refused output", () => {
+  const request = claudeRequest({ purpose: "fun", notes: "A story" });
+  assert.equal(request.max_tokens, 12000);
+  assert.equal(request.output_config.effort, "medium");
+  assert.deepEqual(request.output_config.format.schema.properties.puzzle.anyOf[1].properties.groups.items.properties.operation.enum, ["literal"]);
+  assert.equal(claudeRequest({ purpose: "study", notes: "Course notes" }).output_config.format.schema, outputSchema);
+  assert.equal(CLAUDE_TIMEOUT_MS, 90000);
+  const incomplete = { stop_reason: "max_tokens", content: [{ type: "text", text: '{"puzzle":' }] };
+  assert.throws(() => parseClaudeResponse(incomplete), /response limit/);
+  assert.throws(() => parseClaudeResponse({ stop_reason: "refusal", content: [] }), /declined/);
+  assert.throws(() => parseClaudeResponse({ stop_reason: "end_turn", content: [] }), /incomplete board/);
+});
+
+test("a supported parents-name twist is deterministic without changing facts or skipping validation", () => {
+  const names = ["ALAN", "BETH", "CORA", "DREW"];
+  const parentGroup = { category: "Our parents", kind: "personal", operation: "literal", fixedText: "", clue: "Think of your family", explanation: "These are your parents' names.", entries: names.map(source => ({ tile: source, source, evidence: source })) };
+  const groups = [parentGroup, ...["A", "B", "C"].map(prefix => ({ category: "Our favorites", kind: "personal", operation: "literal", fixedText: "", clue: "Think of your favorites", explanation: "These are favorites you both enjoy.", entries: [1, 2, 3, 4].map(i => ({ tile: prefix + i, source: prefix + i, evidence: prefix + i })) }))];
+  const data = { question: "", puzzle: { title: "Our puzzle", topic: "Our story", description: "A puzzle for you", groups } };
+  const brief = { purpose: "fun", difficulty: "balanced", personalization: "memories-only", notes: groups.flatMap(g => g.entries.map(e => e.source)).join(" ") };
+  const prepared = prepareDraft(data, brief);
+  assert.equal(data.puzzle.groups[0].operation, "literal");
+  assert.equal(prepared.puzzle.groups[3].operation, "reverse");
+  assert.match(prepared.puzzle.groups[3].explanation, /your parents/);
+  assert.deepEqual(prepared.puzzle.groups[3].entries.map(e => e.source), names);
+  assert.deepEqual(prepared.puzzle.groups[3].entries.map(e => e.evidence), names);
+  assert.equal(JSON.parse(parseClaudeResponse({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify(data) }] }, brief)).groups[3].words[0], "NALA");
+  // A complete, valid JSON board remains usable if the budget boundary fires just after its closing brace.
+  assert.equal(JSON.parse(parseClaudeResponse({ stop_reason: "max_tokens", content: [{ type: "text", text: JSON.stringify(data) }] }, brief)).groups.length, 4);
+  assert.equal(prepareDraft(data, { ...brief, difficulty: "easy" }).puzzle.groups[0].operation, "literal");
+  assert.equal(prepareDraft(data, { ...brief, purpose: "study" }).puzzle.groups[0].operation, "literal");
+  parentGroup.category = "Our family names";
+  const family = prepareDraft(data, brief).puzzle.groups[3];
+  assert.equal(family.operation, "reverse");
+  assert.equal(family.category, "Names we know, read backward");
+  assert.doesNotMatch(family.explanation, /parents/);
+  parentGroup.category = "Our parents";
+  prepared.puzzle.groups[3].entries[0].tile = "WRONG";
+  assert.throws(() => parseOutput(JSON.stringify(prepared), brief), /consistent rule/);
+  const fixed = JSON.parse(parseClaudeResponse({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify(prepared) }] }, brief));
+  assert.equal(fixed.groups[3].words[0], "NALA");
+  parentGroup.entries[0] = { tile: "UNKNOWN", source: "UNKNOWN", evidence: "UNKNOWN" };
+  assert.throws(() => parseOutput(JSON.stringify(data), brief), /wasn't supported/);
+});
+
+test("quoting grammar words does not make a meaningful personal connection", () => {
+  const words = ["live", "lived", "on", "was"];
+  const group = { category: "Words from our conversations", clue: "Read these backward", explanation: "Words you have used together", kind: "personal", operation: "reverse", fixedText: "", entries: words.map(source => ({ tile: Array.from(source).reverse().join(""), source, evidence: source })) };
+  const data = { puzzle: { title: "Our puzzle", topic: "Our story", description: "A puzzle for you", groups: [group, group, group, group] } };
+  assert.throws(() => parseOutput(JSON.stringify(data), { purpose: "fun", personalization: "memories-only", notes: words.join(" ") }), /ordinary sentence words/);
 });

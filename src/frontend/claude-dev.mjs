@@ -1,4 +1,4 @@
-import { SYSTEM, MODEL, validateBrief, parseOutput, outputSchema, claudeError } from "../../services/claude/worker/index.js";
+import { SYSTEM, MODEL, validateBrief, claudeRequest, parseClaudeResponse, CLAUDE_TIMEOUT_MS, claudeError } from "../../services/claude/worker/index.js";
 export { SYSTEM, MODEL, validateBrief };
 
 // Vite development middleware only. This module and the key never enter the browser bundle.
@@ -32,15 +32,12 @@ export function claudeDevPlugin(env) {
           const response = await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: { "Content-Type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-            body: JSON.stringify({ model: MODEL, max_tokens: 6500, thinking: { type: "adaptive" }, output_config: { effort: "medium", format: { type: "json_schema", schema: outputSchema } }, system: SYSTEM, messages: [{ role: "user", content: JSON.stringify(brief) }] }),
-            signal: AbortSignal.timeout(60000),
+            body: JSON.stringify(claudeRequest(brief)),
+            signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS),
           });
           if (!response.ok) return send(502, { error: await claudeError(response) });
           const data = await response.json();
-          if (data.stop_reason !== "end_turn") return send(502, { error: "Claude didn't finish the puzzle. Please try again." });
-          const text = data.content.filter(block => block.type === "text").map(block => block.text).join("");
-          if (text.length > 16000) return send(502, { error: "The AI response was too long." });
-          try { send(200, { text: parseOutput(text, brief) }); } catch (error) { send(422, { error: error.message }); }
+          try { send(200, { text: parseClaudeResponse(data, brief) }); } catch (error) { send(422, { error: error.message }); }
         } catch {
           send(502, { error: "The local Claude connection failed. Check your connection and try again." });
         } finally { busy = false; }
