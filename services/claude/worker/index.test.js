@@ -144,3 +144,30 @@ test("small name typos resolve only to a unique confirmed participant", () => {
   assert.equal(identitySource("Alce", undefined), "Alce");
   assert.equal(identitySource("Al", { you: "Ali", partner: "Bo" }), "Al");
 });
+
+test("literal labels may be shorter quoted phrases, and exact names are never forced through typo correction", () => {
+  const groups = ["A", "B", "C", "D"].map(prefix => ({ category: "Our favorites", clue: "Think of your favorites", explanation: "These are favorites you both know.", kind: "personal", operation: "literal", fixedText: "", entries: [1, 2, 3, 4].map(i => ({ tile: prefix + i, source: prefix + i, evidence: prefix + i })) }));
+  const puzzle = { title: "Our puzzle", topic: "Our story", description: "A puzzle for you both", groups };
+  const entry = groups[0].entries[0];
+  Object.assign(entry, { tile: "Maplewood", source: "Maplewood New Jersey", evidence: "We lived in Maplewood New Jersey" });
+  const brief = { purpose: "fun", personalization: "memories-only", notes: groups.flatMap(g => g.entries.map(e => e.evidence)).join(" ") };
+  const parse = () => JSON.parse(parseOutput(JSON.stringify({ puzzle }), brief));
+  assert.equal(parse().groups[0].words[0], "MAPLEWOOD");
+  entry.tile = "Maple";
+  assert.throws(parse, /couldn't verify/);
+  entry.tile = "MJ";
+  assert.throws(parse, /couldn't verify/);
+  Object.assign(entry, { tile: "Alice", source: "Alice", evidence: "Alice" });
+  brief.notes += " Alice"; brief.people = { you: "Alce", partner: "Robin" };
+  assert.equal(parse().groups[0].words[0], "ALICE");
+  groups[0].operation = "reverse";
+  groups[0].entries = ["Alice", "BETH", "CORA", "DREW"].map(source => ({ tile: Array.from(source).reverse().join(""), source, evidence: source }));
+  brief.notes += " BETH CORA DREW";
+  assert.equal(parse().groups[0].words[0], "ECILA");
+  groups[0].entries[0].tile = "ECIL";
+  assert.throws(parse, /consistent rule/);
+  groups[0].operation = "literal";
+  for (const item of groups[0].entries) item.tile = item.source;
+  Object.assign(groups[0].entries[0], { tile: "Oakview", source: "Oakview New Jersey", evidence: "Oakview New Jersey" });
+  assert.throws(parse, /wasn't supported/);
+});

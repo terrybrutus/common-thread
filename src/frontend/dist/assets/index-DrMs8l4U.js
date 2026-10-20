@@ -15438,6 +15438,8 @@ function StoryQuestions({
 }
 function generationErrorMessage(error) {
   if (!(error instanceof Error)) return "Please try again in a moment.";
+  if (error.message.includes("A displayed term didn't match its source"))
+    return "Claude's draft changed a word in a way we couldn't verify, so we didn't use that board. Your story is saved—you don't need to edit it. Press Make our puzzle to try a fresh board.";
   if (error.message.includes("CANISTER_ID_BACKEND"))
     return "This local preview isn't connected to the Caffeine backend. You can try the example below and test live generation after importing into Caffeine.";
   return error.message.length < 1e3 ? error.message : "Please try again in a moment.";
@@ -15995,20 +15997,7 @@ function Creator({ onHome, onPlay }) {
       }
     ),
     pending && /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "creator-status", "aria-live": "polite", children: "Finish in the private Claude window: sign in if asked, then press Make my puzzle. Your board will arrive here." }),
-    error && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "form-error", role: "alert", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: error }),
-      !draft && /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          type: "button",
-          className: "text-button",
-          onClick: () => {
-            setError("");
-          },
-          children: "Edit my answers"
-        }
-      )
-    ] })
+    error && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-error", role: "alert", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: error }) })
   ] });
 }
 function FriendHub({

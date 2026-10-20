@@ -595,17 +595,6 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
       {error && (
         <div className="form-error" role="alert">
           <p>{error}</p>
-          {!draft && (
-            <button
-              type="button"
-              className="text-button"
-              onClick={() => {
-                setError("");
-              }}
-            >
-              Edit my answers
-            </button>
-          )}
         </div>
       )}
     </section>

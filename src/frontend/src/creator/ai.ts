@@ -5,6 +5,8 @@ import { storyNotes } from "./story";
 
 export function generationErrorMessage(error: unknown): string {
   if (!(error instanceof Error)) return "Please try again in a moment.";
+  if (error.message.includes("A displayed term didn't match its source"))
+    return "Claude's draft changed a word in a way we couldn't verify, so we didn't use that board. Your story is saved—you don't need to edit it. Press Make our puzzle to try a fresh board.";
   if (error.message.includes("CANISTER_ID_BACKEND"))
     return "This local preview isn't connected to the Caffeine backend. You can try the example below and test live generation after importing into Caffeine.";
   return error.message.length < 1000

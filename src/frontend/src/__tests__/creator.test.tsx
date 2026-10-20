@@ -181,13 +181,21 @@ describe("personal creator and friend challenges", () => {
   it("surfaces generation failure and allows an explicit retry without pretending to generate", async () => {
     const user = userEvent.setup();
     vi.mocked(generatePuzzle).mockRejectedValueOnce(
-      new Error("Please retry in about 20 seconds."),
+      new Error("A displayed term didn't match its source."),
     );
     vi.mocked(generatePuzzle).mockResolvedValueOnce(validatePuzzle(puzzles[0]));
     render(<App />);
     await reachFinalStep(user);
     await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Please retry");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Your story is saved",
+    );
+    expect(
+      screen.queryByRole("button", { name: "Edit my answers" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: /early memory/ })).toHaveValue(
+      "We enjoy the garden together",
+    );
     expect(screen.queryByText("AI-GENERATED DRAFT")).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
     expect(await screen.findByText("AI-GENERATED DRAFT")).toBeVisible();
