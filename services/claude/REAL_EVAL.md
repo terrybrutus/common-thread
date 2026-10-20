@@ -15,3 +15,9 @@ Earlier diagnostic batches exposed an incorrect model-produced reversal, ordinar
 The screenshot's original failed response was not retained, so its exact stop reason cannot be confirmed retrospectively. No unfinished response occurred in the measured release calls. Truncation and refusal are now distinguished, and a max_tokens response is usable only if it already contains a complete board that passes every check. No incomplete JSON is stitched together.
 
 This is a small-sample release check for one saved story, not a guarantee for every story or every future response. Raw model output, quotations, personal names and credentials remain only in ignored/private storage.
+
+## Played-history check
+
+Two additional independent real Haiku calls used the same private story with history from three prior accepted boards. The second also included the first new board's groups. Both completed on the first response, passed provenance and four-personal-group validation, and addressed the players directly. Run 1 had one familiar group and three groups with mostly different companions (26.6 seconds, 5,976 output tokens); run 2 had two familiar and two different combinations (27.5 seconds, 6,198 output tokens). This measures tile overlap, not wholly new semantic themes; the same story still produces familiar family, restaurant, place and television themes.
+
+Manual review caught a deterministic wordplay bug: a mixed son/parents category was renamed as parents only. The fix preserves the original relationship label and explanation during reversal; both retained real responses were reparsed after the fix, and a mixed-family regression was added. The first board has one verified reversal, the second remains literal. No extra paid retry was used. Exhaustion and skip behavior are exercised with controlled all-familiar boards in UI tests, not by pretending the live outputs were exhausted.

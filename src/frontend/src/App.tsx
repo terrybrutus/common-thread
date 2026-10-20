@@ -1,12 +1,14 @@
 import { ArrowRight, CircleHelp } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Creator } from "./creator/Creator";
 import { FriendHub } from "./creator/FriendHub";
 import { Invitation } from "./creator/Invitation";
+import { recordPlayedGroups } from "./creator/library";
 import type { FriendChallenge } from "./creator/schema";
 import { decodeChallenge } from "./creator/sharing";
 import { Game } from "./game/Game";
 import type { Mode } from "./game/engine";
+import type { Group } from "./game/puzzles";
 import { lessons, puzzles } from "./game/puzzles";
 
 function readInvitation() {
@@ -38,6 +40,13 @@ export default function App() {
   const [session, setSession] = useState(0);
   const [topic, setTopic] = useState(0);
   const [returned, setReturned] = useState(false);
+  const [personalStoryId, setPersonalStoryId] = useState<string | null>(null);
+  const rememberSeen = useCallback(
+    (groups: Group[]) => {
+      if (personalStoryId) recordPlayedGroups(personalStoryId, groups);
+    },
+    [personalStoryId],
+  );
   const homeTitle = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (!mode && page === "home" && returned) homeTitle.current?.focus();
@@ -47,6 +56,7 @@ export default function App() {
       const incoming = readInvitation();
       setLinkError(incoming.error);
       if (incoming.challenge) {
+        setPersonalStoryId(null);
         setPersonal(incoming.challenge);
         setMode(null);
         setPage("invitation");
@@ -62,6 +72,7 @@ export default function App() {
   }, []);
 
   function start(nextMode: Mode, index = topic) {
+    setPersonalStoryId(null);
     setPersonal(null);
     setPage("home");
     setLessonIndex(0);
@@ -70,6 +81,7 @@ export default function App() {
     setMode(nextMode);
   }
   function goHome() {
+    setPersonalStoryId(null);
     setMode(null);
     setPage("home");
     setPersonal(null);
@@ -92,6 +104,7 @@ export default function App() {
     setSession((value) => value + 1);
   }
   function openChallenge(challenge: FriendChallenge) {
+    setPersonalStoryId(null);
     setPersonal(challenge);
     setMode(null);
     setPage("invitation");
@@ -131,7 +144,13 @@ export default function App() {
       </header>
       <main>
         {page === "creator" ? (
-          <Creator onHome={goHome} onPlay={playPersonal} />
+          <Creator
+            onHome={goHome}
+            onPlay={(challenge, storyId) => {
+              setPersonalStoryId(storyId || null);
+              playPersonal(challenge);
+            }}
+          />
         ) : page === "invitation" && personal ? (
           <Invitation
             challenge={personal}
@@ -248,6 +267,11 @@ export default function App() {
                   : start("relaxed", puzzleIndex)
               }
               personal={personal !== null}
+              onConnectionsSeen={
+                personalStoryId && personal?.source !== "example"
+                  ? rememberSeen
+                  : undefined
+              }
             />
           </>
         )}

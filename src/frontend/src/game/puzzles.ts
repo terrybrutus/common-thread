@@ -4,6 +4,7 @@ export interface Group {
   words: string[];
   explanation: string;
   clue: string;
+  rule?: "literal" | "reverse" | "fill-blank";
 }
 export interface Puzzle {
   id: string;

@@ -1,3 +1,4 @@
+import { underlyingWords } from "./history";
 import { hostedGeneration } from "./hosted";
 import type { StoryProfile } from "./library";
 import { type CreatorBrief, parseGeneratedPuzzle } from "./schema";
@@ -51,6 +52,15 @@ export function generationRequest(brief: CreatorBrief) {
     familiarity: brief.familiarity,
     personalization: brief.personalization || "memories-only",
     usedTerms: brief.usedTerms || [],
+    ...(brief.playedConnections?.length
+      ? {
+          playedConnections: brief.playedConnections.slice(-40).map((item) => ({
+            category: item.category,
+            words: underlyingWords(item),
+            rule: item.rule,
+          })),
+        }
+      : {}),
     ...(brief.purpose === "fun" && (people.you || people.partner)
       ? { people }
       : {}),

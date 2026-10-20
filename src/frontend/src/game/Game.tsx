@@ -20,7 +20,7 @@ import {
   remainingWords,
   shuffleWords,
 } from "./engine";
-import { type Puzzle, lessons } from "./puzzles";
+import { type Group, type Puzzle, lessons } from "./puzzles";
 
 interface GameProps {
   puzzle: Puzzle;
@@ -30,6 +30,7 @@ interface GameProps {
   onNext: () => void;
   onRelaxed: () => void;
   personal?: boolean;
+  onConnectionsSeen?: (groups: Group[]) => void;
 }
 export function Game({
   puzzle,
@@ -39,6 +40,7 @@ export function Game({
   onNext,
   onRelaxed,
   personal = false,
+  onConnectionsSeen,
 }: GameProps) {
   const [state, dispatch] = useReducer(
     (
@@ -60,6 +62,19 @@ export function Game({
   const ended = state.outcome !== "playing";
   const tutorial = mode === "intro";
   const canHelp = mode !== "challenge";
+  const reported = useRef(new Set<string>());
+  useEffect(() => {
+    if (!onConnectionsSeen) return;
+    const visible = puzzle.groups.filter(
+      (group) =>
+        (ended || state.solved.includes(group.id)) &&
+        !reported.current.has(group.id),
+    );
+    if (visible.length) {
+      for (const group of visible) reported.current.add(group.id);
+      onConnectionsSeen(visible);
+    }
+  }, [ended, state.solved, onConnectionsSeen, puzzle.groups]);
   useEffect(() => {
     titleRef.current?.focus();
   }, []);

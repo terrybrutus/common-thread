@@ -1,4 +1,5 @@
 import type { Group, Puzzle } from "../game/puzzles";
+import type { FreshnessPrompt, PlayedConnection } from "./history";
 
 export interface CreatorBrief {
   creator: string;
@@ -18,6 +19,8 @@ export interface CreatorBrief {
   personalization?: "mix" | "memories-only";
   extraAnswers?: { question: string; answer: string }[];
   usedTerms?: string[];
+  playedConnections?: PlayedConnection[];
+  freshnessPrompt?: FreshnessPrompt;
   difficulty: "easy" | "balanced" | "tricky";
   familiarity: "new" | "familiar";
   mode: "relaxed" | "challenge";
@@ -102,6 +105,9 @@ export function validatePuzzle(value: unknown): Puzzle {
       words: terms,
       clue: text(group.clue, "hint", 180),
       explanation: text(group.explanation, "explanation", 350),
+      ...(["literal", "reverse", "fill-blank"].includes(String(group.rule))
+        ? { rule: group.rule as Group["rule"] }
+        : {}),
     };
   });
   return {

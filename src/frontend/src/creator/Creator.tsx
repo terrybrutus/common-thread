@@ -11,9 +11,16 @@ import { type Group, type Puzzle, puzzles } from "../game/puzzles";
 import { CopyField } from "./CopyField";
 import { CreatorOptions } from "./CreatorOptions";
 import { Dictation } from "./Dictation";
+import { FreshnessQuestion } from "./FreshnessQuestion";
 import { StoryLibraryControls } from "./StoryLibrary";
 import { StoryQuestions } from "./StoryQuestions";
 import { generatePuzzle, generationErrorMessage } from "./ai";
+import {
+  addFreshMemory,
+  familiarCount,
+  nextFreshQuestion,
+  storyKey,
+} from "./history";
 import {
   STORY_KEY,
   type StoryProfile,
@@ -30,7 +37,7 @@ import { challengeLink, encodeChallenge } from "./sharing";
 
 interface CreatorProps {
   onHome: () => void;
-  onPlay: (challenge: FriendChallenge) => void;
+  onPlay: (challenge: FriendChallenge, storyId?: string) => void;
 }
 
 export function Creator({ onHome, onPlay }: CreatorProps) {
@@ -39,6 +46,8 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
     library.profiles.find((profile) => profile.id === library.activeId) ||
     library.profiles[0];
   const brief = currentStory.brief;
+  const activeStory = useRef(currentStory.id);
+  activeStory.current = currentStory.id;
   const [saveStatus, setSaveStatus] = useState("Saving on this device…");
   function setBrief(
     update: CreatorBrief | ((current: CreatorBrief) => CreatorBrief),
@@ -86,31 +95,111 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
   ) {
     setBrief((current) => ({ ...current, [key]: value }));
   }
-  async function generate() {
+  async function generateWith(
+    requestBrief: CreatorBrief,
+    story: StoryProfile,
+    offerQuestion = true,
+  ) {
     if (pendingRef.current) return;
     pendingRef.current = true;
     setPending(true);
     setError("");
     try {
-      const puzzle = await generatePuzzle(brief, currentStory);
-      setDraft(puzzle);
-      setBrief((current) => ({
+      const puzzle = await generatePuzzle(requestBrief, {
+        ...story,
+        brief: requestBrief,
+      });
+      const allFamiliar =
+        requestBrief.purpose === "fun" &&
+        familiarCount(puzzle, requestBrief.playedConnections) ===
+          puzzle.groups.length;
+      const forStory = storyKey(requestBrief);
+      setLibrary((current) => ({
         ...current,
-        usedTerms: [
-          ...new Set([
-            ...(current.usedTerms || []),
-            ...puzzle.groups.flatMap((group) => group.words),
-          ]),
-        ].slice(-320),
+        profiles: current.profiles.map((profile) =>
+          profile.id !== story.id
+            ? profile
+            : {
+                ...profile,
+                updatedAt: Date.now(),
+                brief: {
+                  ...profile.brief,
+                  usedTerms: [
+                    ...new Set([
+                      ...(profile.brief.usedTerms || []),
+                      ...puzzle.groups.flatMap((group) => group.words),
+                    ]),
+                  ].slice(-320),
+                  freshnessPrompt:
+                    allFamiliar && offerQuestion
+                      ? profile.brief.freshnessPrompt?.forStory === forStory
+                        ? profile.brief.freshnessPrompt
+                        : {
+                            question: nextFreshQuestion(requestBrief),
+                            forStory,
+                            dismissed: false,
+                            answer: "",
+                          }
+                      : profile.brief.freshnessPrompt?.forStory === forStory &&
+                          profile.brief.freshnessPrompt.dismissed
+                        ? profile.brief.freshnessPrompt
+                        : undefined,
+                },
+              },
+        ),
       }));
-      setSource("ai");
+      if (activeStory.current === story.id) {
+        setDraft(puzzle);
+        setSource("ai");
+      }
     } catch (error) {
-      setError(generationErrorMessage(error));
+      if (activeStory.current === story.id)
+        setError(generationErrorMessage(error));
     } finally {
       pendingRef.current = false;
       setPending(false);
     }
   }
+  function generate() {
+    return generateWith(brief, currentStory);
+  }
+  const freshnessPrompt =
+    brief.purpose === "fun" &&
+    brief.freshnessPrompt?.forStory === storyKey(brief) &&
+    !brief.freshnessPrompt.dismissed
+      ? brief.freshnessPrompt
+      : undefined;
+  function saveFreshMemory() {
+    if (!freshnessPrompt || pendingRef.current) return;
+    try {
+      const next = addFreshMemory(
+        brief,
+        freshnessPrompt.question,
+        freshnessPrompt.answer,
+      );
+      setBrief(next);
+      void generateWith(
+        next,
+        { ...currentStory, brief: next, updatedAt: Date.now() },
+        false,
+      );
+    } catch (error) {
+      setError(generationErrorMessage(error));
+    }
+  }
+  const freshQuestion = freshnessPrompt && (
+    <FreshnessQuestion
+      prompt={freshnessPrompt}
+      pending={pending}
+      onAnswer={(answer) =>
+        update("freshnessPrompt", { ...freshnessPrompt, answer })
+      }
+      onSave={saveFreshMemory}
+      onSkip={() =>
+        update("freshnessPrompt", { ...freshnessPrompt, dismissed: true })
+      }
+    />
+  );
   function useExample() {
     const original = puzzles[brief.purpose === "study" ? 1 : 0];
     setDraft(
@@ -269,7 +358,14 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
             <button
               className="primary-button"
               type="button"
-              onClick={() => onPlay(shared)}
+              onClick={() =>
+                onPlay(
+                  shared,
+                  brief.purpose === "fun" && shared.source !== "example"
+                    ? currentStory.id
+                    : undefined,
+                )
+              }
             >
               {shared.style === "together"
                 ? "Start our puzzle"
@@ -301,6 +397,14 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                 : draft.title}
             </h2>
             {brief.style === "gift" && <p>{draft.description}</p>}
+            {source !== "example" &&
+              familiarCount(draft, brief.playedConnections) >= 3 && (
+                <p className="field-help">
+                  A familiar remix · some connections revisit your earlier
+                  games.
+                </p>
+              )}
+            {source !== "example" && freshQuestion}
             {brief.style === "gift" ? (
               <>
                 <p className="review-note">
@@ -446,6 +550,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
         >
           {brief.purpose === "fun" ? (
             <>
+              {freshQuestion}
               {brief.inputMode === "free" ? (
                 <>
                   <label>

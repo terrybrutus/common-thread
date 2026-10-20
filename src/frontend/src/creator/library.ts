@@ -1,3 +1,9 @@
+import type { Group } from "../game/puzzles";
+import {
+  parseFreshnessPrompt,
+  parseHistory,
+  rememberConnections,
+} from "./history";
 import { type CreatorBrief, defaultBrief } from "./schema";
 
 export const STORY_KEY = "common-thread-stories-v1";
@@ -27,6 +33,9 @@ export function parseProfile(value: unknown): StoryProfile {
   if (!input || typeof input !== "object")
     throw new Error("This story backup is missing its answers.");
   const brief = { ...defaultBrief };
+  if (input.playedConnections !== undefined)
+    brief.playedConnections = parseHistory(input.playedConnections);
+  brief.freshnessPrompt = parseFreshnessPrompt(input.freshnessPrompt);
   for (const [key, limit] of Object.entries({
     creator: 40,
     recipient: 40,
@@ -132,4 +141,21 @@ export function readLibrary(): StoryLibrary {
   }
   const profile = newProfile();
   return { activeId: profile.id, profiles: [profile] };
+}
+
+export function recordPlayedGroups(storyId: string, groups: Group[]): boolean {
+  const library = readLibrary();
+  const profile = library.profiles.find((item) => item.id === storyId);
+  if (!profile) return false;
+  const history = profile.brief.playedConnections || [];
+  const next = rememberConnections(history, groups);
+  if (JSON.stringify(next) === JSON.stringify(history)) return true;
+  profile.brief.playedConnections = next;
+  profile.updatedAt = Date.now();
+  try {
+    localStorage.setItem(STORY_KEY, JSON.stringify(library));
+    return true;
+  } catch {
+    return false;
+  }
 }

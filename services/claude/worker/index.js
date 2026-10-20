@@ -5,6 +5,7 @@ AUTHOR AND SPELLING: Unquoted first-person I/me/my means the creator. Resolve pa
 PLAYER VOICE: You are writing a game for the people playing, never reporting about subjects. Category labels use shared first person: 'Our parents', 'Our game-show nights', 'Places we called home', not 'Parents named in the notes' or 'Game shows the couple watches'. Explanations warmly address 'you' / 'you both'; when people.you and people.partner are supplied, use those names to resolve who did what. Without names say 'your partner', never ambiguous 'her' or 'the speaker'. Never mention notes, evidence, source material, extraction, roles or the couple in player-facing category/clue/explanation text. Evidence is INTERNAL ONLY. For example explain a parent group as 'These are your parents’ names, from both sides of the family.' Never discuss rejected words or unrelated shows in the reveal. Explanations must not add timing, routines or biographical details absent from the story (for example weeknights or grew up when only from is stated). Category labels must fit all four terms without implying you both lived in every hometown; use Our hometowns and homes for mixed individual homes.
 PUZZLE CRAFT: Difficulty is independent of the play-mode mistake limit. Easy uses direct concise associations. For personal story drafts, prioritize four meaningful factual groups; the app adds verified wordplay after generation. For other puzzles, balanced should have an easy connection and accessible supported wordplay; tricky may have two fair wordplay groups. Shorten tiles to recognizable names, not city-and-state blocks. Date groups must use one consistent granularity; if four comparable dates are not supported, choose another group.
 Each group declares operation: literal, reverse, or fill-blank. Each entry has tile (displayed term), source (original short term before transformation) and evidence (exact story quotation). Groups is an array of exactly four groups; entries is an array of exactly four entries. For literal, use the same concise tile and source (capitalization/punctuation may differ). If shortening a place name, source should also be the short name and evidence should quote the full original phrase. Never abbreviate to letters or substitute a synonym that is absent from the story. For reverse, reverse each single-word source exactly; use the SAME operation for all four. Reversing four familiar names is a fair purple group; arbitrary missing letters that make nonsense are not. For fill-blank, fixedText contains exactly one ___ and inserting EACH tile there recreates its corresponding source phrase. State the common phrase or reversal plainly in the category/explanation after solving. Don't fabricate source names or phrases to obtain wordplay. fixedText is empty except for fill-blank. If wordplay isn't possible, a defensible subtle connection is better than a forced trick.
+PLAYED CONNECTION HISTORY: playedConnections lists groups the players have actually uncovered, not rejected drafts. Its words are original terms (even if the played rule was reverse). Prefer a new meaningful connection or a genuinely different set of facts. Renaming a category, shuffling words, or reversing the same names is a familiar remix. A familiar word can participate in a new connection with mostly new companions. History is for novelty only: it is not a factual source; all facts still need supporting quotations from notes. If four fresh personal groups are not possible, return a fair personal remix instead of inventing memories or adding generic filler. The app will label familiar boards and offer one optional follow-up.
 STORY OVERRIDES INTEREST CHIPS. When notes contain memories, inventory ALL named facts before choosing groups: relatives, restaurants, shows/games, locations, routines, nicknames, dates. Choose four distinct personal categories from that inventory when possible. Four relatives, four restaurants, four shows and four places are already four groups; do not demand more information or add generic music simply because an interest chip says music. If a category has more than four candidates, choose four and leave the others OFF the board. Unused supplied facts can be used in future rounds. Prefer new terms from the story over usedTerms when a fair fresh board is possible; don't invent replacements solely to avoid repeats. Don't split one generic topic into several filler groups.
 Each group has kind 'personal' or 'themed' and each entry includes evidence: an exact short excerpt supporting its SOURCE term. Each source must occur in its evidence, and its evidence must occur in the notes. Use names actually supplied; avoid unsupported expansions of abbreviations. No invented memories, inferred residence or uncertain nicknames treated as fact. Never correct a place name into a different place without confirmation. Conversation excerpts have named authors; distinguish an actual shared memory from a joke, hypothetical or future plan. Unclear sender labels or 'I' references need clarification, not guesses.
 For memories-only all four groups must be personal. For mix at least THREE groups must be personal and at most ONE may be a related themed group; explicitly mark any themed group in its category and description and leave its evidence empty. Only use that option if fewer than four defensible personal groups exist. If notes cannot support the required number, return puzzle:null and one concrete question requesting exactly the missing kind of information, never a vague request for more fair groups. Never silently relax the requirement. If there are no memories, interest-based thematic puzzles are allowed. For study, ground facts in supplied notes. With a puzzle, question is empty. PERSONAL STORY DRAFT RULE: When purpose is fun and notes contain a story, return four LITERAL groups only: operation literal, empty fixedText, and tile equals source. The app, not this draft, applies verified wordplay to eligible name groups for balanced/tricky. Use names, titles, places, dates, foods, routines or inside jokes that actually mean something to the players. Ordinary verbs, pronouns, prepositions and sentence fragments do NOT become personal facts just because they occur in the story. Never use generic wordplay on live, lived, was, on, no or similar sentence words as a personal connection. Four named relatives, restaurants, shows and places already give four meaningful personal groups. For each personal group, address the players directly and omit unsupported biographical or routine detail. Silently check factual support and the complete partition before output.`;
@@ -65,7 +66,6 @@ export function prepareDraft(data, brief) {
   if (Array.isArray(groups)) for (const group of groups) {
     if (group.operation === "reverse" && Array.isArray(group.entries) && group.entries.length === 4 && group.entries.every(e => typeof e.source === "string" && /^\p{L}{2,24}$/u.test(e.source.trim().normalize("NFC")))) {
       group.entries = group.entries.map(e => ({ ...e, tile: Array.from(e.source.trim().normalize("NFC")).reverse().join("") }));
-      if (group.kind === "personal" && /\bparents\b/i.test(group.category)) group.explanation = "Read each name backward to reveal your parents' names from both sides of the family.";
     }
   }
   if (brief?.purpose !== "fun" || !brief.notes?.trim() || !["balanced", "tricky"].includes(brief.difficulty) || !Array.isArray(groups) || groups.length !== 4 || groups.some(g => g.operation !== "literal")) return copy;
@@ -75,10 +75,11 @@ export function prepareDraft(data, brief) {
   parents.operation = "reverse";
   parents.fixedText = "";
   parents.entries = parents.entries.map(e => ({ ...e, tile: Array.from(e.source).reverse().join("") }));
-  const isParents = /\bparents\b/i.test(parents.category);
-  parents.category = isParents ? "Our parents, read backward" : "Names we know, read backward";
+  const label = parents.category.trim();
+  parents.category = label.length <= 45 ? `${label}, read backward` : "Names we know, read backward";
   parents.clue = "Read these another way to find familiar names.";
-  parents.explanation = isParents ? "Read each name backward to reveal your parents' names from both sides of the family." : "Read each name backward to reveal familiar names from your shared story.";
+  const explanation = `Read each name backward. ${parents.explanation}`;
+  if (explanation.length <= 350) parents.explanation = explanation;
   groups.push(parents);
   // Full source quotations and all four groups still go through parseOutput.
   return copy;
@@ -103,6 +104,7 @@ export function validateBrief(value) {
   if (!["fun", "study"].includes(brief.purpose) || !["easy", "balanced", "tricky"].includes(brief.difficulty) || !["new", "familiar"].includes(brief.familiarity) || (!brief.interests && !brief.topic && !brief.notes)) throw new Error("Tell us an interest, topic, or memory to start.");
   brief.personalization = value.personalization === "mix" ? "mix" : "memories-only";
   brief.usedTerms = Array.isArray(value.usedTerms) ? value.usedTerms.filter(v => typeof v === "string" && v.length <= 24).slice(-320) : [];
+  if (value.playedConnections !== undefined) brief.playedConnections = validateHistory(value.playedConnections).slice(-40).map(({ category, words, rule }) => ({ category, words, rule }));
   if (value.people) {
     if (typeof value.people.you !== "string" || value.people.you.length > 40 || typeof value.people.partner !== "string" || value.people.partner.length > 40) throw new Error("Please check the two names used in the puzzle.");
     brief.people = { you: value.people.you.trim(), partner: value.people.partner.trim() };
@@ -162,7 +164,7 @@ export function parseOutput(text, brief) {
         }
       } else if (g.kind !== "themed") throw new Error("The draft didn't identify which connections came from your story.");
     }
-    result.groups.push({ category: check(g.category, 60), words, clue: check(g.clue, 180), explanation: check(g.explanation, 350) });
+    result.groups.push({ category: check(g.category, 60), words, clue: check(g.clue, 180), explanation: check(g.explanation, 350), rule: operation });
   }
   if (brief?.purpose === "fun" && brief.notes.trim() && personalGroups < (brief.personalization === "mix" ? 3 : 4)) throw new Error("This draft used too many unrelated themes. Your story is saved; try again with the same answers.");
   if (brief?.purpose === "fun" && brief.notes.trim()) { result.title = "Your Common Thread"; result.topic = "Your shared story"; result.description = personalGroups === 4 ? "Four connections drawn from your story. Discover what belongs together." : "Personal connections with one clearly labeled related theme. Discover what belongs together."; }
@@ -173,9 +175,22 @@ export function parseOutput(text, brief) {
 // Historical generations rows remain untouched; billing controls live at Anthropic.
 const headers = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" };
 const json = (status, body) => Response.json(body, { status, headers });
+export function validateHistory(value) {
+  if (!Array.isArray(value) || value.length > 80) throw new Error("This story's connection history is invalid.");
+  return value.map(item => {
+    if (!item || typeof item.category !== "string" || item.category.length > 60 || !Array.isArray(item.words) || item.words.length !== 4 || item.words.some(w => typeof w !== "string" || !w.trim() || w.length > 24) || new Set(item.words.map(w => w.normalize("NFC").toLowerCase().replace(/&/g, " and ").replace(/['’]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim())).size !== 4 || !["literal", "reverse", "fill-blank"].includes(item.rule) || (item.playedAt !== undefined && !Number.isFinite(item.playedAt))) throw new Error("This story's connection history is invalid.");
+    return { category: item.category, words: [...item.words], rule: item.rule, playedAt: item.playedAt ?? 0 };
+  });
+}
 export function validateStory(value) {
   if (!value || typeof value.id !== "string" || !value.id || value.id.length > 80 || typeof value.name !== "string" || value.name.length > 80 || !value.brief || typeof value.brief !== "object") throw new Error("This story backup is invalid.");
   const raw = value.brief, brief = {};
+  if (raw.playedConnections !== undefined) brief.playedConnections = validateHistory(raw.playedConnections);
+  if (raw.freshnessPrompt !== undefined) {
+    const p = raw.freshnessPrompt;
+    if (!p || typeof p.question !== "string" || !p.question.trim() || p.question.length > 180 || typeof p.forStory !== "string" || p.forStory.length > 32 || typeof p.dismissed !== "boolean" || typeof p.answer !== "string" || p.answer.length > 3000) throw new Error("This story's optional question is invalid.");
+    brief.freshnessPrompt = { question: p.question, forStory: p.forStory, dismissed: p.dismissed, answer: p.answer };
+  }
   for (const [key, max] of Object.entries({ creator: 40, recipient: 40, note: 180, interests: 2000, topic: 500, notes: 12000, memories: 30000, freeStory: 12000, conversation: 12000 })) {
     if (raw[key] !== undefined) { if (typeof raw[key] !== "string" || raw[key].length > max) throw new Error("A saved story field is too long."); brief[key] = raw[key]; }
   }
@@ -191,6 +206,13 @@ export function validateStory(value) {
 }
 export async function saveStory(db, owner, value) {
   const profile = validateStory(value);
+  const existing = (await db.prepare("SELECT data FROM stories WHERE owner = ? AND id = ?").bind(owner, profile.id).all()).results[0];
+  if (existing) {
+    const old = validateStory(JSON.parse(existing.data));
+    const history = [...(old.brief.playedConnections || []), ...(profile.brief.playedConnections || [])];
+    const key = item => `${item.rule}|${item.words.map(w => w.normalize("NFC").toLowerCase().replace(/&/g, " and ").replace(/['’]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim()).sort().join("|")}`;
+    profile.brief.playedConnections = [...new Map(history.map(item => [key(item), item])).values()].slice(-80);
+  }
   const result = await db.prepare(`INSERT INTO stories (owner,id,name,data,updated_at) VALUES (?,?,?,?,?) ON CONFLICT(owner,id) DO UPDATE SET name=excluded.name,data=excluded.data,updated_at=excluded.updated_at WHERE excluded.updated_at >= stories.updated_at`).bind(owner, profile.id, profile.name, JSON.stringify(profile), profile.updatedAt).run();
   if (!result.meta.changes) throw new Error("A newer version is in private cloud. Load it before saving this older copy; your local answers are still kept.");
   return profile;

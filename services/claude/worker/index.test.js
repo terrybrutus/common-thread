@@ -205,8 +205,14 @@ test("a supported parents-name twist is deterministic without changing facts or 
   parentGroup.category = "Our family names";
   const family = prepareDraft(data, brief).puzzle.groups[3];
   assert.equal(family.operation, "reverse");
-  assert.equal(family.category, "Names we know, read backward");
-  assert.doesNotMatch(family.explanation, /parents/);
+  assert.equal(family.category, "Our family names, read backward");
+  assert.match(family.explanation, /Read each name backward/);
+  parentGroup.category = "Our son and our parents";
+  parentGroup.explanation = "Alan is your son; Beth, Cora and Drew are your parents.";
+  const mixedFamily = prepareDraft(data, brief).puzzle.groups[3];
+  assert.equal(mixedFamily.category, "Our son and our parents, read backward");
+  assert.match(mixedFamily.explanation, /Alan is your son/);
+  parentGroup.explanation = "These are your parents' names.";
   parentGroup.category = "Our parents";
   prepared.puzzle.groups[3].entries[0].tile = "WRONG";
   assert.throws(() => parseOutput(JSON.stringify(prepared), brief), /consistent rule/);
@@ -221,4 +227,35 @@ test("quoting grammar words does not make a meaningful personal connection", () 
   const group = { category: "Words from our conversations", clue: "Read these backward", explanation: "Words you have used together", kind: "personal", operation: "reverse", fixedText: "", entries: words.map(source => ({ tile: Array.from(source).reverse().join(""), source, evidence: source })) };
   const data = { puzzle: { title: "Our puzzle", topic: "Our story", description: "A puzzle for you", groups: [group, group, group, group] } };
   assert.throws(() => parseOutput(JSON.stringify(data), { purpose: "fun", personalization: "memories-only", notes: words.join(" ") }), /ordinary sentence words/);
+});
+
+test("played history is bounded generation context and never a replacement for story evidence", () => {
+  const row = { category: "Our shows", words: ["ONE", "TWO", "THREE", "FOUR"], rule: "literal", playedAt: 1 };
+  const brief = { purpose: "fun", interests: "", topic: "", notes: "Our memory", difficulty: "balanced", familiarity: "new", playedConnections: Array.from({ length: 60 }, (_, i) => ({ ...row, category: `Group ${i}` })) };
+  const accepted = validateBrief(brief);
+  assert.equal(accepted.playedConnections.length, 40);
+  assert.equal(accepted.playedConnections[0].category, "Group 20");
+  assert.equal(accepted.playedConnections[0].playedAt, undefined);
+  assert.throws(() => validateBrief({ ...brief, playedConnections: Array(81).fill(row) }), /history/);
+  assert.throws(() => validateBrief({ ...brief, playedConnections: [{ ...row, words: ["ONE", "ONE!", "THREE", "FOUR"] }] }), /history/);
+  assert.throws(() => validateBrief({ ...brief, playedConnections: [{ ...row, rule: "invented" }] }), /history/);
+});
+
+test("private cloud retains history and optional drafts, merges older clients without crossing owners", async () => {
+  const db = database();
+  const row = { category: "Our shows", words: ["ONE", "TWO", "THREE", "FOUR"], rule: "literal", playedAt: 1 };
+  const prompt = { question: "A recent memory?", forStory: "key", dismissed: true, answer: "An unfinished answer" };
+  const profile = { id: "history", name: "Our story", updatedAt: 10, brief: { storyAnswers: ["An existing answer"], playedConnections: [row], freshnessPrompt: prompt } };
+  const saved = await saveStory(db, "owner", profile);
+  assert.deepEqual(saved.brief.freshnessPrompt, prompt);
+  assert.equal(saved.brief.playedConnections.length, 1);
+  const olderClient = await saveStory(db, "owner", { ...profile, updatedAt: 11, brief: { storyAnswers: ["Keep this answer too"] } });
+  assert.equal(olderClient.brief.playedConnections.length, 1);
+  const extra = { ...row, words: ["FIVE", "SIX", "SEVEN", "EIGHT"], playedAt: 2 };
+  const merged = await saveStory(db, "owner", { ...profile, updatedAt: 12, brief: { ...profile.brief, playedConnections: [extra, { ...row, words: [...row.words].reverse() }] } });
+  assert.equal(merged.brief.playedConnections.length, 2);
+  assert.equal(merged.brief.storyAnswers[0], "An existing answer");
+  const other = await saveStory(db, "other-owner", { ...profile, brief: { storyAnswers: ["Unrelated"] } });
+  assert.equal(other.brief.playedConnections, undefined);
+  await assert.rejects(saveStory(db, "owner", { ...profile, updatedAt: 9 }), /newer version/);
 });

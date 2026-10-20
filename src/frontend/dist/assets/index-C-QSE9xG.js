@@ -14787,6 +14787,53 @@ function Dictation({
     ] })
   ] });
 }
+function FreshnessQuestion({
+  prompt,
+  pending,
+  onAnswer,
+  onSave,
+  onSkip
+}) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("aside", { className: "story-followup", "aria-label": "One optional memory", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { children: "Want something fresher?" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "This story is starting to revisit familiar connections. One little memory could open up more. This is optional." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "fresh-memory", children: prompt.question }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "textarea",
+      {
+        id: "fresh-memory",
+        rows: 2,
+        maxLength: 3e3,
+        value: prompt.answer,
+        onChange: (event) => onAnswer(event.target.value),
+        disabled: pending
+      }
+    ),
+    !pending && /* @__PURE__ */ jsxRuntimeExports.jsx(Dictation, { value: prompt.answer, onChange: onAnswer, maxLength: 3e3 }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          className: "secondary-button",
+          disabled: pending || !prompt.answer.trim(),
+          onClick: onSave,
+          children: "Save & make another"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          className: "text-button",
+          disabled: pending,
+          onClick: onSkip,
+          children: "Not now"
+        }
+      )
+    ] })
+  ] });
+}
 const CLAUDE_SERVICE = "https://common-thread-claude-service.terrbrutus.chatgpt.site";
 function hostedOperation(operation, brief) {
   const channel = crypto.randomUUID();
@@ -14853,6 +14900,150 @@ async function hostedGeneration(brief) {
     throw new Error("The private service returned an invalid puzzle.");
   return result;
 }
+const normalize = (text2) => text2.normalize("NFC").toLowerCase().replace(/&/g, " and ").replace(/['’]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+function connectionRule(group) {
+  return group.rule || (/backward|revers/i.test(`${group.category} ${group.clue}`) ? "reverse" : "literal");
+}
+function underlyingWords(connection) {
+  return connection.words.map(
+    (word) => normalize(
+      connection.rule === "reverse" ? Array.from(word.normalize("NFC")).reverse().join("") : word
+    )
+  );
+}
+function familiarCount(puzzle, history = []) {
+  return puzzle.groups.filter((group) => {
+    const words = new Set(
+      underlyingWords({ words: group.words, rule: connectionRule(group) })
+    );
+    return history.some(
+      (old) => underlyingWords(old).filter((word) => words.has(word)).length >= 3
+    );
+  }).length;
+}
+function rememberConnections(history, groups, now2 = Date.now()) {
+  const result = [...history];
+  for (const group of groups) {
+    const words = group.words.map(
+      (word) => word.normalize("NFC").toUpperCase()
+    );
+    const variant = words.map(normalize).sort().join("|");
+    if (result.some(
+      (old) => connectionRule(group) === old.rule && old.words.map(normalize).sort().join("|") === variant
+    ))
+      continue;
+    result.push({
+      category: group.category,
+      words,
+      rule: connectionRule(group),
+      playedAt: now2
+    });
+  }
+  return result.slice(-80);
+}
+function parseHistory(value) {
+  if (value === void 0) return [];
+  if (!Array.isArray(value) || value.length > 80)
+    throw new Error("This story's connection history is invalid.");
+  return value.map((item) => {
+    if (!item || typeof item.category !== "string" || item.category.length > 60 || !Array.isArray(item.words) || item.words.length !== 4 || item.words.some(
+      (w) => typeof w !== "string" || !w.trim() || w.length > 24
+    ) || new Set(item.words.map(normalize)).size !== 4 || !["literal", "reverse", "fill-blank"].includes(item.rule) || !Number.isFinite(item.playedAt))
+      throw new Error("This story's connection history is invalid.");
+    return {
+      category: item.category,
+      words: [...item.words],
+      rule: item.rule,
+      playedAt: item.playedAt
+    };
+  });
+}
+function parseFreshnessPrompt(value) {
+  if (value === void 0) return;
+  const prompt = value;
+  if (!prompt || typeof prompt.question !== "string" || !prompt.question.trim() || prompt.question.length > 180 || typeof prompt.forStory !== "string" || prompt.forStory.length > 32 || typeof prompt.dismissed !== "boolean" || typeof prompt.answer !== "string" || prompt.answer.length > 3e3)
+    throw new Error("This story's optional question is invalid.");
+  return {
+    question: prompt.question,
+    forStory: prompt.forStory,
+    dismissed: prompt.dismissed,
+    answer: prompt.answer
+  };
+}
+function storyKey(brief) {
+  const text2 = JSON.stringify([
+    brief.purpose,
+    brief.storyAnswers,
+    brief.extraAnswers,
+    brief.memories,
+    brief.freeStory,
+    brief.conversation,
+    brief.notes,
+    brief.topic,
+    brief.interests
+  ]);
+  let hash = 2166136261;
+  for (let i = 0; i < text2.length; i++)
+    hash = Math.imul(hash ^ text2.charCodeAt(i), 16777619);
+  return `${text2.length.toString(16)}-${(hash >>> 0).toString(16)}`;
+}
+function nextFreshQuestion(brief) {
+  var _a2;
+  const categories = (brief.playedConnections || []).map((item) => item.category).join(" ");
+  const asked = (brief.extraAnswers || []).map((item) => item.question).join(" ");
+  const choices = [
+    {
+      from: /show|game|tv/i,
+      asked: /film|series/i,
+      question: "What are a few films or series you've enjoyed together?"
+    },
+    {
+      from: /place|home|trip|travel/i,
+      asked: /favorite trip|visited on/i,
+      question: "What are a few places you visited on a favorite trip?"
+    },
+    {
+      from: /restaurant|food|eat/i,
+      asked: /foods or drinks/i,
+      question: "Which foods or drinks do you both have strong opinions about?"
+    },
+    {
+      from: /parent|family|name/i,
+      asked: /friends or pets/i,
+      question: "Who are a few friends or pets who are part of your story?"
+    },
+    {
+      from: /./,
+      asked: /sayings or inside jokes/i,
+      question: "What are a few sayings or inside jokes you both recognize?"
+    }
+  ];
+  return ((_a2 = choices.find(
+    (choice) => choice.from.test(categories) && !choice.asked.test(asked)
+  )) == null ? void 0 : _a2.question) || "What's one new memory you'd like to add since your last puzzle?";
+}
+function addFreshMemory(brief, question, answer) {
+  const value = answer.trim();
+  if (!value || value.length > 3e3)
+    throw new Error("Add a short answer, up to 3,000 characters.");
+  const extra = [...brief.extraAnswers || []];
+  const index2 = extra.findIndex((item) => item.question === question);
+  if (index2 >= 0 && extra[index2].answer.length + value.length + 1 <= 3e3)
+    extra[index2] = { question, answer: `${extra[index2].answer}
+${value}` };
+  else if (index2 < 0 && extra.length < 8)
+    extra.push({ question, answer: value });
+  else {
+    const freeStory = [brief.freeStory || "", `${question}
+${value}`].filter(Boolean).join("\n\n");
+    if (freeStory.length > 12e3)
+      throw new Error(
+        "This story's answer space is full. Download a backup and start another story; your existing answers stay saved."
+      );
+    return { ...brief, freeStory, freshnessPrompt: void 0 };
+  }
+  return { ...brief, extraAnswers: extra, freshnessPrompt: void 0 };
+}
 const defaultBrief = {
   creator: "",
   recipient: "",
@@ -14912,7 +15103,8 @@ function validatePuzzle(value) {
       category: text(group.category, "category", 60),
       words: terms,
       clue: text(group.clue, "hint", 180),
-      explanation: text(group.explanation, "explanation", 350)
+      explanation: text(group.explanation, "explanation", 350),
+      ...["literal", "reverse", "fill-blank"].includes(String(group.rule)) ? { rule: group.rule } : {}
     };
   });
   return {
@@ -14988,6 +15180,9 @@ function parseProfile(value) {
   if (!input || typeof input !== "object")
     throw new Error("This story backup is missing its answers.");
   const brief = { ...defaultBrief };
+  if (input.playedConnections !== void 0)
+    brief.playedConnections = parseHistory(input.playedConnections);
+  brief.freshnessPrompt = parseFreshnessPrompt(input.freshnessPrompt);
   for (const [key, limit] of Object.entries({
     creator: 40,
     recipient: 40,
@@ -15063,6 +15258,22 @@ function readLibrary() {
   }
   const profile = newProfile();
   return { activeId: profile.id, profiles: [profile] };
+}
+function recordPlayedGroups(storyId, groups) {
+  const library = readLibrary();
+  const profile = library.profiles.find((item) => item.id === storyId);
+  if (!profile) return false;
+  const history = profile.brief.playedConnections || [];
+  const next = rememberConnections(history, groups);
+  if (JSON.stringify(next) === JSON.stringify(history)) return true;
+  profile.brief.playedConnections = next;
+  profile.updatedAt = Date.now();
+  try {
+    localStorage.setItem(STORY_KEY, JSON.stringify(library));
+    return true;
+  } catch {
+    return false;
+  }
 }
 function StoryLibraryControls({
   profiles,
@@ -15445,7 +15656,7 @@ function generationErrorMessage(error) {
   return error.message.length < 1e3 ? error.message : "Please try again in a moment.";
 }
 function generationRequest(brief) {
-  var _a2, _b2;
+  var _a2, _b2, _c2;
   const people = {
     you: (brief.creator || ((_a2 = brief.people) == null ? void 0 : _a2.you) || "").trim(),
     partner: (brief.recipient || ((_b2 = brief.people) == null ? void 0 : _b2.partner) || "").trim()
@@ -15469,6 +15680,13 @@ ${brief.conversation}` : ""
     familiarity: brief.familiarity,
     personalization: brief.personalization || "memories-only",
     usedTerms: brief.usedTerms || [],
+    ...((_c2 = brief.playedConnections) == null ? void 0 : _c2.length) ? {
+      playedConnections: brief.playedConnections.slice(-40).map((item) => ({
+        category: item.category,
+        words: underlyingWords(item),
+        rule: item.rule
+      }))
+    } : {},
     ...brief.purpose === "fun" && (people.you || people.partner) ? { people } : {}
   };
 }
@@ -15519,10 +15737,12 @@ function challengeLink(challenge, base = window.location.href) {
   return url.toString();
 }
 function Creator({ onHome, onPlay }) {
-  var _a2, _b2, _c2, _d2, _e2;
+  var _a2, _b2, _c2, _d2, _e2, _f2;
   const [library, setLibrary] = reactExports.useState(readLibrary);
   const currentStory = library.profiles.find((profile) => profile.id === library.activeId) || library.profiles[0];
   const brief = currentStory.brief;
+  const activeStory = reactExports.useRef(currentStory.id);
+  activeStory.current = currentStory.id;
   const [saveStatus, setSaveStatus] = reactExports.useState("Saving on this device…");
   function setBrief(update2) {
     setLibrary((current) => ({
@@ -15562,31 +15782,89 @@ function Creator({ onHome, onPlay }) {
   function update(key, value) {
     setBrief((current) => ({ ...current, [key]: value }));
   }
-  async function generate() {
+  async function generateWith(requestBrief, story, offerQuestion = true) {
     if (pendingRef.current) return;
     pendingRef.current = true;
     setPending(true);
     setError("");
     try {
-      const puzzle = await generatePuzzle(brief, currentStory);
-      setDraft(puzzle);
-      setBrief((current) => ({
+      const puzzle = await generatePuzzle(requestBrief, {
+        ...story,
+        brief: requestBrief
+      });
+      const allFamiliar = requestBrief.purpose === "fun" && familiarCount(puzzle, requestBrief.playedConnections) === puzzle.groups.length;
+      const forStory = storyKey(requestBrief);
+      setLibrary((current) => ({
         ...current,
-        usedTerms: [
-          .../* @__PURE__ */ new Set([
-            ...current.usedTerms || [],
-            ...puzzle.groups.flatMap((group) => group.words)
-          ])
-        ].slice(-320)
+        profiles: current.profiles.map(
+          (profile) => {
+            var _a3, _b3;
+            return profile.id !== story.id ? profile : {
+              ...profile,
+              updatedAt: Date.now(),
+              brief: {
+                ...profile.brief,
+                usedTerms: [
+                  .../* @__PURE__ */ new Set([
+                    ...profile.brief.usedTerms || [],
+                    ...puzzle.groups.flatMap((group) => group.words)
+                  ])
+                ].slice(-320),
+                freshnessPrompt: allFamiliar && offerQuestion ? ((_a3 = profile.brief.freshnessPrompt) == null ? void 0 : _a3.forStory) === forStory ? profile.brief.freshnessPrompt : {
+                  question: nextFreshQuestion(requestBrief),
+                  forStory,
+                  dismissed: false,
+                  answer: ""
+                } : ((_b3 = profile.brief.freshnessPrompt) == null ? void 0 : _b3.forStory) === forStory && profile.brief.freshnessPrompt.dismissed ? profile.brief.freshnessPrompt : void 0
+              }
+            };
+          }
+        )
       }));
-      setSource("ai");
+      if (activeStory.current === story.id) {
+        setDraft(puzzle);
+        setSource("ai");
+      }
     } catch (error2) {
-      setError(generationErrorMessage(error2));
+      if (activeStory.current === story.id)
+        setError(generationErrorMessage(error2));
     } finally {
       pendingRef.current = false;
       setPending(false);
     }
   }
+  function generate() {
+    return generateWith(brief, currentStory);
+  }
+  const freshnessPrompt = brief.purpose === "fun" && ((_a2 = brief.freshnessPrompt) == null ? void 0 : _a2.forStory) === storyKey(brief) && !brief.freshnessPrompt.dismissed ? brief.freshnessPrompt : void 0;
+  function saveFreshMemory() {
+    if (!freshnessPrompt || pendingRef.current) return;
+    try {
+      const next = addFreshMemory(
+        brief,
+        freshnessPrompt.question,
+        freshnessPrompt.answer
+      );
+      setBrief(next);
+      void generateWith(
+        next,
+        { ...currentStory, brief: next, updatedAt: Date.now() },
+        false
+      );
+    } catch (error2) {
+      setError(generationErrorMessage(error2));
+    }
+  }
+  const freshQuestion = freshnessPrompt && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    FreshnessQuestion,
+    {
+      prompt: freshnessPrompt,
+      pending,
+      onAnswer: (answer) => update("freshnessPrompt", { ...freshnessPrompt, answer }),
+      onSave: saveFreshMemory,
+      onSkip: () => update("freshnessPrompt", { ...freshnessPrompt, dismissed: true })
+    }
+  );
   function useExample() {
     const original = puzzles[brief.purpose === "study" ? 1 : 0];
     setDraft(
@@ -15621,7 +15899,7 @@ function Creator({ onHome, onPlay }) {
     }
   }
   const hasStory = Boolean(
-    ((_a2 = brief.storyAnswers) == null ? void 0 : _a2.some((answer) => answer.trim())) || ((_b2 = brief.extraAnswers) == null ? void 0 : _b2.some((item) => item.answer.trim())) || ((_c2 = brief.memories) == null ? void 0 : _c2.trim()) || ((_d2 = brief.freeStory) == null ? void 0 : _d2.trim()) || ((_e2 = brief.conversation) == null ? void 0 : _e2.trim())
+    ((_b2 = brief.storyAnswers) == null ? void 0 : _b2.some((answer) => answer.trim())) || ((_c2 = brief.extraAnswers) == null ? void 0 : _c2.some((item) => item.answer.trim())) || ((_d2 = brief.memories) == null ? void 0 : _d2.trim()) || ((_e2 = brief.freeStory) == null ? void 0 : _e2.trim()) || ((_f2 = brief.conversation) == null ? void 0 : _f2.trim())
   );
   const canGenerate = (brief.interests.trim().length > 0 || brief.topic.trim().length > 0 || hasStory) && (brief.purpose !== "study" || brief.topic.trim().length > 0);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "creator-page", "aria-labelledby": "creator-title", children: [
@@ -15703,7 +15981,10 @@ function Creator({ onHome, onPlay }) {
           {
             className: "primary-button",
             type: "button",
-            onClick: () => onPlay(shared),
+            onClick: () => onPlay(
+              shared,
+              brief.purpose === "fun" && shared.source !== "example" ? currentStory.id : void 0
+            ),
             children: [
               shared.style === "together" ? "Start our puzzle" : "Test the puzzle",
               /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 16 })
@@ -15724,6 +16005,8 @@ function Creator({ onHome, onPlay }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `source-label ${source}`, children: source === "example" ? "EXAMPLE PUZZLE · NOT AI-GENERATED" : source === "edited" ? "AI DRAFT · EDITED BY YOU" : "AI-GENERATED DRAFT" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: brief.style === "together" ? "Your personal puzzle is ready." : draft.title }),
       brief.style === "gift" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: draft.description }),
+      source !== "example" && familiarCount(draft, brief.playedConnections) >= 3 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "A familiar remix · some connections revisit your earlier games." }),
+      source !== "example" && freshQuestion,
       brief.style === "gift" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "review-note", children: "You're the puzzle maker, so you'll see the answers. Check that each group makes sense, especially for study topics. Structural checks can't verify every fact or possible connection." }),
         draft.groups.map((group, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -15863,6 +16146,7 @@ function Creator({ onHome, onPlay }) {
         },
         children: [
           brief.purpose === "fun" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+            freshQuestion,
             brief.inputMode === "free" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
                 "Tell your story",
@@ -16230,7 +16514,8 @@ function Game({
   onRestart,
   onNext,
   onRelaxed,
-  personal = false
+  personal = false,
+  onConnectionsSeen
 }) {
   const [state, dispatch] = reactExports.useReducer(
     (current, action) => reduceGame(current, action, puzzle, mode),
@@ -16249,6 +16534,17 @@ function Game({
   const ended = state.outcome !== "playing";
   const tutorial = mode === "intro";
   const canHelp = mode !== "challenge";
+  const reported = reactExports.useRef(/* @__PURE__ */ new Set());
+  reactExports.useEffect(() => {
+    if (!onConnectionsSeen) return;
+    const visible = puzzle.groups.filter(
+      (group) => (ended || state.solved.includes(group.id)) && !reported.current.has(group.id)
+    );
+    if (visible.length) {
+      for (const group of visible) reported.current.add(group.id);
+      onConnectionsSeen(visible);
+    }
+  }, [ended, state.solved, onConnectionsSeen, puzzle.groups]);
   reactExports.useEffect(() => {
     var _a2;
     (_a2 = titleRef.current) == null ? void 0 : _a2.focus();
@@ -16543,6 +16839,13 @@ function App() {
   const [session, setSession] = reactExports.useState(0);
   const [topic, setTopic] = reactExports.useState(0);
   const [returned, setReturned] = reactExports.useState(false);
+  const [personalStoryId, setPersonalStoryId] = reactExports.useState(null);
+  const rememberSeen = reactExports.useCallback(
+    (groups) => {
+      if (personalStoryId) recordPlayedGroups(personalStoryId, groups);
+    },
+    [personalStoryId]
+  );
   const homeTitle = reactExports.useRef(null);
   reactExports.useEffect(() => {
     var _a2;
@@ -16553,6 +16856,7 @@ function App() {
       const incoming = readInvitation();
       setLinkError(incoming.error);
       if (incoming.challenge) {
+        setPersonalStoryId(null);
         setPersonal(incoming.challenge);
         setMode(null);
         setPage("invitation");
@@ -16567,6 +16871,7 @@ function App() {
     return () => window.removeEventListener("hashchange", openHash);
   }, []);
   function start(nextMode, index2 = topic) {
+    setPersonalStoryId(null);
     setPersonal(null);
     setPage("home");
     setLessonIndex(0);
@@ -16575,6 +16880,7 @@ function App() {
     setMode(nextMode);
   }
   function goHome() {
+    setPersonalStoryId(null);
     setMode(null);
     setPage("home");
     setPersonal(null);
@@ -16594,6 +16900,7 @@ function App() {
     setSession((value) => value + 1);
   }
   function openChallenge(challenge) {
+    setPersonalStoryId(null);
     setPersonal(challenge);
     setMode(null);
     setPage("invitation");
@@ -16633,7 +16940,16 @@ function App() {
         }
       )
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("main", { children: page === "creator" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Creator, { onHome: goHome, onPlay: playPersonal }) : page === "invitation" && personal ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+    /* @__PURE__ */ jsxRuntimeExports.jsx("main", { children: page === "creator" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Creator,
+      {
+        onHome: goHome,
+        onPlay: (challenge, storyId) => {
+          setPersonalStoryId(storyId || null);
+          playPersonal(challenge);
+        }
+      }
+    ) : page === "invitation" && personal ? /* @__PURE__ */ jsxRuntimeExports.jsx(
       Invitation,
       {
         challenge: personal,
@@ -16747,7 +17063,8 @@ function App() {
             } else setPuzzleIndex((value) => (value + 1) % puzzles.length);
           },
           onRelaxed: () => personal ? playPersonal(personal, "relaxed") : start("relaxed", puzzleIndex),
-          personal: personal !== null
+          personal: personal !== null,
+          onConnectionsSeen: personalStoryId && (personal == null ? void 0 : personal.source) !== "example" ? rememberSeen : void 0
         },
         `${mode}-${puzzle.id}-${session}`
       )
