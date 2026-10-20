@@ -1,16 +1,9 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
-
 import { SYSTEM, MODEL, validateBrief, parseOutput, outputSchema } from "../../services/claude/worker/index.js";
 export { SYSTEM, MODEL, validateBrief };
-const RESERVATION = 0.01;
-const DAILY_CAP = 0.10;
 
 // Vite development middleware only. This module and the key never enter the browser bundle.
-export function claudeDevPlugin(env, root) {
-  const ledgerPath = resolve(root, "../../.cache/claude-test-budget.json");
+export function claudeDevPlugin(env) {
   let busy = false;
-  let lastCall = 0;
   return {
     name: "private-local-claude",
     apply: "serve",
@@ -25,7 +18,7 @@ export function claudeDevPlugin(env, root) {
         if (!["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(address) || req.headers.origin !== `http://${req.headers.host}` || !/^(127\.0\.0\.1|localhost|\[::1\]):\d+$/.test(req.headers.host || "")) return send(403, { error: "Local preview only." });
         if (req.method !== "POST" || !req.headers["content-type"]?.startsWith("application/json")) return send(405, { error: "Send a JSON puzzle brief." });
         if (!env.ANTHROPIC_API_KEY) return send(503, { error: "The local Claude API key isn't configured." });
-        if (busy || Date.now() - lastCall < 20000) return send(429, { error: "Please wait 20 seconds between generations." });
+        if (busy) return send(429, { error: "Your puzzle is still being made. Wait for it to finish." });
         busy = true;
         try {
           let body = "";
@@ -36,17 +29,6 @@ export function claudeDevPlugin(env, root) {
           let brief;
           try { brief = validateBrief(JSON.parse(body)); }
           catch { return send(400, { error: "Please shorten or complete the puzzle brief." }); }
-          const day = new Date().toISOString().slice(0, 10);
-          let ledger = { day, reserved: 0 };
-          try { ledger = JSON.parse(readFileSync(ledgerPath, "utf8")); }
-          catch (error) { if (error.code !== "ENOENT") throw error; }
-          if (ledger.day !== day) ledger = { day, reserved: 0 };
-          if (!Number.isFinite(ledger.reserved) || ledger.reserved < 0) throw new Error("Invalid budget ledger");
-          if (ledger.reserved + RESERVATION > DAILY_CAP + 1e-9) return send(429, { error: "The local tester's $0.10 daily allowance is used. Try tomorrow (UTC)." });
-          // Persist before sending: failures and restarts still count toward this conservative allowance.
-          mkdirSync(resolve(ledgerPath, ".."), { recursive: true });
-          writeFileSync(ledgerPath, JSON.stringify({ day, reserved: ledger.reserved + RESERVATION }));
-          lastCall = Date.now();
           const response = await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: { "Content-Type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },

@@ -59,30 +59,32 @@ export function StoryQuestions({
       {question < prompts.length ? (
         <>
           <p className="field-help">
-            Short answers are perfect. Every question is optional.
+            Tap the mic and tell it naturally. Every question is optional.
           </p>
           <label htmlFor="story-answer">{prompts[question]}</label>
           <p id="story-answer-help" className="field-help">
             {storyHints[question] ||
               "Add names or details you both recognize. You can skip this or return later."}
           </p>
+          <Dictation
+            key={question}
+            primary
+            value={values[question] || ""}
+            onChange={answer}
+            maxLength={3000}
+          />
           <textarea
             id="story-answer"
             aria-describedby="story-answer-help"
             value={values[question] || ""}
             maxLength={3000}
-            rows={5}
+            rows={3}
+            placeholder="Your words appear here. You can also type or edit."
             onChange={(event) => answer(event.target.value)}
           />
           <p className="field-help">
             {(values[question] || "").length}/3,000 characters
           </p>
-          <Dictation
-            key={question}
-            value={values[question] || ""}
-            onChange={answer}
-            maxLength={3000}
-          />
           <div className="creator-actions">
             {question > 0 && (
               <button

@@ -26,7 +26,13 @@ export function Dictation({
   value,
   onChange,
   maxLength,
-}: { value: string; onChange: (value: string) => void; maxLength: number }) {
+  primary = false,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  maxLength: number;
+  primary?: boolean;
+}) {
   const [listening, setListening] = useState(false);
   const [message, setMessage] = useState("");
   const active = useRef<Recognition | null>(null);
@@ -104,7 +110,7 @@ export function Dictation({
     <div className="dictation-control">
       <button
         type="button"
-        className="secondary-button"
+        className={primary ? "primary-button" : "secondary-button"}
         aria-pressed={listening}
         onClick={start}
       >

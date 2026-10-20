@@ -78,18 +78,8 @@ export function parseOutput(text, brief) {
   return JSON.stringify(result);
 }
 
-// Atomic across instances: daily, per-user, lifetime, and cooldown checks happen in the INSERT.
-export async function reserve(db, user, now = Date.now()) {
-  const day = new Date(now).toISOString().slice(0, 10);
-  const result = await db.prepare(`INSERT INTO generations (id, day, user, created_at)
-    SELECT ?, ?, ?, ? WHERE
-    (SELECT COUNT(*) FROM generations WHERE day = ?) < 10 AND
-    (SELECT COUNT(*) FROM generations WHERE day = ? AND user = ?) < 2 AND
-    (SELECT COUNT(*) FROM generations) < 400 AND
-    NOT EXISTS (SELECT 1 FROM generations WHERE created_at > ?)`)
-    .bind(crypto.randomUUID(), day, user, now, day, day, user, now - 20000).run();
-  return result.meta.changes === 1;
-}
+// Owner-private beta: no app-side generation quota or spending reservation.
+// Historical generations rows remain untouched; billing controls live at Anthropic.
 const headers = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" };
 const json = (status, body) => Response.json(body, { status, headers });
 export function validateStory(value) {
@@ -147,7 +137,6 @@ export default {
         if (input.story) await saveStory(env.DB, user, input.story);
         if (new TextEncoder().encode(JSON.stringify(brief)).length > 60000) return json(413, { error: "Your complete story is saved, but it exceeds one generation's input allowance. Make a shorter story copy for this board; don't delete your original." });
       } catch (e) { return json(400, { error: e.message }); }
-      if (!(await reserve(env.DB, user))) return json(429, { error: "Wait 20 seconds between attempts. Limits: two generations per person per UTC day, ten total per day ($0.10 reserved), and 400 lifetime ($4 reserved). Failed attempts count too." });
       const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST", headers: { "Content-Type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
         body: JSON.stringify({ model: MODEL, max_tokens: 5000, thinking: { type: "adaptive" }, output_config: { effort: "low", format: { type: "json_schema", schema: outputSchema } }, system: SYSTEM, messages: [{ role: "user", content: JSON.stringify(brief) }] }), signal: AbortSignal.timeout(60000),
@@ -169,7 +158,7 @@ export default {
   },
 };
 
-const bridgeHTML = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Common Thread · Private Claude</title><style>body{margin:0;background:#f8f7f1;color:#183c36;font:16px/1.6 system-ui}main{max-width:560px;margin:8vh auto;padding:28px}button{padding:13px 20px;border:0;border-radius:8px;background:#164d44;color:white;font:inherit;cursor:pointer}button:disabled{opacity:.5}p{overflow-wrap:anywhere}.muted{color:#526660}pre{white-space:pre-wrap}</style><main><p class="muted">COMMON THREAD · PRIVATE CLAUDE</p><h1>Your puzzle, privately made.</h1><p id="status" role="status">Waiting for your game. If asked, sign in with the ChatGPT account that owns this service.</p><p id="origin" class="muted"></p><button id="generate" disabled>Make my puzzle</button><p class="muted">Two generations per person per UTC day. At most $0.10/day and $4 lifetime reserved for this test. Answers go to Anthropic only when you press the button. The API key stays on the server.</p><pre id="error" role="alert"></pre></main><script>
+const bridgeHTML = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Common Thread · Private Claude</title><style>body{margin:0;background:#f8f7f1;color:#183c36;font:16px/1.6 system-ui}main{max-width:560px;margin:8vh auto;padding:28px}button{padding:13px 20px;border:0;border-radius:8px;background:#164d44;color:white;font:inherit;cursor:pointer}button:disabled{opacity:.5}p{overflow-wrap:anywhere}.muted{color:#526660}pre{white-space:pre-wrap}</style><main><p class="muted">COMMON THREAD · PRIVATE CLAUDE</p><h1>Your puzzle, privately made.</h1><p id="status" role="status">Waiting for your game. If asked, sign in with the ChatGPT account that owns this service.</p><p id="origin" class="muted"></p><button id="generate" disabled>Make my puzzle</button><p class="muted">Private beta: no app-side generation quota or spending cap. Anthropic account billing limits apply. Answers go to Anthropic only when you press the button. The API key stays on the server.</p><pre id="error" role="alert"></pre></main><script>
 const params=new URLSearchParams(location.search),channel=params.get('channel'),source=params.get('origin');
 let brief=null,used=false,operation="generate";
 const status=document.getElementById('status'),button=document.getElementById('generate'),error=document.getElementById('error');

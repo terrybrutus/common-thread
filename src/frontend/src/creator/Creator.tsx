@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { type Group, type Puzzle, puzzles } from "../game/puzzles";
-import { ConversationImport } from "./ConversationImport";
 import { CopyField } from "./CopyField";
 import { CreatorOptions } from "./CreatorOptions";
 import { Dictation } from "./Dictation";
@@ -447,20 +446,6 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
         >
           {brief.purpose === "fun" ? (
             <>
-              <button
-                type="button"
-                className="text-button"
-                onClick={() =>
-                  update(
-                    "inputMode",
-                    brief.inputMode === "free" ? "guided" : "free",
-                  )
-                }
-              >
-                {brief.inputMode === "free"
-                  ? "Guide me with questions"
-                  : "Paste or speak freely"}
-              </button>
               {brief.inputMode === "free" ? (
                 <>
                   <label>
@@ -510,20 +495,20 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                   onExtraChange={(answers) => update("extraAnswers", answers)}
                 />
               )}
-              <ConversationImport
-                key={`conversation-${currentStory.id}`}
-                people={brief.people}
-                onAdd={(text, people) => {
-                  const conversation = [brief.conversation || "", text]
-                    .filter(Boolean)
-                    .join("\n\n");
-                  if (conversation.length > 12000)
-                    throw new Error(
-                      "Your existing conversation stays saved. Edit it in Paste or speak freely before adding another excerpt; the combined limit is 12,000 characters.",
-                    );
-                  setBrief((current) => ({ ...current, conversation, people }));
-                }}
-              />
+              <button
+                type="button"
+                className="text-button"
+                onClick={() =>
+                  update(
+                    "inputMode",
+                    brief.inputMode === "free" ? "guided" : "free",
+                  )
+                }
+              >
+                {brief.inputMode === "free"
+                  ? "Guide me with questions"
+                  : "Paste or speak freely"}
+              </button>
             </>
           ) : (
             <>

@@ -14470,196 +14470,6 @@ const puzzles = [
     ]
   }
 ];
-function mapConversation(text2, you, partner, yourLabel, partnerLabel) {
-  return text2.split(/\r?\n/).map((line) => {
-    const match = line.match(/^(\s*)([^:\n]{1,60}):\s*(.*)$/);
-    if (!match) return line;
-    const label = match[2].trim().toLocaleLowerCase();
-    if (label === yourLabel.trim().toLocaleLowerCase())
-      return `${you}: ${match[3]}`;
-    if (label === partnerLabel.trim().toLocaleLowerCase())
-      return `${partner}: ${match[3]}`;
-    return line;
-  }).join("\n");
-}
-function ConversationImport({
-  people,
-  onAdd
-}) {
-  const [you, setYou] = reactExports.useState((people == null ? void 0 : people.you) || "");
-  const [partner, setPartner] = reactExports.useState((people == null ? void 0 : people.partner) || "");
-  const [yourLabel, setYourLabel] = reactExports.useState("Me");
-  const [partnerLabel, setPartnerLabel] = reactExports.useState("Them");
-  const [text2, setText] = reactExports.useState("");
-  const [preview, setPreview] = reactExports.useState("");
-  const [message, setMessage] = reactExports.useState("");
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "creator-options", children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Import a conversation excerpt" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Paste sender-labeled text or choose a .txt export. Start with a relevant excerpt, up to 12,000 characters. Photos, voice messages, and iMessage databases aren't read here." }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "field-row", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-        "Your name",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            value: you,
-            maxLength: 40,
-            onChange: (event) => {
-              setYou(event.target.value);
-              setPreview("");
-            }
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-        "Other person's name",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            value: partner,
-            maxLength: 40,
-            onChange: (event) => {
-              setPartner(event.target.value);
-              setPreview("");
-            }
-          }
-        )
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "field-row", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-        "Your sender label",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            value: yourLabel,
-            maxLength: 40,
-            onChange: (event) => {
-              setYourLabel(event.target.value);
-              setPreview("");
-            }
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-        "Their sender label",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          "input",
-          {
-            value: partnerLabel,
-            maxLength: 40,
-            onChange: (event) => {
-              setPartnerLabel(event.target.value);
-              setPreview("");
-            }
-          }
-        )
-      ] })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Match the labels in your export—for example Me/Them, Terry/Jessica, or Green/Gray. Unmatched lines stay unchanged; check who's speaking in the preview." }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-      "Conversation text",
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "textarea",
-        {
-          value: text2,
-          maxLength: 12e3,
-          rows: 6,
-          onChange: (event) => {
-            setText(event.target.value);
-            setPreview("");
-          }
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-      "Or select a text export",
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "input",
-        {
-          type: "file",
-          accept: "text/plain,.txt",
-          onChange: async (event) => {
-            var _a2;
-            const file = (_a2 = event.target.files) == null ? void 0 : _a2[0];
-            if (!file) return;
-            try {
-              if (file.size > 1e5)
-                throw new Error("Choose a shorter conversation excerpt.");
-              const content = await file.text();
-              if (content.length > 12e3)
-                throw new Error(
-                  "This export is longer than 12,000 characters. Choose a relevant date range or excerpt; nothing has been truncated."
-                );
-              setText(content);
-              setPreview("");
-              setMessage("");
-            } catch (error) {
-              setMessage(
-                error instanceof Error ? error.message : "Couldn't read that text file."
-              );
-            }
-            event.target.value = "";
-          }
-        }
-      )
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      "button",
-      {
-        className: "secondary-button",
-        type: "button",
-        disabled: !text2.trim() || !you.trim() || !partner.trim() || !yourLabel.trim() || !partnerLabel.trim() || yourLabel.trim().toLowerCase() === partnerLabel.trim().toLowerCase(),
-        onClick: () => {
-          setPreview(
-            mapConversation(
-              text2,
-              you.trim(),
-              partner.trim(),
-              yourLabel,
-              partnerLabel
-            )
-          );
-          setMessage("");
-        },
-        children: "Preview who's speaking"
-      }
-    ),
-    preview && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("pre", { className: "conversation-preview", children: preview }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Review the names and content before adding. Messages can contain jokes or plans that didn't happen; generation mustn't treat those as confirmed memories." }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        "button",
-        {
-          className: "secondary-button",
-          type: "button",
-          onClick: () => {
-            if (preview.length > 12e3) {
-              setMessage(
-                "The mapped text exceeds 12,000 characters. Shorten the excerpt first."
-              );
-              return;
-            }
-            try {
-              onAdd(preview, { you: you.trim(), partner: partner.trim() });
-              setPreview("");
-              setText("");
-              setMessage(
-                "Conversation added to your saved story. You can edit it under Paste or speak freely."
-              );
-            } catch (error) {
-              setMessage(
-                error instanceof Error ? error.message : "Could not add that excerpt; your earlier story is unchanged."
-              );
-            }
-          },
-          children: "Add reviewed conversation to story"
-        }
-      )
-    ] }),
-    message && /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "field-help", children: message })
-  ] });
-}
 function CopyField({ value, label }) {
   const id = reactExports.useId();
   const [status, setStatus] = reactExports.useState("");
@@ -14931,7 +14741,8 @@ function CreatorOptions({
 function Dictation({
   value,
   onChange,
-  maxLength
+  maxLength,
+  primary = false
 }) {
   const [listening, setListening] = reactExports.useState(false);
   const [message, setMessage] = reactExports.useState("");
@@ -15002,7 +14813,7 @@ function Dictation({
       "button",
       {
         type: "button",
-        className: "secondary-button",
+        className: primary ? "primary-button" : "secondary-button",
         "aria-pressed": listening,
         onClick: start,
         children: [
@@ -15493,9 +15304,19 @@ function StoryQuestions({
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "story-questions", "aria-label": "Your shared story", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { ref: heading, tabIndex: -1, children: question < prompts.length ? `A little about you two · ${question + 1} of ${prompts.length}` : "Your story so far" }),
     question < prompts.length ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Short answers are perfect. Every question is optional." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Tap the mic and tell it naturally. Every question is optional." }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "story-answer", children: prompts[question] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: "story-answer-help", className: "field-help", children: storyHints[question] || "Add names or details you both recognize. You can skip this or return later." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Dictation,
+        {
+          primary: true,
+          value: values[question] || "",
+          onChange: answer,
+          maxLength: 3e3
+        },
+        question
+      ),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         "textarea",
         {
@@ -15503,7 +15324,8 @@ function StoryQuestions({
           "aria-describedby": "story-answer-help",
           value: values[question] || "",
           maxLength: 3e3,
-          rows: 5,
+          rows: 3,
+          placeholder: "Your words appear here. You can also type or edit.",
           onChange: (event) => answer(event.target.value)
         }
       ),
@@ -15511,15 +15333,6 @@ function StoryQuestions({
         (values[question] || "").length,
         "/3,000 characters"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(
-        Dictation,
-        {
-          value: values[question] || "",
-          onChange: answer,
-          maxLength: 3e3
-        },
-        question
-      ),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
         question > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
           "button",
@@ -16063,18 +15876,6 @@ function Creator({ onHome, onPlay }) {
         },
         children: [
           brief.purpose === "fun" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              "button",
-              {
-                type: "button",
-                className: "text-button",
-                onClick: () => update(
-                  "inputMode",
-                  brief.inputMode === "free" ? "guided" : "free"
-                ),
-                children: brief.inputMode === "free" ? "Guide me with questions" : "Paste or speak freely"
-              }
-            ),
             brief.inputMode === "free" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
                 "Tell your story",
@@ -16123,19 +15924,16 @@ function Creator({ onHome, onPlay }) {
               currentStory.id
             ),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
-              ConversationImport,
+              "button",
               {
-                people: brief.people,
-                onAdd: (text2, people) => {
-                  const conversation = [brief.conversation || "", text2].filter(Boolean).join("\n\n");
-                  if (conversation.length > 12e3)
-                    throw new Error(
-                      "Your existing conversation stays saved. Edit it in Paste or speak freely before adding another excerpt; the combined limit is 12,000 characters."
-                    );
-                  setBrief((current) => ({ ...current, conversation, people }));
-                }
-              },
-              `conversation-${currentStory.id}`
+                type: "button",
+                className: "text-button",
+                onClick: () => update(
+                  "inputMode",
+                  brief.inputMode === "free" ? "guided" : "free"
+                ),
+                children: brief.inputMode === "free" ? "Guide me with questions" : "Paste or speak freely"
+              }
             )
           ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [

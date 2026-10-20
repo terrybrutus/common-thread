@@ -1,63 +1,21 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import App from "../App";
-import {
-  ConversationImport,
-  mapConversation,
-} from "../creator/ConversationImport";
 import { generationRequest } from "../creator/ai";
 import { parseProfile, readLibrary } from "../creator/library";
 import { defaultBrief } from "../creator/schema";
 
-describe("personal voice and conversation input", () => {
-  it("maps explicit sender labels and requires preview before adding the excerpt", async () => {
-    const user = userEvent.setup();
-    const onAdd = vi.fn();
-    render(<ConversationImport onAdd={onAdd} />);
-    await user.click(screen.getByText("Import a conversation excerpt"));
-    fireEvent.change(screen.getByRole("textbox", { name: "Your name" }), {
-      target: { value: "Alex" },
-    });
-    fireEvent.change(
-      screen.getByRole("textbox", { name: "Other person's name" }),
-      { target: { value: "Casey" } },
-    );
-    fireEvent.change(
-      screen.getByRole("textbox", { name: "Conversation text" }),
-      { target: { value: "Me: Remember the pier?\nThem: And the cafe!" } },
-    );
-    expect(onAdd).not.toHaveBeenCalled();
-    await user.click(
-      screen.getByRole("button", { name: "Preview who's speaking" }),
-    );
-    expect(screen.getByText(/Alex: Remember the pier/)).toBeVisible();
-    expect(onAdd).not.toHaveBeenCalled();
-    await user.click(
-      screen.getByRole("button", {
-        name: "Add reviewed conversation to story",
-      }),
-    );
-    expect(onAdd).toHaveBeenCalledWith(
-      "Alex: Remember the pier?\nCasey: And the cafe!",
-      { you: "Alex", partner: "Casey" },
-    );
-    expect(
-      mapConversation(
-        "Green: A\nGray: B\nUnknown: C",
-        "Alex",
-        "Casey",
-        "Green",
-        "Gray",
-      ),
-    ).toBe("Alex: A\nCasey: B\nUnknown: C");
-  });
+describe("personal voice and story input", () => {
   it("keeps guided answers and freeform text together after switching input styles", async () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(
       screen.getByRole("button", { name: "Create a personal puzzle" }),
     );
+    expect(
+      screen.queryByText("Import a conversation excerpt"),
+    ).not.toBeInTheDocument();
     fireEvent.change(screen.getByRole("textbox", { name: /early memory/ }), {
       target: { value: "We met at the pier" },
     });

@@ -12,7 +12,7 @@ test("rejects oversized briefs and strips unexpected private fields", () => {
   assert.equal(validateBrief({ ...brief, creator: "Private" }).creator, undefined);
 });
 
-test("local tester protects origin, reserves budget before requests, and blocks spent budget", async () => {
+test("local beta protects origin and ignores an exhausted historical budget", async () => {
   const temp = mkdtempSync(join(tmpdir(), "common-thread-test-"));
   const root = join(temp, "src", "frontend");
   mkdirSync(root, { recursive: true });
@@ -37,19 +37,20 @@ test("local tester protects origin, reserves budget before requests, and blocks 
     calls++;
     assert.equal(url, "https://api.anthropic.com/v1/messages");
     assert.equal(JSON.parse(options.body).model, MODEL);
-    assert.equal(JSON.parse(readFileSync(ledger, "utf8")).reserved, 0.01);
+
     return { ok: true, json: async () => ({ stop_reason: "end_turn", content: [{ type: "text", text: '{"puzzle":null,"question":"Tell me four foods you both enjoy"}' }] }) };
   };
   try {
+    mkdirSync(join(temp, ".cache"), { recursive: true });
+    writeFileSync(ledger, JSON.stringify({ day: new Date().toISOString().slice(0, 10), reserved: 4 }));
     const fn = handler();
     assert.equal((await request(fn, "https://other.example")).status, 403);
     assert.equal(calls, 0);
     const success = await request(fn, "http://127.0.0.1:5173");
     assert.equal(success.status, 422);
     assert.ok(!JSON.stringify(success).includes("test-secret"));
-    assert.equal((await request(fn, "http://127.0.0.1:5173")).status, 429);
-    writeFileSync(ledger, JSON.stringify({ day: new Date().toISOString().slice(0, 10), reserved: 0.10 }));
-    assert.equal((await request(handler(), "http://127.0.0.1:5173")).status, 429);
-    assert.equal(calls, 1);
+    for (let i = 0; i < 12; i++) assert.equal((await request(fn, "http://127.0.0.1:5173")).status, 422);
+    assert.equal(calls, 13);
+    assert.equal(JSON.parse(readFileSync(ledger, "utf8")).reserved, 4);
   } finally { globalThis.fetch = original; }
 });

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
-import worker, { reserve, parseOutput, validateBrief, saveStory } from "./index.js";
+import worker, { parseOutput, validateBrief, saveStory } from "./index.js";
 
 function database() {
   const sqlite = new DatabaseSync(":memory:");
@@ -10,18 +10,24 @@ function database() {
   for (const file of readdirSync(dir).filter(v => v.endsWith(".sql")).sort()) sqlite.exec(readFileSync(new URL(file, dir), "utf8"));
   return { sqlite, prepare(sql) { return { bind(...args) { return { async run() { return { meta: sqlite.prepare(sql).run(...args) }; }, async all() { return { results: sqlite.prepare(sql).all(...args) }; } }; } }; } };
 }
-test("atomic reservations cap each person, daily total, cooldown and lifetime across calls", async () => {
-  const db = database(), start = Date.parse("2026-10-20T00:00:00Z");
-  assert.equal(await reserve(db, "one", start), true);
-  assert.equal(await reserve(db, "two", start + 1), false);
-  assert.equal(await reserve(db, "one", start + 21000), true);
-  assert.equal(await reserve(db, "one", start + 42000), false);
-  for (let i = 0; i < 8; i++) assert.equal(await reserve(db, `user${i}`, start + 63000 + i * 21000), true);
-  assert.equal(await reserve(db, "extra", start + 400000), false);
-  assert.equal(await reserve(db, "one", start + 86400000), true);
+test("private beta ignores exhausted historical quotas and keeps request authentication", async () => {
+  const db = database();
   const insert = db.sqlite.prepare("INSERT INTO generations VALUES (?, ?, ?, ?)");
-  for (let i = 11; i < 400; i++) insert.run(`seed${i}`, "old", "old", 0);
-  assert.equal(await reserve(db, "other", start + 86450000), false);
+  for (let i = 0; i < 400; i++) insert.run('old' + i, new Date().toISOString().slice(0, 10), "owner", Date.now());
+  const original = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls++;
+    return Response.json({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify({ puzzle: null, question: "Which four foods do you both enjoy?" }) }] });
+  };
+  try {
+    for (let i = 0; i < 12; i++) {
+      const request = new Request("https://service.example/api/puzzle", { method: "POST", headers: { "oai-authenticated-user-id": "owner", Origin: "https://service.example", "Content-Type": "application/json" }, body: JSON.stringify({ purpose: "fun", interests: "games", notes: "", topic: "", difficulty: "balanced", familiarity: "new" }) });
+      assert.equal((await worker.fetch(request, { DB: db, ANTHROPIC_API_KEY: "test-secret" })).status, 422);
+    }
+    assert.equal(calls, 12);
+    assert.equal(db.sqlite.prepare("SELECT COUNT(*) AS n FROM generations").get().n, 400);
+  } finally { globalThis.fetch = original; }
 });
 test("rejects unauthorized/cross-site requests before spending", async () => {
   const make = (headers) => new Request("https://service.example/api/puzzle", { method: "POST", headers, body: "{}" });

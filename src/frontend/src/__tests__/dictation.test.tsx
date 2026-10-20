@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Dictation } from "../creator/Dictation";
+import { StoryQuestions } from "../creator/StoryQuestions";
 
 describe("browser dictation", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -45,5 +46,37 @@ describe("browser dictation", () => {
     vi.stubGlobal("webkitSpeechRecognition", undefined);
     render(<Dictation value="" onChange={vi.fn()} maxLength={3000} />);
     expect(screen.getByText(/isn't available in this browser/)).toBeVisible();
+  });
+  it("puts the mic before the answer and stops listening when moving to the next question", () => {
+    let recognition: any;
+    class MockRecognition {
+      start = vi.fn();
+      stop = vi.fn();
+      abort = vi.fn();
+      constructor() {
+        recognition = this;
+      }
+    }
+    vi.stubGlobal("webkitSpeechRecognition", MockRecognition);
+    const onChange = vi.fn();
+    render(<StoryQuestions answers={[]} onChange={onChange} />);
+    const mic = screen.getByRole("button", { name: "Speak your answer" });
+    const transcript = screen.getByRole("textbox");
+    expect(mic).toHaveClass("primary-button");
+    expect(
+      mic.compareDocumentPosition(transcript) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    fireEvent.click(mic);
+    act(() =>
+      recognition.onresult({
+        resultIndex: 0,
+        results: [{ isFinal: true, 0: { transcript: "We met at the cafe" } }],
+      }),
+    );
+    expect(onChange).toHaveBeenCalledWith(["We met at the cafe", "", "", ""]);
+    fireEvent.click(screen.getByRole("button", { name: "Next question" }));
+    expect(recognition.abort).toHaveBeenCalledOnce();
+    expect(screen.getByRole("heading", { name: /2 of 4/ })).toBeVisible();
   });
 });
