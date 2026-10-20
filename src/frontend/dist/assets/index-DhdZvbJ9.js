@@ -14541,6 +14541,112 @@ function CopyField({ value, label }) {
     /* @__PURE__ */ jsxRuntimeExports.jsx("output", { "aria-live": "polite", children: status })
   ] });
 }
+const storyQuestions = [
+  "How did you meet, or what's an early memory you share?",
+  "Which places mean something to you both?",
+  "What do you both get excited about or do together?",
+  "Any little details only you two would recognize?"
+];
+const storyHints = [
+  "A first hangout, the month you met, or something funny that happened.",
+  "Hometowns, a favorite trip, or somewhere you've lived. Tell us why each place matters.",
+  "Games, meals, hobbies, shows, or a favorite weekend routine.",
+  "An inside joke, a nickname's origin, the weather on a special day, or a small tradition."
+];
+function StoryQuestions({
+  answers,
+  onChange
+}) {
+  const [question, setQuestion] = reactExports.useState(0);
+  const heading = reactExports.useRef(null);
+  const moved = reactExports.useRef(false);
+  reactExports.useEffect(() => {
+    var _a2;
+    if (moved.current) (_a2 = heading.current) == null ? void 0 : _a2.focus();
+    moved.current = true;
+  }, [question]);
+  function answer(value) {
+    onChange(
+      storyQuestions.map(
+        (_, index2) => index2 === question ? value : answers[index2] || ""
+      )
+    );
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "story-questions", "aria-label": "Your shared story", children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h3", { ref: heading, tabIndex: -1, children: question < 4 ? `A little about you two · ${question + 1} of 4` : "Your story so far" }),
+    question < 4 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Short answers are perfect. Every question is optional." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "story-answer", children: storyQuestions[question] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: "story-answer-help", className: "field-help", children: storyHints[question] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "textarea",
+        {
+          id: "story-answer",
+          "aria-describedby": "story-answer-help",
+          value: answers[question] || "",
+          maxLength: 220,
+          rows: 3,
+          onChange: (event) => answer(event.target.value)
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "field-help", children: [
+        (answers[question] || "").length,
+        "/220 characters"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
+        question > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            className: "text-button",
+            onClick: () => setQuestion(question - 1),
+            children: "Previous question"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            className: "secondary-button",
+            onClick: () => setQuestion(question + 1),
+            children: question === 3 ? "Review my answers" : "Next question"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "button",
+          {
+            type: "button",
+            className: "text-button",
+            onClick: () => {
+              answer("");
+              setQuestion(question + 1);
+            },
+            children: "Skip this question"
+          }
+        )
+      ] })
+    ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("dl", { className: "story-review", children: storyQuestions.map((prompt, index2) => {
+        var _a2;
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dt", { children: prompt }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("dd", { children: ((_a2 = answers[index2]) == null ? void 0 : _a2.trim()) || "Skipped" })
+        ] }, prompt);
+      }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          type: "button",
+          className: "text-button",
+          onClick: () => setQuestion(0),
+          children: "Edit my story answers"
+        }
+      ),
+      !answers.some((value) => value.trim()) && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "No memories added. We'll use your shared interests for a themed puzzle." })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Only your answers go to AI as personal facts. It may ask for another detail if there isn't enough for four fair groups. These answers aren't included in the invitation." })
+  ] });
+}
 const defaultBrief = {
   creator: "",
   recipient: "",
@@ -14785,7 +14891,7 @@ function Creator({ onHome, onPlay }) {
         " MADE PERSONAL"
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { id: "creator-title", ref: heading, tabIndex: -1, children: shared ? "A little challenge, ready to send." : draft ? brief.style === "together" ? "Keep a little mystery." : "Your puzzle. Your finishing touch." : stepTitles[step] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: shared ? "Send the link yourself, or copy a challenge code. No account needed to solve it." : draft ? brief.style === "together" ? "The connections are hidden so you can discover them together." : "AI does the heavy lifting. You get the final say." : "Four small questions. A puzzle with your people in mind." })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: shared ? "Send the link yourself, or copy a challenge code. No account needed to solve it." : draft ? brief.style === "together" ? "The connections are hidden so you can discover them together." : "AI does the heavy lifting. You get the final say." : "A few quick steps. A puzzle with your people in mind." })
     ] }),
     shared ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-panel share-panel", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(HeartHandshake, { size: 28 }),
@@ -15161,22 +15267,13 @@ function Creator({ onHome, onPlay }) {
                   }
                 )
               ] }),
-              brief.purpose === "fun" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-                "Your shared story",
-                " ",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional, up to 1,200 characters)" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  "textarea",
-                  {
-                    value: brief.memories || "",
-                    maxLength: 1200,
-                    onChange: (event) => update("memories", event.target.value),
-                    rows: 5,
-                    placeholder: "Tell us a few things only you two would know: how you met, favorite routines, places and little memories. Short answers are perfect."
-                  }
-                ),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "field-help", children: "These details go to AI to personalize all four groups. It may ask a quick follow-up if it needs more facts. This text isn't included in the invitation." })
-              ] }),
+              brief.purpose === "fun" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                StoryQuestions,
+                {
+                  answers: brief.storyAnswers || [],
+                  onChange: (answers) => update("storyAnswers", answers)
+                }
+              ),
               brief.purpose === "study" && /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
                 "Study notes ",
                 /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "(optional, up to 1,200 characters)" }),

@@ -10,6 +10,7 @@ export interface CreatorBrief {
   topic: string;
   notes: string;
   memories?: string;
+  storyAnswers?: string[];
   difficulty: "easy" | "balanced" | "tricky";
   familiarity: "new" | "familiar";
   mode: "relaxed" | "challenge";

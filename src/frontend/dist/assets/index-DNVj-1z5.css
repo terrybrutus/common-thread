@@ -2614,6 +2614,28 @@ summary {
   font: normal 27px / 1.3 Georgia, serif;
   margin: 15px 0;
 }
+
+.story-questions {
+  padding: 1.2rem;
+  border: 1px solid #dce0d6;
+  border-radius: 12px;
+  margin-bottom: 22px;
+}
+.story-questions h3 {
+  margin: 0 0 0.8rem;
+}
+.story-questions > label,
+.story-review dt {
+  font-weight: 600;
+}
+.story-review > div + div {
+  margin-top: 1rem;
+}
+.story-review dd {
+  margin: 0.4rem 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .creator-panel > p {
   font-size: 14px;
   line-height: 1.8;

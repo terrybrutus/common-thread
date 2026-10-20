@@ -1,4 +1,5 @@
 import { type CreatorBrief, parseGeneratedPuzzle } from "./schema";
+import { storyNotes } from "./story";
 
 export function generationErrorMessage(error: unknown): string {
   if (!(error instanceof Error)) return "Please try again in a moment.";
@@ -17,7 +18,9 @@ export function generationRequest(brief: CreatorBrief) {
     notes:
       brief.purpose === "study"
         ? brief.notes.trim()
-        : (brief.memories || "").trim(),
+        : brief.storyAnswers
+          ? storyNotes(brief.storyAnswers)
+          : (brief.memories || "").trim(),
     difficulty: brief.difficulty,
     familiarity: brief.familiarity,
   };
