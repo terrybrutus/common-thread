@@ -393,3 +393,57 @@ test("quote recovery uses a unique verbatim story span, never an invented source
   assert.doesNotMatch(prepared.puzzle.groups[0].clue, /raised/);
   assert.equal(data.puzzle.groups[0].clue, "The people who raised you both");
 });
+
+test("cloud updates from a four-answer client cannot remove the fifth saved answer", async () => {
+ const db = database();
+ const fifth = { question: "What else do you remember?", answer: "A very detailed fifth answer" };
+ const original = { id: "cross-device", name: "Our story", updatedAt: 100, brief: { storyAnswers: ["One", "Two", "Three", "Four"], extraAnswers: [fifth] } };
+ await saveStory(db, "owner", original);
+ const saved = await saveStory(db, "owner", { ...original, updatedAt: 200, brief: { storyAnswers: ["One", "Two", "Three", "Four"], extraAnswers: [] } });
+ assert.deepEqual(saved.brief.extraAnswers, [fifth]);
+ const loaded = JSON.parse(db.sqlite.prepare("SELECT data FROM stories WHERE owner = ? AND id = ?").get("owner", original.id).data);
+ assert.deepEqual(loaded.brief.extraAnswers, [fifth]);
+});
+
+test("automatic connection runs only for the exact configured game origin and has no second generation button", async () => {
+ const make = origin => new Request("https://service.example/bridge?origin=" + encodeURIComponent(origin) + "&channel=test");
+ const env = { GAME_ORIGINS: "https://game.example" };
+ const trusted = await (await worker.fetch(make(env.GAME_ORIGINS), env)).text();
+ assert.match(trusted, /const trusted=true/);
+ assert.ok(!trusted.includes('id="generate"'));
+ assert.ok(!trusted.includes('Press below'));
+ const untrusted = await (await worker.fetch(make("https://evil.example"), env)).text();
+ assert.match(untrusted, /const trusted=false/);
+ assert.match(trusted, /event.origin!==source/);
+ assert.match(trusted, /event.source!==window.opener/);
+});
+
+test("the real connection script automatically handles and deduplicates requests without another button", async () => {
+ const { runInNewContext } = await import("node:vm");
+ const origin = "https://game.example";
+ const html = await (await worker.fetch(new Request("https://service.example/bridge?origin="+encodeURIComponent(origin)+"&channel=one"), { GAME_ORIGINS: origin })).text();
+ let listener; const posts = []; const calls = [];
+ const opener = { postMessage(value, target) { posts.push({ value, target }); } };
+ const context = { URLSearchParams, location: { search: "?origin="+encodeURIComponent(origin)+"&channel=one" }, document: { getElementById() { return { textContent: "" }; } }, window: { opener, close() {}, addEventListener(_type, fn) { listener = fn; } }, setInterval() { return 1; }, clearInterval() {}, setTimeout() { return 1; }, fetch: async (path, options) => { calls.push({ path, body: JSON.parse(options.body) }); return { ok: true, json: async () => path.endsWith("load") ? { profiles: [] } : { saved: true } }; } };
+ runInNewContext(html.match(/<script>([\s\S]*)<\/script>/)[1], context);
+ const message = { origin, source: opener, data: { type: "common-thread-brief", channel: "one", requestId: "load", operation: "load-story", brief: {} } };
+ listener({ ...message, origin: "https://evil.example" });
+ listener(message); listener(message);
+ listener({ ...message, data: { ...message.data, requestId: "save", operation: "save-story", brief: { id: "our-story" } } });
+ await new Promise(resolve => setImmediate(resolve));
+ assert.deepEqual(calls.map(call => call.path), ["/api/story/load", "/api/story/save"]);
+ assert.deepEqual(posts.filter(post => post.value.type === "common-thread-result").map(post => post.value.requestId), ["load", "save"]);
+ assert.ok(posts.every(post => post.target === origin));
+});
+
+test("an older client generation receives a fifth memory already in cloud without deleting it", async () => {
+ const db = database(); const story = { id: "cloud-fifth", name: "Our story", updatedAt: 100, brief: { storyAnswers: ["One", "Two", "Three", "Four"], extraAnswers: [{ question: "Another memory?", answer: "An important fifth memory" }] } };
+ await saveStory(db, "owner", story);
+ const original = globalThis.fetch; let calls = 0;
+ globalThis.fetch = async (_url, options) => { calls++; assert.ok(JSON.parse(options.body).messages[0].content.includes("An important fifth memory")); return Response.json({ stop_reason: "end_turn", content: [{ type: "text", text: '{"puzzle":null,"question":"Which places do you remember?"}' }] }); };
+ try {
+  const request = new Request("https://service.example/api/puzzle", { method: "POST", headers: { "oai-authenticated-user-id": "owner", Origin: "https://service.example", "Content-Type": "application/json" }, body: JSON.stringify({ purpose: "fun", notes: "One Two Three Four", interests: "", topic: "", difficulty: "balanced", familiarity: "new", story: { ...story, updatedAt: 200, brief: { storyAnswers: story.brief.storyAnswers } } }) });
+  assert.equal((await worker.fetch(request, { DB: db, ANTHROPIC_API_KEY: "test-secret" })).status, 422);
+  assert.equal(calls, 1);
+ } finally { globalThis.fetch = original; }
+});

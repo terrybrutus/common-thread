@@ -14886,66 +14886,146 @@ class StoryQuestionError extends Error {
   }
 }
 const CLAUDE_SERVICE = "https://common-thread-claude-service.terrbrutus.chatgpt.site";
-function hostedOperation(operation, brief) {
+const CONNECTION_EVENT = "common-thread-connection";
+let connection;
+const notify = () => window.dispatchEvent(new Event(CONNECTION_EVENT));
+function isStoryConnected() {
+  return Boolean((connection == null ? void 0 : connection.ready) && !connection.popup.closed);
+}
+function disconnectStoryCloud() {
+  const current = connection;
+  if (!current) return;
+  connection = void 0;
+  window.removeEventListener("message", current.receive);
+  clearInterval(current.closed);
+  for (const pending of current.requests.values()) {
+    clearTimeout(pending.timer);
+    pending.reject(
+      new Error(
+        "The story connection closed. Your changes are saved on this device; reconnect to sync."
+      )
+    );
+  }
+  current.requests.clear();
+  notify();
+}
+function connectStoryCloud() {
+  var _a2, _b2;
+  if (connection && !connection.popup.closed) {
+    if (!connection.ready) (_b2 = (_a2 = connection.popup).focus) == null ? void 0 : _b2.call(_a2);
+    return;
+  }
+  disconnectStoryCloud();
   const channel = crypto.randomUUID();
   const popup = window.open(
     `${CLAUDE_SERVICE}/bridge?channel=${encodeURIComponent(channel)}&origin=${encodeURIComponent(window.location.origin)}`,
-    "_blank",
-    "popup,width=600,height=740"
+    "common-thread-connection",
+    "popup,width=480,height=480"
   );
   if (!popup)
-    return Promise.reject(
-      new Error(
-        "Allow pop-ups for Common Thread, then press Make our puzzle again to open your private Claude connection."
-      )
+    throw new Error(
+      "Allow pop-ups for Common Thread to connect your saved story. Your answers are still saved on this device."
     );
-  return new Promise((resolve, reject) => {
-    const clean = () => {
-      window.removeEventListener("message", receive);
-      clearTimeout(timeout);
-      clearInterval(closed);
-    };
-    const receive = (event) => {
-      var _a2;
-      if (event.origin !== CLAUDE_SERVICE || event.source !== popup || ((_a2 = event.data) == null ? void 0 : _a2.channel) !== channel)
-        return;
-      if (event.data.type === "common-thread-ready")
-        popup.postMessage(
-          { type: "common-thread-brief", channel, brief, operation },
-          CLAUDE_SERVICE
-        );
-      if (event.data.type === "common-thread-result" && (typeof event.data.text === "string" || event.data.value !== void 0)) {
-        clean();
-        resolve(event.data.value ?? event.data.text);
+  const requests = /* @__PURE__ */ new Map();
+  const send = (requestId, pending) => {
+    if (pending.sent || !(connection == null ? void 0 : connection.ready)) return;
+    pending.sent = true;
+    popup.postMessage(
+      {
+        type: "common-thread-brief",
+        channel,
+        requestId,
+        brief: pending.brief,
+        operation: pending.operation
+      },
+      CLAUDE_SERVICE
+    );
+  };
+  const receive = (event) => {
+    var _a3;
+    if (event.origin !== CLAUDE_SERVICE || event.source !== popup || ((_a3 = event.data) == null ? void 0 : _a3.channel) !== channel || !connection || connection.popup !== popup)
+      return;
+    if (event.data.type === "common-thread-ready") {
+      if (!connection.ready) {
+        connection.ready = true;
+        notify();
         window.focus();
       }
-      if (event.data.type === "common-thread-error") {
-        clean();
-        reject(
-          event.data.code === "needs_story" && operation === "generate" ? new StoryQuestionError(cleanStoryQuestion(event.data.question)) : new Error(String(event.data.error).slice(0, 1e3))
-        );
-        window.focus();
-      }
-    };
-    window.addEventListener("message", receive);
-    const timeout = setTimeout(() => {
-      clean();
-      reject(
-        new Error(
-          "The private Claude window timed out. Sign in there if needed, return here, and try again. Your answers are saved."
-        )
+      for (const [id2, pending2] of requests) send(id2, pending2);
+      return;
+    }
+    const id = event.data.requestId || (requests.size === 1 ? requests.keys().next().value : void 0);
+    if (!id) return;
+    const pending = requests.get(id);
+    if (!pending) return;
+    if (event.data.type === "common-thread-result" && (typeof event.data.text === "string" || event.data.value !== void 0)) {
+      clearTimeout(pending.timer);
+      requests.delete(id);
+      pending.resolve(event.data.value ?? event.data.text);
+      if (pending.operation === "generate") window.focus();
+    } else if (event.data.type === "common-thread-error") {
+      clearTimeout(pending.timer);
+      requests.delete(id);
+      pending.reject(
+        event.data.code === "needs_story" && pending.operation === "generate" ? new StoryQuestionError(cleanStoryQuestion(event.data.question)) : new Error(String(event.data.error).slice(0, 1e3))
       );
-    }, 3e5);
-    const closed = setInterval(() => {
-      if (popup.closed) {
-        clean();
+      if (pending.operation === "generate") window.focus();
+    }
+  };
+  window.addEventListener("message", receive);
+  connection = {
+    popup,
+    channel,
+    ready: false,
+    requests,
+    receive,
+    closed: setInterval(() => {
+      if (popup.closed) disconnectStoryCloud();
+    }, 1e3)
+  };
+}
+function hostedOperation(operation, brief, background = false) {
+  try {
+    if (background && !isStoryConnected())
+      throw new Error(
+        "Reconnect to sync this story. Your answers are saved on this device."
+      );
+    connectStoryCloud();
+  } catch (error) {
+    return Promise.reject(error);
+  }
+  const current = connection;
+  const requestId = crypto.randomUUID();
+  return new Promise((resolve, reject) => {
+    const pending = {
+      operation,
+      brief,
+      sent: false,
+      resolve,
+      reject,
+      timer: setTimeout(() => {
+        current.requests.delete(requestId);
         reject(
           new Error(
-            "The Claude window was closed before the puzzle arrived. Your answers are saved; try again when ready."
+            "The story connection timed out. Your answers are saved on this device; reconnect and try again."
           )
         );
-      }
-    }, 1e3);
+      }, 3e5)
+    };
+    current.requests.set(requestId, pending);
+    if (current.ready) {
+      pending.sent = true;
+      current.popup.postMessage(
+        {
+          type: "common-thread-brief",
+          channel: current.channel,
+          requestId,
+          brief,
+          operation
+        },
+        CLAUDE_SERVICE
+      );
+    }
   });
 }
 async function hostedGeneration(brief) {
@@ -14958,13 +15038,13 @@ const normalize = (text2) => text2.normalize("NFC").toLowerCase().replace(/&/g, 
 function connectionRule(group) {
   return group.rule || (/backward|revers/i.test(`${group.category} ${group.clue}`) ? "reverse" : "literal");
 }
-function underlyingWords(connection) {
+function underlyingWords(connection2) {
   var _a2;
-  if (((_a2 = connection.sourceWords) == null ? void 0 : _a2.length) === 4)
-    return connection.sourceWords.map(normalize);
-  return connection.words.map(
+  if (((_a2 = connection2.sourceWords) == null ? void 0 : _a2.length) === 4)
+    return connection2.sourceWords.map(normalize);
+  return connection2.words.map(
     (word) => normalize(
-      connection.rule === "reverse" ? Array.from(word.normalize("NFC")).reverse().join("") : word
+      connection2.rule === "reverse" ? Array.from(word.normalize("NFC")).reverse().join("") : word
     )
   );
 }
@@ -15369,7 +15449,7 @@ function recordPlayedGroups(storyId, groups) {
   const next = rememberConnections(history, groups);
   if (JSON.stringify(next) === JSON.stringify(history)) return true;
   profile.brief.playedConnections = next;
-  profile.updatedAt = Date.now();
+  profile.updatedAt = Math.max(Date.now(), profile.updatedAt + 1);
   try {
     localStorage.setItem(STORY_KEY, JSON.stringify(library));
     return true;
@@ -15405,10 +15485,11 @@ function StoryLibraryControls({
         const choices = result.profiles.map(parseProfile);
         for (const profile of choices.reverse()) onImport(profile);
         setMessage("Cloud stories loaded. Choose one above to continue.");
-      } else
-        setMessage(
-          "Saved to private cloud. Load it on your other computer with the same ChatGPT sign-in."
-        );
+      } else {
+        const saved = data.profile;
+        if (saved) onImport(parseProfile(saved));
+        setMessage("Saved across your computers.");
+      }
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "Couldn't connect to story storage."
@@ -15839,9 +15920,200 @@ function challengeLink(challenge, base = window.location.href) {
   url.hash = `thread=${encodeChallenge(challenge)}`;
   return url.toString();
 }
+function mergeBriefs(primary, secondary) {
+  const text2 = (a, b) => !a ? b || "" : !b || a.includes(b) ? a : b.includes(a) ? b : a;
+  const result = { ...secondary, ...primary };
+  for (const key of ["memories", "freeStory", "conversation", "notes"]) if (primary[key] !== void 0 || secondary[key] !== void 0) result[key] = text2(primary[key], secondary[key]);
+  if (primary.storyAnswers || secondary.storyAnswers) result.storyAnswers = Array.from({ length: 4 }, (_, i) => {
+    var _a2, _b2;
+    return text2((_a2 = primary.storyAnswers) == null ? void 0 : _a2[i], (_b2 = secondary.storyAnswers) == null ? void 0 : _b2[i]);
+  });
+  if (primary.extraAnswers || secondary.extraAnswers) {
+    const answers = /* @__PURE__ */ new Map();
+    for (const item of [...primary.extraAnswers || [], ...secondary.extraAnswers || []]) {
+      const key = item.question.trim().toLowerCase();
+      const existing = answers.get(key);
+      answers.set(key, existing ? { ...existing, answer: text2(existing.answer, item.answer) } : { ...item });
+    }
+    if (answers.size > 8) throw new Error("Both story copies are kept on your devices. Download a backup before combining more than eight extra answers.");
+    result.extraAnswers = [...answers.values()];
+  }
+  const history = [...secondary.playedConnections || [], ...primary.playedConnections || []];
+  if (history.length) {
+    const key = (item) => `${item.rule}|${(item.sourceWords || item.words).map((w) => w.normalize("NFC").toLowerCase()).sort().join("|")}`;
+    result.playedConnections = [...new Map(history.map((item) => [key(item), item])).values()].slice(-80);
+  }
+  if (primary.usedTerms || secondary.usedTerms) result.usedTerms = [.../* @__PURE__ */ new Set([...secondary.usedTerms || [], ...primary.usedTerms || []])].slice(-320);
+  return result;
+}
+const storyContent = (profile) => JSON.stringify([profile.name, profile.brief]);
+const hasStory = (profile) => {
+  var _a2, _b2, _c2, _d2, _e2;
+  return Boolean(
+    ((_a2 = profile.brief.storyAnswers) == null ? void 0 : _a2.some((a) => a.trim())) || ((_b2 = profile.brief.extraAnswers) == null ? void 0 : _b2.some((a) => a.answer.trim())) || ((_c2 = profile.brief.freeStory) == null ? void 0 : _c2.trim()) || ((_d2 = profile.brief.memories) == null ? void 0 : _d2.trim()) || profile.brief.notes.trim() || ((_e2 = profile.brief.conversation) == null ? void 0 : _e2.trim())
+  );
+};
+function mergeProfile(local, cloud) {
+  const [primary, secondary] = local.updatedAt >= cloud.updatedAt ? [local, cloud] : [cloud, local];
+  return {
+    ...primary,
+    brief: mergeBriefs(primary.brief, secondary.brief),
+    updatedAt: Math.max(local.updatedAt, cloud.updatedAt)
+  };
+}
+function mergeCloudLibrary(local, remote) {
+  const profiles = [...local.profiles];
+  for (const cloud of remote) {
+    const index2 = profiles.findIndex((p) => p.id === cloud.id);
+    if (index2 < 0) profiles.push(cloud);
+    else profiles[index2] = mergeProfile(profiles[index2], cloud);
+  }
+  if (profiles.length > 20)
+    throw new Error(
+      "Your copies are kept on each device. Download a backup before combining more than 20 stories."
+    );
+  const active = profiles.find((p) => p.id === local.activeId);
+  const newest = remote.filter(hasStory).sort((a, b) => b.updatedAt - a.updatedAt)[0];
+  return {
+    profiles,
+    activeId: active && hasStory(active) ? active.id : (newest == null ? void 0 : newest.id) || local.activeId
+  };
+}
+function useStorySync(library, setLibrary, enabled = true) {
+  const latest = reactExports.useRef(library);
+  latest.current = library;
+  const known = reactExports.useRef(/* @__PURE__ */ new Map());
+  const hydrated = reactExports.useRef(false);
+  const loading = reactExports.useRef(false);
+  const saving = reactExports.useRef(false);
+  const mounted = reactExports.useRef(true);
+  const [saveTick, setSaveTick] = reactExports.useState(0);
+  const [connected, setConnected] = reactExports.useState(isStoryConnected);
+  const [message, setMessage] = reactExports.useState(
+    "Saved on this device. Connect your story to use it on another computer."
+  );
+  async function load() {
+    if (!enabled || !isStoryConnected() || loading.current || saving.current)
+      return;
+    loading.current = true;
+    try {
+      const data = await hostedOperation("load-story", {}, true);
+      if (!Array.isArray(data.profiles))
+        throw new Error(
+          "Your cloud story couldn't be read. Your local answers are kept."
+        );
+      const profiles = data.profiles.map(parseProfile);
+      for (const p of profiles) known.current.set(p.id, storyContent(p));
+      if (!mounted.current) return;
+      mergeCloudLibrary(latest.current, profiles);
+      setLibrary((current) => {
+        const next = mergeCloudLibrary(current, profiles);
+        return JSON.stringify(current) === JSON.stringify(next) ? current : next;
+      });
+      hydrated.current = true;
+      setSaveTick((value) => value + 1);
+      setMessage(
+        "Story connected. Changes sync automatically across your computers."
+      );
+    } catch (error) {
+      if (mounted.current)
+        setMessage(
+          error instanceof Error ? error.message : "Couldn't sync. Your answers are saved on this device."
+        );
+    } finally {
+      loading.current = false;
+    }
+  }
+  async function save() {
+    if (!enabled || !hydrated.current || !isStoryConnected() || loading.current || saving.current)
+      return;
+    saving.current = true;
+    let completed = false;
+    try {
+      while (mounted.current && isStoryConnected()) {
+        const changed = latest.current.profiles.filter(
+          (p) => hasStory(p) && known.current.get(p.id) !== storyContent(p)
+        );
+        if (!changed.length) break;
+        setMessage("Saving your story across computers…");
+        for (const profile of changed) {
+          const data = await hostedOperation("save-story", profile, true);
+          const saved = data.profile ? parseProfile(data.profile) : profile;
+          known.current.set(profile.id, storyContent(saved));
+          if (!mounted.current) return;
+          mergeCloudLibrary(latest.current, [saved]);
+          setLibrary((current) => {
+            const next = mergeCloudLibrary(current, [saved]);
+            return JSON.stringify(current) === JSON.stringify(next) ? current : next;
+          });
+          if (storyContent(profile) === storyContent(saved))
+            known.current.set(profile.id, storyContent(profile));
+        }
+        break;
+      }
+      completed = true;
+      if (mounted.current) setMessage("Saved across your computers.");
+    } catch (error) {
+      if (mounted.current)
+        setMessage(
+          error instanceof Error ? error.message : "Couldn't sync. Your answers are saved on this device."
+        );
+    } finally {
+      saving.current = false;
+      if (completed && mounted.current && latest.current.profiles.some(
+        (p) => hasStory(p) && known.current.get(p.id) !== storyContent(p)
+      ))
+        setSaveTick((value) => value + 1);
+    }
+  }
+  reactExports.useEffect(() => {
+    mounted.current = true;
+    if (!enabled) return;
+    const change = () => {
+      const ready = isStoryConnected();
+      setConnected(ready);
+      if (ready) void load();
+      else {
+        hydrated.current = false;
+        setMessage(
+          "Saved on this device. Reconnect your story to sync across computers."
+        );
+      }
+    };
+    change();
+    window.addEventListener(CONNECTION_EVENT, change);
+    const poll = setInterval(() => void load(), 2e4);
+    window.addEventListener("focus", load);
+    return () => {
+      mounted.current = false;
+      clearInterval(poll);
+      window.removeEventListener(CONNECTION_EVENT, change);
+      window.removeEventListener("focus", load);
+    };
+  }, [enabled]);
+  reactExports.useEffect(() => {
+    if (!enabled || !connected) return;
+    const timer = setTimeout(() => void save(), 1200);
+    return () => clearTimeout(timer);
+  }, [library, connected, enabled, saveTick]);
+  return {
+    connected,
+    message: enabled ? message : "",
+    connect: () => {
+      try {
+        connectStoryCloud();
+      } catch (error) {
+        setMessage(
+          error instanceof Error ? error.message : "Couldn't connect your story."
+        );
+      }
+    }
+  };
+}
 function Creator({ onHome, onPlay }) {
   var _a2, _b2, _c2, _d2, _e2, _f2;
   const [library, setLibrary] = reactExports.useState(readLibrary);
+  const sync = useStorySync(library, setLibrary);
   const currentStory = library.profiles.find((profile) => profile.id === library.activeId) || library.profiles[0];
   const brief = currentStory.brief;
   const activeStory = reactExports.useRef(currentStory.id);
@@ -15854,7 +16126,7 @@ function Creator({ onHome, onPlay }) {
         (profile) => profile.id === current.activeId ? {
           ...profile,
           brief: typeof update2 === "function" ? update2(profile.brief) : update2,
-          updatedAt: Date.now()
+          updatedAt: Math.max(Date.now(), profile.updatedAt + 1)
         } : profile
       )
     }));
@@ -15905,7 +16177,7 @@ function Creator({ onHome, onPlay }) {
             var _a3, _b3;
             return profile.id !== story.id ? profile : {
               ...profile,
-              updatedAt: Date.now(),
+              updatedAt: Math.max(Date.now(), profile.updatedAt + 1),
               brief: {
                 ...profile.brief,
                 usedTerms: [
@@ -15940,7 +16212,7 @@ function Creator({ onHome, onPlay }) {
               var _a3;
               return profile.id !== story.id ? profile : {
                 ...profile,
-                updatedAt: Date.now(),
+                updatedAt: Math.max(Date.now(), profile.updatedAt + 1),
                 brief: {
                   ...profile.brief,
                   freshnessPrompt: {
@@ -15976,7 +16248,11 @@ function Creator({ onHome, onPlay }) {
       setBrief(next);
       void generateWith(
         next,
-        { ...currentStory, brief: next, updatedAt: Date.now() },
+        {
+          ...currentStory,
+          brief: next,
+          updatedAt: Math.max(Date.now(), currentStory.updatedAt + 1)
+        },
         false
       );
     } catch (error2) {
@@ -16034,10 +16310,10 @@ function Creator({ onHome, onPlay }) {
       );
     }
   }
-  const hasStory = Boolean(
+  const hasStory2 = Boolean(
     ((_b2 = brief.storyAnswers) == null ? void 0 : _b2.some((answer) => answer.trim())) || ((_c2 = brief.extraAnswers) == null ? void 0 : _c2.some((item) => item.answer.trim())) || ((_d2 = brief.memories) == null ? void 0 : _d2.trim()) || ((_e2 = brief.freeStory) == null ? void 0 : _e2.trim()) || ((_f2 = brief.conversation) == null ? void 0 : _f2.trim())
   );
-  const canGenerate = (brief.interests.trim().length > 0 || brief.topic.trim().length > 0 || hasStory) && (brief.purpose !== "study" || brief.topic.trim().length > 0);
+  const canGenerate = (brief.interests.trim().length > 0 || brief.topic.trim().length > 0 || hasStory2) && (brief.purpose !== "study" || brief.topic.trim().length > 0);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "creator-page", "aria-labelledby": "creator-title", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "text-button", type: "button", onClick: onHome, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 16 }),
@@ -16051,7 +16327,18 @@ function Creator({ onHome, onPlay }) {
       /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { id: "creator-title", ref: heading, tabIndex: -1, children: shared ? "A little challenge, ready to send." : draft ? brief.style === "together" ? "Keep a little mystery." : "Your puzzle. Your finishing touch." : "Make it personal." }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: shared ? "Send the link yourself, or copy a challenge code. No account needed to solve it." : draft ? brief.style === "together" ? "The connections are hidden so you can discover them together." : "AI does the heavy lifting. You get the final say." : "A little about you. Then a puzzle to play." })
     ] }),
-    !draft && !shared && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", "aria-live": "polite", children: saveStatus }),
+    !draft && !shared && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "field-help", "aria-live": "polite", children: [
+      sync.message || saveStatus,
+      !sync.connected && /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "button",
+        {
+          className: "text-button",
+          type: "button",
+          onClick: sync.connect,
+          children: "Connect saved story"
+        }
+      )
+    ] }),
     !draft && !shared && /* @__PURE__ */ jsxRuntimeExports.jsx(
       StoryLibraryControls,
       {
@@ -16073,7 +16360,11 @@ function Creator({ onHome, onPlay }) {
         onRename: (name) => setLibrary((current) => ({
           ...current,
           profiles: current.profiles.map(
-            (profile) => profile.id === current.activeId ? { ...profile, name, updatedAt: Date.now() } : profile
+            (profile) => profile.id === current.activeId ? {
+              ...profile,
+              name,
+              updatedAt: Math.max(Date.now(), profile.updatedAt + 1)
+            } : profile
           )
         })),
         onImport: (profile) => {
@@ -16085,7 +16376,7 @@ function Creator({ onHome, onPlay }) {
               activeId: profile.id,
               profiles: [
                 ...current.profiles.filter((item) => item.id !== profile.id),
-                local && local.updatedAt > profile.updatedAt ? local : profile
+                local ? mergeProfile(local, profile) : profile
               ].slice(-20)
             };
           });
@@ -16399,7 +16690,7 @@ function Creator({ onHome, onPlay }) {
             }
           ),
           !canGenerate && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Add a memory to start, or choose a theme in Puzzle options." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Your private Claude window will open to make the puzzle." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Your puzzle will arrive here automatically." }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "creator-example", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Try an example instead" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -16416,7 +16707,7 @@ function Creator({ onHome, onPlay }) {
         ]
       }
     ),
-    pending && /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "creator-status", "aria-live": "polite", children: "Finish in the private Claude window: sign in if asked, then press Make my puzzle. Your board will arrive here." }),
+    pending && /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "creator-status", "aria-live": "polite", children: "Making your puzzle and checking its connections. You can stay here." }),
     error && !freshnessPrompt && /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "form-error", role: "alert", children: /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: error }) }),
     !shared && (!draft || source !== "example") && freshQuestion
   ] });

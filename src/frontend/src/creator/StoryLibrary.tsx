@@ -38,10 +38,11 @@ export function StoryLibraryControls({
         const choices = result.profiles.map(parseProfile);
         for (const profile of choices.reverse()) onImport(profile);
         setMessage("Cloud stories loaded. Choose one above to continue.");
-      } else
-        setMessage(
-          "Saved to private cloud. Load it on your other computer with the same ChatGPT sign-in.",
-        );
+      } else {
+        const saved = (data as { profile?: unknown }).profile;
+        if (saved) onImport(parseProfile(saved));
+        setMessage("Saved across your computers.");
+      }
     } catch (error) {
       setMessage(
         error instanceof Error

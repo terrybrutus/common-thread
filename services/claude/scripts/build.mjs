@@ -1,0 +1,10 @@
+import { mkdirSync, copyFileSync, readFileSync, writeFileSync } from "node:fs";
+mkdirSync("dist/server", { recursive: true });
+mkdirSync("dist/.openai", { recursive: true });
+const shared = readFileSync("shared/story-merge.js", "utf8").replace(/^export /gm, "");
+const worker = readFileSync("worker/index.js", "utf8");
+const dependency = 'import { mergeBriefs } from "../shared/story-merge.js";';
+if (!worker.startsWith(dependency)) throw new Error("Unexpected worker dependency; update the build before deploying.");
+writeFileSync("dist/server/index.js", shared + "\n" + worker.slice(dependency.length));
+copyFileSync(".openai/hosting.json", "dist/.openai/hosting.json");
+console.log("Built private Claude service with shared story merging");

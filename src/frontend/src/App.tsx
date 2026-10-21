@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Creator } from "./creator/Creator";
 import { FriendHub } from "./creator/FriendHub";
 import { Invitation } from "./creator/Invitation";
+import { connectStoryCloud } from "./creator/hosted";
 import { recordPlayedGroups } from "./creator/library";
 import type { FriendChallenge } from "./creator/schema";
 import { decodeChallenge } from "./creator/sharing";

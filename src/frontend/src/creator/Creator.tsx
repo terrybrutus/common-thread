@@ -35,6 +35,8 @@ import {
   validatePuzzle,
 } from "./schema";
 import { challengeLink, encodeChallenge } from "./sharing";
+import { mergeProfile } from "./sync";
+import { useStorySync } from "./useStorySync";
 
 interface CreatorProps {
   onHome: () => void;
@@ -43,6 +45,7 @@ interface CreatorProps {
 
 export function Creator({ onHome, onPlay }: CreatorProps) {
   const [library, setLibrary] = useState(readLibrary);
+  const sync = useStorySync(library, setLibrary);
   const currentStory =
     library.profiles.find((profile) => profile.id === library.activeId) ||
     library.profiles[0];
@@ -61,7 +64,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
               ...profile,
               brief:
                 typeof update === "function" ? update(profile.brief) : update,
-              updatedAt: Date.now(),
+              updatedAt: Math.max(Date.now(), profile.updatedAt + 1),
             }
           : profile,
       ),
@@ -123,7 +126,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
             ? profile
             : {
                 ...profile,
-                updatedAt: Date.now(),
+                updatedAt: Math.max(Date.now(), profile.updatedAt + 1),
                 brief: {
                   ...profile.brief,
                   usedTerms: [
@@ -170,7 +173,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
               ? profile
               : {
                   ...profile,
-                  updatedAt: Date.now(),
+                  updatedAt: Math.max(Date.now(), profile.updatedAt + 1),
                   brief: {
                     ...profile.brief,
                     freshnessPrompt: {
@@ -214,7 +217,11 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
       setBrief(next);
       void generateWith(
         next,
-        { ...currentStory, brief: next, updatedAt: Date.now() },
+        {
+          ...currentStory,
+          brief: next,
+          updatedAt: Math.max(Date.now(), currentStory.updatedAt + 1),
+        },
         false,
       );
     } catch (error) {
@@ -322,7 +329,16 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
       </div>
       {!draft && !shared && (
         <p className="field-help" aria-live="polite">
-          {saveStatus}
+          {sync.message || saveStatus}
+          {!sync.connected && (
+            <button
+              className="text-button"
+              type="button"
+              onClick={sync.connect}
+            >
+              Connect saved story
+            </button>
+          )}
         </p>
       )}
       {!draft && !shared && (
@@ -347,7 +363,11 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
               ...current,
               profiles: current.profiles.map((profile) =>
                 profile.id === current.activeId
-                  ? { ...profile, name, updatedAt: Date.now() }
+                  ? {
+                      ...profile,
+                      name,
+                      updatedAt: Math.max(Date.now(), profile.updatedAt + 1),
+                    }
                   : profile,
               ),
             }))
@@ -361,9 +381,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                 activeId: profile.id,
                 profiles: [
                   ...current.profiles.filter((item) => item.id !== profile.id),
-                  local && local.updatedAt > profile.updatedAt
-                    ? local
-                    : profile,
+                  local ? mergeProfile(local, profile) : profile,
                 ].slice(-20),
               };
             });
@@ -716,7 +734,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
           )}
           {!import.meta.env.DEV && (
             <p className="field-help">
-              Your private Claude window will open to make the puzzle.
+              Your puzzle will arrive here automatically.
             </p>
           )}
           <details className="creator-example">
@@ -736,7 +754,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
         <output className="creator-status" aria-live="polite">
           {import.meta.env.DEV
             ? "Claude is finding your threads. Please keep this page open."
-            : "Finish in the private Claude window: sign in if asked, then press Make my puzzle. Your board will arrive here."}
+            : "Making your puzzle and checking its connections. You can stay here."}
         </output>
       )}
       {error && !freshnessPrompt && (

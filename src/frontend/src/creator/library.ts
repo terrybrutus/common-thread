@@ -151,7 +151,7 @@ export function recordPlayedGroups(storyId: string, groups: Group[]): boolean {
   const next = rememberConnections(history, groups);
   if (JSON.stringify(next) === JSON.stringify(history)) return true;
   profile.brief.playedConnections = next;
-  profile.updatedAt = Date.now();
+  profile.updatedAt = Math.max(Date.now(), profile.updatedAt + 1);
   try {
     localStorage.setItem(STORY_KEY, JSON.stringify(library));
     return true;
