@@ -14959,6 +14959,9 @@ function connectionRule(group) {
   return group.rule || (/backward|revers/i.test(`${group.category} ${group.clue}`) ? "reverse" : "literal");
 }
 function underlyingWords(connection) {
+  var _a2;
+  if (((_a2 = connection.sourceWords) == null ? void 0 : _a2.length) === 4)
+    return connection.sourceWords.map(normalize);
   return connection.words.map(
     (word) => normalize(
       connection.rule === "reverse" ? Array.from(word.normalize("NFC")).reverse().join("") : word
@@ -14968,7 +14971,11 @@ function underlyingWords(connection) {
 function familiarCount(puzzle, history = []) {
   return puzzle.groups.filter((group) => {
     const words = new Set(
-      underlyingWords({ words: group.words, rule: connectionRule(group) })
+      underlyingWords({
+        words: group.words,
+        rule: connectionRule(group),
+        sourceWords: group.sourceWords
+      })
     );
     return history.some(
       (old) => underlyingWords(old).filter((word) => words.has(word)).length >= 3
@@ -14981,16 +14988,21 @@ function rememberConnections(history, groups, now2 = Date.now()) {
     const words = group.words.map(
       (word) => word.normalize("NFC").toUpperCase()
     );
-    const variant = words.map(normalize).sort().join("|");
+    const variant = underlyingWords({
+      words,
+      rule: connectionRule(group),
+      sourceWords: group.sourceWords
+    }).sort().join("|");
     if (result.some(
-      (old) => connectionRule(group) === old.rule && old.words.map(normalize).sort().join("|") === variant
+      (old) => connectionRule(group) === old.rule && underlyingWords(old).sort().join("|") === variant
     ))
       continue;
     result.push({
       category: group.category,
       words,
       rule: connectionRule(group),
-      playedAt: now2
+      playedAt: now2,
+      ...group.sourceWords ? { sourceWords: [...group.sourceWords] } : {}
     });
   }
   return result.slice(-80);
@@ -15002,13 +15014,18 @@ function parseHistory(value) {
   return value.map((item) => {
     if (!item || typeof item.category !== "string" || item.category.length > 60 || !Array.isArray(item.words) || item.words.length !== 4 || item.words.some(
       (w) => typeof w !== "string" || !w.trim() || w.length > 24
-    ) || new Set(item.words.map(normalize)).size !== 4 || !["literal", "reverse", "fill-blank"].includes(item.rule) || !Number.isFinite(item.playedAt))
+    ) || new Set(item.words.map(normalize)).size !== 4 || !["literal", "reverse", "fill-blank", "first-word", "last-word"].includes(
+      item.rule
+    ) || item.sourceWords !== void 0 && (!Array.isArray(item.sourceWords) || item.sourceWords.length !== 4 || item.sourceWords.some(
+      (w) => typeof w !== "string" || !w.trim() || w.length > 60
+    )) || !Number.isFinite(item.playedAt))
       throw new Error("This story's connection history is invalid.");
     return {
       category: item.category,
       words: [...item.words],
       rule: item.rule,
-      playedAt: item.playedAt
+      playedAt: item.playedAt,
+      ...item.sourceWords ? { sourceWords: [...item.sourceWords] } : {}
     };
   });
 }
@@ -15170,7 +15187,24 @@ function validatePuzzle(value) {
       words: terms,
       clue: text(group.clue, "hint", 180),
       explanation: text(group.explanation, "explanation", 350),
-      ...["literal", "reverse", "fill-blank"].includes(String(group.rule)) ? { rule: group.rule } : {}
+      ...[
+        "literal",
+        "reverse",
+        "fill-blank",
+        "first-word",
+        "last-word"
+      ].includes(String(group.rule)) ? { rule: group.rule } : {},
+      ...group.sourceWords !== void 0 ? {
+        sourceWords: (() => {
+          if (!Array.isArray(group.sourceWords) || group.sourceWords.length !== 4)
+            throw new Error(
+              "A wordplay group needs four complete phrases."
+            );
+          return group.sourceWords.map(
+            (value3) => text(value3, "wordplay phrase", 60)
+          );
+        })()
+      } : {}
     };
   });
   return {
@@ -15984,7 +16018,7 @@ function Creator({ onHome, onPlay }) {
       (current) => current && {
         ...current,
         groups: current.groups.map(
-          (group, i) => i === index2 ? next : group
+          (group, i) => i === index2 ? group.words.join("|") !== next.words.join("|") ? { ...next, rule: "literal", sourceWords: void 0 } : next : group
         )
       }
     );

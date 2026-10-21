@@ -257,7 +257,11 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
         current && {
           ...current,
           groups: current.groups.map((group, i) =>
-            i === index ? next : group,
+            i === index
+              ? group.words.join("|") !== next.words.join("|")
+                ? { ...next, rule: "literal", sourceWords: undefined }
+                : next
+              : group,
           ),
         },
     );

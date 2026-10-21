@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
-import worker, { parseOutput, validateBrief, saveStory, outputSchema, claudeError, identitySource, claudeRequest, parseClaudeResponse, prepareDraft, CLAUDE_TIMEOUT_MS } from "./index.js";
+import worker, { parseOutput, validateBrief, saveStory, outputSchema, claudeError, identitySource, claudeRequest, parseClaudeResponse, prepareDraft, CLAUDE_TIMEOUT_MS, reviewRequest, parseReview, reviewPersonalPuzzle, groundExcerpt } from "./index.js";
 
 function database() {
   const sqlite = new DatabaseSync(":memory:");
@@ -176,7 +176,7 @@ test("shared production request leaves room for reasoning and distinguishes trun
   const request = claudeRequest({ purpose: "fun", notes: "A story" });
   assert.equal(request.max_tokens, 12000);
   assert.equal(request.output_config.effort, "medium");
-  assert.deepEqual(request.output_config.format.schema.properties.puzzle.anyOf[1].properties.groups.items.properties.operation.enum, ["literal"]);
+  assert.deepEqual(request.output_config.format.schema.properties.puzzle.anyOf[1].properties.groups.items.properties.operation.enum, ["literal", "reverse", "fill-blank", "first-word", "last-word"]);
   assert.equal(claudeRequest({ purpose: "study", notes: "Course notes" }).output_config.format.schema, outputSchema);
   assert.equal(CLAUDE_TIMEOUT_MS, 90000);
   const incomplete = { stop_reason: "max_tokens", content: [{ type: "text", text: '{"puzzle":' }] };
@@ -283,4 +283,113 @@ test("a remix can carry an optional question without exposing source quotations"
   const parsed = JSON.parse(parseOutput(JSON.stringify({ question, puzzle: { title: "Our puzzle", topic: "Us", description: "A puzzle for you", groups } }), { purpose: "fun", notes: "", personalization: "memories-only" }));
   assert.equal(parsed.followUpQuestion, question);
   assert.ok(!JSON.stringify(parsed).includes('"evidence"'));
+});
+
+function wordplayFixture(operation) {
+  const sources = ["River Walk", "Silver Screen", "Garden Gate", "Harbor Light"];
+  const groups = ["A", "B", "C"].map(prefix => ({ category: "Our named favorites", clue: "A clue", explanation: "Names you both recognize", kind: "personal", operation: "literal", fixedText: "", entries: [1,2,3,4].map(i => ({ tile: prefix+i, source: prefix+i, evidence: prefix+i })) }));
+  groups.push({ category: "Familiar names missing their first word", clue: "Put back a missing word", explanation: "Complete the names you recognize: River Walk, Silver Screen, Garden Gate and Harbor Light.", kind: "personal", operation, fixedText: "", entries: sources.map(source => ({ tile: source.split(' ')[operation === "first-word" ? 0 : 1], source, evidence: source })) });
+  return { data: { question: "", puzzle: { title: "Our puzzle", topic: "Our story", description: "For you", groups } }, brief: { purpose: "fun", personalization: "memories-only", difficulty: "balanced", notes: groups.flatMap(g => g.entries.map(e => e.source)).join(" ") } };
+}
+
+test("missing-word rules preserve full personal phrases, reject inconsistent halves and keep quotes private", () => {
+  for (const operation of ["first-word", "last-word"]) {
+    const { data, brief } = wordplayFixture(operation);
+    const parsed = JSON.parse(parseOutput(JSON.stringify(data), brief));
+    assert.equal(parsed.groups[3].rule, operation);
+    assert.equal(parsed.groups[3].sourceWords[0], "River Walk");
+    assert.ok(!JSON.stringify(parsed).includes('"evidence"'));
+    data.puzzle.groups[3].entries[0].tile = "NOPE";
+    assert.throws(() => parseOutput(JSON.stringify(data), brief), /missing-word/);
+    const prepared = prepareDraft(data, brief);
+    assert.equal(prepared.puzzle.groups[3].entries[0].tile, operation === "first-word" ? "River" : "Walk");
+    data.puzzle.groups[3].entries[0].source = "Invented Place";
+    assert.throws(() => parseClaudeResponse({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify(data) }] }, brief), /wasn't supported/);
+  }
+});
+
+test("whole-board review rejects overlap and unsupported wording without silently regenerating", async () => {
+  const { data, brief } = wordplayFixture("last-word");
+  const text = parseOutput(JSON.stringify(data), brief);
+  const original = globalThis.fetch;
+  let calls = 0;
+  let fair = false;
+  globalThis.fetch = async (_url, options) => {
+    calls++;
+    const request = JSON.parse(options.body);
+    assert.equal(request.max_tokens, 4000);
+    assert.equal(JSON.parse(request.messages[0].content).puzzle.groups.length, 4);
+    return Response.json({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify({ fair, issue: fair ? "none" : "overlap", reason: "Several food shops also fit the other restaurant group" }) }] });
+  };
+  try {
+    await assert.rejects(reviewPersonalPuzzle(text, brief, "test-secret"), /whole-board fairness/);
+    assert.equal(calls, 1);
+    fair = true;
+    assert.equal(await reviewPersonalPuzzle(text, brief, "test-secret"), text);
+    assert.equal(calls, 2);
+    await reviewPersonalPuzzle(text, { ...brief, purpose: "study" }, "test-secret");
+    assert.equal(calls, 2);
+  } finally { globalThis.fetch = original; }
+  assert.throws(() => parseReview({ stop_reason: "max_tokens", content: [] }), /didn't finish/);
+  assert.throws(() => parseReview({ stop_reason: "end_turn", content: [{ type: "text", text: '{"fair":true,"issue":"unsupported"}' }] }), /fairness/);
+  assert.match(reviewRequest(JSON.parse(text), brief).system, /recurring\/current visits after a move/);
+});
+
+test("cloud backups retain complete wordplay phrases for played-history comparisons", async () => {
+  const db = database();
+  const { data, brief } = wordplayFixture("last-word");
+  const group = JSON.parse(parseOutput(JSON.stringify(data), brief)).groups[3];
+  const saved = await saveStory(db, "owner", { id: "wordplay", name: "Story", updatedAt: 1, brief: { playedConnections: [{ category: group.category, words: group.words, rule: group.rule, sourceWords: group.sourceWords, playedAt: 1 }] } });
+  assert.deepEqual(saved.brief.playedConnections[0].sourceWords, group.sourceWords);
+});
+
+test("production route never releases a personal board before the independent review passes", async () => {
+  const { data, brief } = wordplayFixture("last-word");
+  const original = globalThis.fetch;
+  let calls = 0, fair = false;
+  globalThis.fetch = async (_url, options) => {
+    calls++;
+    const isReview = JSON.parse(options.body).output_config.format.schema.properties.fair;
+    return Response.json({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify(isReview ? { fair, issue: fair ? "none" : "overlap", reason: "An ambiguous partition" } : data) }] });
+  };
+  const make = () => new Request("https://service.example/api/puzzle", { method: "POST", headers: { "oai-authenticated-user-id": "owner", Origin: "https://service.example", "Content-Type": "application/json" }, body: JSON.stringify({ interests: "", topic: "", familiarity: "new", ...brief }) });
+  try {
+    const env = { DB: database(), ANTHROPIC_API_KEY: "test-secret" };
+    const rejected = await worker.fetch(make(), env);
+    assert.equal(rejected.status, 422);
+    assert.match((await rejected.json()).error, /fairness/);
+    assert.equal(calls, 2);
+    fair = true;
+    const accepted = await worker.fetch(make(), env);
+    assert.equal(accepted.status, 200);
+    assert.equal(JSON.parse((await accepted.json()).text).groups[3].rule, "last-word");
+    assert.equal(calls, 4);
+  } finally { globalThis.fetch = original; }
+});
+
+test("unquoted life-history, market and recurring-visit claims cannot enter player wording", () => {
+  const { data, brief } = wordplayFixture("last-word");
+  for (const narration of ["Places where you grew up", "Your favorite farmer's market", "Restaurants we keep going back to", "Places you visit often", "Restaurants you regularly visit"]) {
+    data.puzzle.groups[0].explanation = narration;
+    assert.throws(() => parseOutput(JSON.stringify(data), brief), /unsupported routine or life-history/);
+  }
+});
+
+test("quote recovery uses a unique verbatim story span, never an invented source or ambiguous passage", () => {
+  const notes = "We lived in Cedar Bay before moving to Harbor Light.";
+  const entry = { source: "Harbor Light", tile: "Light", evidence: "We moved over to Harbor Light together" };
+  const fixed = groundExcerpt(entry, notes);
+  assert.ok(notes.includes(fixed.evidence));
+  assert.equal(fixed.source, entry.source);
+  assert.equal(fixed.tile, entry.tile);
+  assert.deepEqual(groundExcerpt({ ...entry, source: "Unknown Town" }, notes), { ...entry, source: "Unknown Town" });
+  assert.deepEqual(groundExcerpt(entry, notes + " Harbor Light"), entry);
+  const valid = { ...entry, evidence: "Harbor Light" };
+  assert.equal(groundExcerpt(valid, notes), valid);
+  const { data, brief } = wordplayFixture("last-word");
+  data.puzzle.groups[0].category = "Our parents";
+  data.puzzle.groups[0].clue = "The people who raised you both";
+  const prepared = prepareDraft(data, brief);
+  assert.doesNotMatch(prepared.puzzle.groups[0].clue, /raised/);
+  assert.equal(data.puzzle.groups[0].clue, "The people who raised you both");
 });

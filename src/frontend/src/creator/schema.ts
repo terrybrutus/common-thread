@@ -106,8 +106,30 @@ export function validatePuzzle(value: unknown): Puzzle {
       words: terms,
       clue: text(group.clue, "hint", 180),
       explanation: text(group.explanation, "explanation", 350),
-      ...(["literal", "reverse", "fill-blank"].includes(String(group.rule))
+      ...([
+        "literal",
+        "reverse",
+        "fill-blank",
+        "first-word",
+        "last-word",
+      ].includes(String(group.rule))
         ? { rule: group.rule as Group["rule"] }
+        : {}),
+      ...(group.sourceWords !== undefined
+        ? {
+            sourceWords: (() => {
+              if (
+                !Array.isArray(group.sourceWords) ||
+                group.sourceWords.length !== 4
+              )
+                throw new Error(
+                  "A wordplay group needs four complete phrases.",
+                );
+              return group.sourceWords.map((value) =>
+                text(value, "wordplay phrase", 60),
+              );
+            })(),
+          }
         : {}),
     };
   });

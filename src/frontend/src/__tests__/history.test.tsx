@@ -54,6 +54,69 @@ beforeEach(() => {
 });
 
 describe("played connections and optional fresh memories", () => {
+  it("recognizes missing-word and fill-blank remixes through their full phrases across backups and share links", () => {
+    const sourceWords = [
+      "River Walk",
+      "Silver Screen",
+      "Garden Gate",
+      "Harbor Light",
+    ];
+    const original = {
+      ...board,
+      groups: [
+        { ...board.groups[0], words: sourceWords, rule: "literal" as const },
+      ],
+    };
+    const history = rememberConnections([], original.groups, 1);
+    const missing = {
+      ...board,
+      groups: [
+        {
+          ...board.groups[0],
+          rule: "last-word" as const,
+          sourceWords,
+          words: ["WALK", "SCREEN", "GATE", "LIGHT"],
+        },
+      ],
+    };
+    expect(familiarCount(missing, history)).toBe(1);
+    const stored = parseProfile({
+      id: "halves",
+      name: "Story",
+      brief: {
+        ...defaultBrief,
+        playedConnections: rememberConnections([], missing.groups),
+      },
+    });
+    expect(stored.brief.playedConnections?.[0].sourceWords).toEqual(
+      sourceWords,
+    );
+    expect(
+      generationRequest(stored.brief).playedConnections?.[0].words,
+    ).toEqual(sourceWords.map((w) => w.toLowerCase()));
+    const full = {
+      ...board,
+      groups: [missing.groups[0], ...board.groups.slice(1)],
+    };
+    const shared = decodeChallenge(
+      encodeChallenge(makeChallenge(defaultBrief, full, "ai")),
+    );
+    expect(shared.puzzle.groups[0].sourceWords).toEqual(sourceWords);
+    expect(() =>
+      parseProfile({
+        ...stored,
+        brief: {
+          ...stored.brief,
+          playedConnections: [
+            {
+              ...stored.brief.playedConnections?.[0],
+              sourceWords: ["Incomplete"],
+            },
+          ],
+        },
+      }),
+    ).toThrow(/history/);
+  });
   it("recognizes renamed, reordered and reversed connections without rejecting genuinely new groups", () => {
     const history = rememberConnections([], board.groups, 1);
     const reversed = {

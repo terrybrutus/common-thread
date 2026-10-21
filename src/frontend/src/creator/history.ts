@@ -1,12 +1,18 @@
 import type { Group, Puzzle } from "../game/puzzles";
 import type { CreatorBrief } from "./schema";
 
-export type ConnectionRule = "literal" | "reverse" | "fill-blank";
+export type ConnectionRule =
+  | "literal"
+  | "reverse"
+  | "fill-blank"
+  | "first-word"
+  | "last-word";
 export interface PlayedConnection {
   category: string;
   words: string[];
   rule: ConnectionRule;
   playedAt: number;
+  sourceWords?: string[];
 }
 export interface FreshnessPrompt {
   question: string;
@@ -31,8 +37,10 @@ export function connectionRule(group: Group): ConnectionRule {
   );
 }
 export function underlyingWords(
-  connection: Pick<PlayedConnection, "words" | "rule">,
+  connection: Pick<PlayedConnection, "words" | "rule" | "sourceWords">,
 ): string[] {
+  if (connection.sourceWords?.length === 4)
+    return connection.sourceWords.map(normalize);
   return connection.words.map((word) =>
     normalize(
       connection.rule === "reverse"
@@ -47,7 +55,11 @@ export function familiarCount(
 ): number {
   return puzzle.groups.filter((group) => {
     const words = new Set(
-      underlyingWords({ words: group.words, rule: connectionRule(group) }),
+      underlyingWords({
+        words: group.words,
+        rule: connectionRule(group),
+        sourceWords: group.sourceWords,
+      }),
     );
     return history.some(
       (old) =>
@@ -65,12 +77,18 @@ export function rememberConnections(
     const words = group.words.map((word) =>
       word.normalize("NFC").toUpperCase(),
     );
-    const variant = words.map(normalize).sort().join("|");
+    const variant = underlyingWords({
+      words,
+      rule: connectionRule(group),
+      sourceWords: group.sourceWords,
+    })
+      .sort()
+      .join("|");
     if (
       result.some(
         (old) =>
           connectionRule(group) === old.rule &&
-          old.words.map(normalize).sort().join("|") === variant,
+          underlyingWords(old).sort().join("|") === variant,
       )
     )
       continue;
@@ -79,6 +97,7 @@ export function rememberConnections(
       words,
       rule: connectionRule(group),
       playedAt: now,
+      ...(group.sourceWords ? { sourceWords: [...group.sourceWords] } : {}),
     });
   }
   return result.slice(-80);
@@ -98,7 +117,15 @@ export function parseHistory(value: unknown): PlayedConnection[] {
         (w: unknown) => typeof w !== "string" || !w.trim() || w.length > 24,
       ) ||
       new Set(item.words.map(normalize)).size !== 4 ||
-      !["literal", "reverse", "fill-blank"].includes(item.rule) ||
+      !["literal", "reverse", "fill-blank", "first-word", "last-word"].includes(
+        item.rule,
+      ) ||
+      (item.sourceWords !== undefined &&
+        (!Array.isArray(item.sourceWords) ||
+          item.sourceWords.length !== 4 ||
+          item.sourceWords.some(
+            (w: unknown) => typeof w !== "string" || !w.trim() || w.length > 60,
+          ))) ||
       !Number.isFinite(item.playedAt)
     )
       throw new Error("This story's connection history is invalid.");
@@ -107,6 +134,7 @@ export function parseHistory(value: unknown): PlayedConnection[] {
       words: [...item.words],
       rule: item.rule,
       playedAt: item.playedAt,
+      ...(item.sourceWords ? { sourceWords: [...item.sourceWords] } : {}),
     };
   });
 }

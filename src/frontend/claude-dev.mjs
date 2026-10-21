@@ -1,4 +1,4 @@
-import { SYSTEM, MODEL, validateBrief, claudeRequest, parseClaudeResponse, CLAUDE_TIMEOUT_MS, claudeError, storyQuestionResponse } from "../../services/claude/worker/index.js";
+import { SYSTEM, MODEL, validateBrief, claudeRequest, parseClaudeResponse, CLAUDE_TIMEOUT_MS, claudeError, storyQuestionResponse, reviewPersonalPuzzle } from "../../services/claude/worker/index.js";
 export { SYSTEM, MODEL, validateBrief };
 
 // Vite development middleware only. This module and the key never enter the browser bundle.
@@ -37,7 +37,7 @@ export function claudeDevPlugin(env) {
           });
           if (!response.ok) return send(502, { error: await claudeError(response) });
           const data = await response.json();
-          try { send(200, { text: parseClaudeResponse(data, brief) }); } catch (error) { send(422, storyQuestionResponse(error)); }
+          try { send(200, { text: await reviewPersonalPuzzle(parseClaudeResponse(data, brief), brief, env.ANTHROPIC_API_KEY) }); } catch (error) { send(422, storyQuestionResponse(error)); }
         } catch {
           send(502, { error: "The local Claude connection failed. Check your connection and try again." });
         } finally { busy = false; }
