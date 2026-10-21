@@ -11,6 +11,7 @@ import { Game } from "./game/Game";
 import type { Mode } from "./game/engine";
 import type { Group } from "./game/puzzles";
 import { lessons, puzzles } from "./game/puzzles";
+import { KnowledgePacks } from "./knowledge/KnowledgePacks";
 
 function readInvitation() {
   if (!window.location.hash.startsWith("#thread="))
@@ -31,7 +32,7 @@ export default function App() {
   const [personal, setPersonal] = useState<FriendChallenge | null>(
     entry.challenge,
   );
-  const [page, setPage] = useState<"home" | "creator" | "invitation">(
+  const [page, setPage] = useState<"home" | "creator" | "invitation" | "packs">(
     entry.challenge ? "invitation" : "home",
   );
   const [linkError, setLinkError] = useState(entry.error);
@@ -144,7 +145,9 @@ export default function App() {
         </button>
       </header>
       <main>
-        {page === "creator" ? (
+        {page === "packs" ? (
+          <KnowledgePacks onHome={goHome} />
+        ) : page === "creator" ? (
           <Creator
             onHome={goHome}
             onPlay={(challenge, storyId) => {
@@ -191,6 +194,17 @@ export default function App() {
                 shared memories.
               </p>
             </section>
+            <button
+              className="text-button explore-packs"
+              type="button"
+              onClick={() => {
+                setPersonalStoryId(null);
+                setMode(null);
+                setPage("packs");
+              }}
+            >
+              Explore knowledge packs <ArrowRight size={16} />
+            </button>
             <details className="play-options">
               <summary>Choose a puzzle or challenge mode</summary>
               <label className="topic-picker">

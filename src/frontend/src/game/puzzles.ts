@@ -4,7 +4,14 @@ export interface Group {
   words: string[];
   explanation: string;
   clue: string;
-  rule?: "literal" | "reverse" | "fill-blank" | "first-word" | "last-word";
+  rule?:
+    | "literal"
+    | "reverse"
+    | "fill-blank"
+    | "first-word"
+    | "last-word"
+    | "drop-first"
+    | "anagram";
   sourceWords?: string[];
 }
 export interface Puzzle {

@@ -1,5 +1,7 @@
 # Project Guidance
 
+- Knowledge packs are a separate beta entry. Keep six starter boards available without AI/authentication. Claude selects reviewed catalog IDs, the server reconstructs approved content and validates transformations, then performs one independent full-board audit. Reject unknown/incomplete selections; never default a failed AI request to a starter. Knowledge requests must not attach personal stories/names. Catalog, mechanics and pack history remain separate from personal-story provenance/history. No automatic paid retries; finite catalog limitations and background references are visible in optional pack settings. Do not force every wordplay rule into every subject.
+
 ## User Preferences
 
 - Keep the code clean, minimal, and ready to export to GitHub for continued development in Codex.

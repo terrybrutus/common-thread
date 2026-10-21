@@ -31,6 +31,7 @@ interface GameProps {
   onRelaxed: () => void;
   personal?: boolean;
   onConnectionsSeen?: (groups: Group[]) => void;
+  nextLabel?: string;
 }
 export function Game({
   puzzle,
@@ -41,6 +42,7 @@ export function Game({
   onRelaxed,
   personal = false,
   onConnectionsSeen,
+  nextLabel,
 }: GameProps) {
   const [state, dispatch] = useReducer(
     (
@@ -318,7 +320,7 @@ export function Game({
                   : "Start Relaxed"
                 : personal
                   ? "Back to invitation"
-                  : "Next puzzle"}
+                  : nextLabel || "Next puzzle"}
               <ArrowRight size={16} />
             </button>
             {!tutorial && (

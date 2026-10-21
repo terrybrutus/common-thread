@@ -6,7 +6,9 @@ export type ConnectionRule =
   | "reverse"
   | "fill-blank"
   | "first-word"
-  | "last-word";
+  | "last-word"
+  | "drop-first"
+  | "anagram";
 export interface PlayedConnection {
   category: string;
   words: string[];
