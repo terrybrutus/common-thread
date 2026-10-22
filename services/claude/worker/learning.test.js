@@ -14,7 +14,9 @@ test('custom subjects are not limited to the starter catalog and cannot carry pe
   const b=validateBrief({...input(),topic:'Shakespeare and the 1970s'});
   const request=claudeRequest(b);
   assert.match(request.messages[0].content,/Shakespeare and the 1970s/);
-  assert.match(request.system,/MATERIAL MODE/);
+  assert.match(request.system,/TOPIC MODE/);
+  assert.equal(request.output_config.effort,'low');
+  assert.doesNotMatch(request.system,/MATERIAL MODE|Use ONLY supplied material/);
   assert.ok(request.output_config.format.schema.properties.puzzle.anyOf[1].properties.groups.items.properties.operation.enum.includes('drop-first'));
   assert.throws(()=>validateBrief({...input(),topic:''}),/subject/);
   assert.throws(()=>validateBrief({...input(),story:{id:'private'}}),/Choose/);
@@ -176,4 +178,32 @@ test('overlong learning topic metadata reuses the bounded title without changing
   const parsed=JSON.parse(parseClaudeResponse(reply(data),brief));
   assert.equal(parsed.topic,data.puzzle.title);
   assert.equal(parsed.groups[0].explanation,data.puzzle.groups[0].explanation);
+});
+
+test('topic generation and review cannot inherit transcript-only authority rules',async t=>{
+  const {learningReviewRequest}=await import('./index.js');
+  const brief=validateBrief({...input(),topic:'the ny knicks'});
+  const topic=claudeRequest(brief,{concepts:[{source:'must not leak'}]});
+  const review=learningReviewRequest({},brief);
+  for(const request of [topic,review]){
+    assert.match(request.system,/TOPIC MODE/);
+    assert.doesNotMatch(request.system,/MATERIAL MODE|Use ONLY supplied material|must be supported by the supplied material/);
+    const sent=JSON.parse(request.messages[0].content);
+    assert.equal(sent.mode,'topic');assert.equal(sent.topic,'the ny knicks');
+    assert.equal(sent.material,undefined);assert.equal(sent.conceptInventory,undefined);
+  }
+  const {data}=fixture();for(const group of data.puzzle.groups)for(const entry of group.entries)entry.evidence='';
+  assert.equal(JSON.parse(parseClaudeResponse(reply(data),brief)).groups.length,4);
+  assert.match(review.system,/Check every explanatory claim/);
+  const material=claudeRequest(fixture().brief);
+  assert.equal(material.output_config.effort,'medium');
+  assert.match(material.system,/MATERIAL MODE/);assert.doesNotMatch(material.system,/TOPIC MODE:/);
+  let calls=0;
+  t.mock.method(globalThis,'fetch',async(_url,options)=>{
+    calls++;const request=JSON.parse(options.body);
+    assert.doesNotMatch(request.system,/Use ONLY supplied material/);
+    return Response.json(reply(calls===1?data:{fair:true,issue:'none',reason:''}));
+  });
+  const r=await worker.fetch(new Request('https://service.example/api/puzzle',{method:'POST',headers:{Origin:'https://service.example','Content-Type':'application/json','oai-authenticated-user-id':'owner'},body:JSON.stringify(brief)}),{ANTHROPIC_API_KEY:'test',DB:{prepare(){throw Error('must not store topic')}}});
+  assert.equal(r.status,200);assert.equal(calls,2);
 });
