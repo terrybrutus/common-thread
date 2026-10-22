@@ -54,3 +54,65 @@ test('custom learning always passes through the independent audit and never save
   assert.equal(r.status,422);assert.equal(calls,2);
   assert.match((await r.json()).error,/accuracy and connection check/);
 });
+
+test('learning removes a redundant shared category label and keeps full sources and evidence',()=>{
+  for (const [category,sources,expected] of [
+    ['Types of trading orders',['MARKET ORDER','LIMIT ORDER','STOP ORDER','STOP-LIMIT ORDER'],['MARKET','LIMIT','STOP','STOP-LIMIT']],
+    ['Kinds of bank',['BANK ACCOUNT','BANK LOAN','BANK DEPOSIT','BANK TRANSFER'],['ACCOUNT','LOAN','DEPOSIT','TRANSFER']],
+  ]) {
+    const {data,brief}=fixture();
+    data.puzzle.groups[0]={category,clue:'Find the connection.',explanation:'These are related financial terms.',operation:'literal',kind:'themed',fixedText:'',entries:sources.map(source=>({tile:source,source,evidence:source}))};
+    brief.notes+='\n'+category+': '+sources.join(', ');
+    const before=JSON.stringify(data);
+    const parsed=JSON.parse(parseClaudeResponse(reply(data),brief));
+    assert.deepEqual(parsed.groups[0].words,expected);
+    assert.deepEqual(parsed.groups[0].sourceWords,sources);
+    assert.equal(parsed.groups[0].rule,'fill-blank');
+    assert.equal(parsed.groups[0].category,category);
+    assert.equal(JSON.stringify(data),before);
+    assert.ok(!JSON.stringify(parsed).includes('evidence'));
+    data.puzzle.groups[0].entries[0].evidence='Invented quotation';
+    assert.throws(()=>parseClaudeResponse(reply(data),brief),/wasn't supported/);
+  }
+});
+
+test('category-label cleanup never strips different words, internal pieces, or personal memories',async()=>{
+  const {prepareDraft,learningReviewRequest}=await import('./index.js');
+  for(const [category,sources] of [
+    ['Familiar titles and places',['BREAKING BAD','STRANGER THINGS','SPRING VALLEY','OUTER BANKS']],
+    ['Places',['NEW YORK','NEW JERSEY','NEW MEXICO','NEW HAMPSHIRE']],
+    ['Orders',['ORDERLY','BORDER','RECORDER','DISORDER']],
+    ['Our memories',['THE BEACH','THE PARK','THE CINEMA','THE MUSEUM']],
+  ]) {
+    const group={category,operation:'literal',entries:sources.map(source=>({tile:source,source,evidence:source}))};
+    const data={puzzle:{groups:[group]}};
+    assert.deepEqual(prepareDraft(data,input()),data);
+  }
+  const group={category:'Trading orders',operation:'literal',entries:['MARKET ORDER','LIMIT ORDER','STOP ORDER','STOP-LIMIT ORDER'].map(source=>({tile:source,source,evidence:source}))};
+  const data={puzzle:{groups:[group]}};
+  assert.deepEqual(prepareDraft(data,{purpose:'fun',notes:''}),data);
+  assert.match(claudeRequest(validateBrief(input())).system,/Easy must still reward a small discovery/);
+  assert.match(learningReviewRequest({},input()).system,/visibly repeat the category word/);
+});
+
+test('the audit sees shortened displayed tiles and can reject new ambiguity without retrying',async t=>{
+  for(const fair of [true,false]){
+    const {data,brief}=fixture();
+    const sources=['MARKET ORDER','LIMIT ORDER','STOP ORDER','STOP-LIMIT ORDER'];
+    data.puzzle.groups[0]={category:'Types of trading orders',clue:'Think trading.',explanation:'These are instructions for buying or selling.',operation:'literal',kind:'themed',fixedText:'',entries:sources.map(source=>({tile:source,source,evidence:source}))};
+    brief.notes+='\nTrading orders: '+sources.join(', ');
+    let calls=0;
+    const mock=t.mock.method(globalThis,'fetch',async(_url,options)=>{
+      calls++;
+      if(calls===1)return Response.json(reply(data));
+      const audited=JSON.parse(JSON.parse(options.body).messages[0].content).puzzle;
+      assert.deepEqual(audited.groups[0].words,['MARKET','LIMIT','STOP','STOP-LIMIT']);
+      assert.deepEqual(audited.groups[0].sourceWords,sources);
+      return Response.json(reply({fair,issue:fair?'none':'overlap',reason:fair?'':'a shortened term competes elsewhere'}));
+    });
+    const r=await worker.fetch(new Request('https://service.example/api/puzzle',{method:'POST',headers:{Origin:'https://service.example','Content-Type':'application/json','oai-authenticated-user-id':'owner'},body:JSON.stringify(brief)}),{ANTHROPIC_API_KEY:'test',DB:{prepare(){throw Error('learning must not access stories')}}});
+    assert.equal(r.status,fair?200:422);
+    assert.equal(calls,2);
+    mock.mock.restore();
+  }
+});
