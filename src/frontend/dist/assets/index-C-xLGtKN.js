@@ -17261,7 +17261,7 @@ const knowledgePacks = [
     fact("ranges", "Mountain ranges", "ANDES|ALPS|HIMALAYAS|PYRENEES", "The Andes are in South America, the Himalayas in Asia, and the Alps and Pyrenees in Europe.", "Think of chains of high peaks."),
     blank("land", "Country names ending in ___LAND", "ICE|IRE|FIN|THAI", "___LAND", "Add LAND to make ICELAND, IRELAND, FINLAND, and THAILAND. These tiles are only parts of the country names.", "A common ending turns these into countries."),
     blank("oceans", "___ Ocean", "PACIFIC|ATLANTIC|INDIAN|ARCTIC", "___ Ocean", "Complete Pacific Ocean, Atlantic Ocean, Indian Ocean, and Arctic Ocean. These are four of the five named oceans; the Southern Ocean is the fifth.", "Each completes the name of an ocean."),
-    { ...fact("country-halves", "Country names missing their first word", "ZEALAND|RICA|LANKA|FASO", "Complete NEW ZEALAND, COSTA RICA, SRI LANKA, and BURKINA FASO. All four are country names with the first word removed.", "Each tile finishes a two-word country name."), rule: "last-word", sourceWords: ["NEW ZEALAND", "COSTA RICA", "SRI LANKA", "BURKINA FASO"] },
+    { ...fact("country-halves", "Map names beginning with New ___", "ZEALAND|CALEDONIA|GUINEA|BRITAIN", "Complete NEW ZEALAND, NEW CALEDONIA, NEW GUINEA, and NEW BRITAIN. These are a country, a French territory, and two islands, respectively. The shared missing word is NEW.", "One word begins all four geographical names."), rule: "last-word", sourceWords: ["NEW ZEALAND", "NEW CALEDONIA", "NEW GUINEA", "NEW BRITAIN"] },
     blank("south", "South ___ on the world map", "AFRICA|KOREA|SUDAN|AMERICA", "South ___", "South Africa, South Korea, and South Sudan are countries. South America is a continent. SOUTH completes all four names.", "One direction completes four familiar place names.")
   ] },
   { id: "usa", name: "U.S. Geography", summary: "States, lakes, capitals, and a few unexpected turns.", sources: [S.states, S.lakes], groups: [
@@ -17278,7 +17278,7 @@ const knowledgePacks = [
     fact("amendments", "Freedoms in the First Amendment", "SPEECH|RELIGION|PRESS|ASSEMBLY", "The First Amendment protects these freedoms, along with the right to petition. These four do not exhaust its protections.", "Think of the opening amendment to the Bill of Rights."),
     blank("white", "White ___", "HOUSE|PAPER|FLAG|BOARD", "White ___", "WHITE makes WHITE HOUSE, WHITE PAPER, WHITE FLAG, and WHITEBOARD. A white paper is an explanatory report; the other phrases name a residence, a signal, and a writing surface.", "One color completes every phrase; spacing may change."),
     blank("bill", "___ bill", "DOLLAR|SENATE|UTILITY|RESTAURANT", "___ bill", "A dollar bill is money; a Senate bill is proposed legislation; utility and restaurant bills request payment. BILL has more than one meaning.", "One word can mean money, legislation, or an amount owed."),
-    { ...fact("civic-halves", "Civics phrases missing their first word", "ORDER|COLLEGE|SERVICE|COURT", "Complete EXECUTIVE ORDER, ELECTORAL COLLEGE, SECRET SERVICE, and SUPREME COURT. Each tile is the last word of a two-word civics phrase.", "Restore the first word of four familiar civics terms."), rule: "last-word", sourceWords: ["EXECUTIVE ORDER", "ELECTORAL COLLEGE", "SECRET SERVICE", "SUPREME COURT"] },
+    { ...fact("civic-halves", "U.S. legal terms: ___ court", "SUPREME|FEDERAL|DISTRICT|APPEALS", "Complete SUPREME COURT, FEDERAL COURT, DISTRICT COURT, and APPEALS COURT. COURT is the same missing word in all four phrases.", "One shared word completes four legal phrases."), rule: "first-word", sourceWords: ["SUPREME COURT", "FEDERAL COURT", "DISTRICT COURT", "APPEALS COURT"] },
     fact("early", "The first four U.S. presidents", "GEORGE WASHINGTON|JOHN ADAMS|THOMAS JEFFERSON|JAMES MADISON", "In order: Washington, Adams, Jefferson, and Madison. Presidential surnames alone can be ambiguous, so these tiles use full names.", "Start at the beginning of the presidency.")
   ] },
   { id: "rivers", name: "Rivers & Waterways", summary: "Follow rivers across continents and learn how water moves.", sources: [S.water, S.geography], groups: [
@@ -17304,7 +17304,7 @@ const knowledgePacks = [
     blank("house", "___house", "BRICK|GREEN|FARM|TREE", "___house", "BRICK HOUSE, GREENHOUSE, FARMHOUSE, and TREEHOUSE share HOUSE. The blank works across open and closed compounds.", "One familiar building word completes all four."),
     { ...fact("animals-drop", "Animals, minus their first letter", "EAR|OAR|INK|OX", "Restore the first letters: BEAR, BOAR, MINK, and FOX. Each displayed tile is a real word formed by removing the first letter of an animal name.", "Restore one letter at the beginning of each word."), rule: "drop-first", sourceWords: ["BEAR", "BOAR", "MINK", "FOX"] },
     { ...fact("animals-anagram", "Animals with their letters rearranged", "BARE|SALE|LOIN|FLOW", "Rearrange each tile to get BEAR, SEAL, LION, and WOLF. Every letter is used exactly once; no letters are added or removed.", "Rearrange the letters to find four animals."), rule: "anagram", sourceWords: ["BEAR", "SEAL", "LION", "WOLF"] },
-    { ...fact("desserts", "Desserts missing their last word", "APPLE|RICE|ICE|FRUIT", "Complete APPLE PIE, RICE PUDDING, ICE CREAM, and FRUIT SALAD. Each is a two-word food name missing its final word.", "Each tile starts a familiar two-word dessert name."), rule: "first-word", sourceWords: ["APPLE PIE", "RICE PUDDING", "ICE CREAM", "FRUIT SALAD"] }
+    { ...fact("desserts", "Desserts: ___ pie", "APPLE|CHERRY|PECAN|PUMPKIN", "Complete APPLE PIE, CHERRY PIE, PECAN PIE, and PUMPKIN PIE. Each tile shares the same missing word, PIE.", "One shared word completes four familiar desserts."), rule: "first-word", sourceWords: ["APPLE PIE", "CHERRY PIE", "PECAN PIE", "PUMPKIN PIE"] }
   ] }
 ];
 const starters = { world: ["capitals", "islands", "ranges", "land"], usa: ["lakes", "capitals", "parks", "new"], presidents: ["rushmore", "amendments", "white", "bill"], rivers: ["africa", "europe", "features", "water"], science: ["rocky", "units", "matter", "sphere"], general: ["instruments", "shapes", "house", "animals-drop"] };
@@ -17325,6 +17325,7 @@ function knowledgeBoard(id, choices = starters[id]) {
     const g = variants.find((v) => v.id === choice);
     if (!g) throw new Error("The AI selected an unreviewed connection.");
     const sources = g.sourceWords;
+    if (["first-word", "last-word"].includes(g.rule) && new Set(sources.map((source) => normalize(source.split(" ")[g.rule === "first-word" ? 1 : 0] || ""))).size !== 1) throw new Error("Unrelated missing words are not a connection.");
     for (let i = 0; i < 4; i++) {
       const tile = normalize(g.words[i]), source = normalize(sources[i]);
       if (g.rule === "fill-blank" && (g.fixedText.split("___").length !== 2 || normalize(g.fixedText.replace("___", g.words[i])) !== source)) throw new Error("Invalid shared phrase.");

@@ -185,41 +185,18 @@ test("shared production request leaves room for reasoning and distinguishes trun
   assert.throws(() => parseClaudeResponse({ stop_reason: "end_turn", content: [] }), /incomplete board/);
 });
 
-test("a supported parents-name twist is deterministic without changing facts or skipping validation", () => {
-  const names = ["ALAN", "BETH", "CORA", "DREW"];
-  const parentGroup = { category: "Our parents", kind: "personal", operation: "literal", fixedText: "", clue: "Think of your family", explanation: "These are your parents' names.", entries: names.map(source => ({ tile: source, source, evidence: source })) };
-  const groups = [parentGroup, ...["A", "B", "C"].map(prefix => ({ category: "Our favorites", kind: "personal", operation: "literal", fixedText: "", clue: "Think of your favorites", explanation: "These are favorites you both enjoy.", entries: [1, 2, 3, 4].map(i => ({ tile: prefix + i, source: prefix + i, evidence: prefix + i })) }))];
-  const data = { question: "", puzzle: { title: "Our puzzle", topic: "Our story", description: "A puzzle for you", groups } };
-  const brief = { purpose: "fun", difficulty: "balanced", personalization: "memories-only", notes: groups.flatMap(g => g.entries.map(e => e.source)).join(" ") };
-  const prepared = prepareDraft(data, brief);
-  assert.equal(data.puzzle.groups[0].operation, "literal");
-  assert.equal(prepared.puzzle.groups[3].operation, "reverse");
-  assert.match(prepared.puzzle.groups[3].explanation, /your parents/);
-  assert.deepEqual(prepared.puzzle.groups[3].entries.map(e => e.source), names);
-  assert.deepEqual(prepared.puzzle.groups[3].entries.map(e => e.evidence), names);
-  assert.equal(JSON.parse(parseClaudeResponse({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify(data) }] }, brief)).groups[3].words[0], "NALA");
-  // A complete, valid JSON board remains usable if the budget boundary fires just after its closing brace.
-  assert.equal(JSON.parse(parseClaudeResponse({ stop_reason: "max_tokens", content: [{ type: "text", text: JSON.stringify(data) }] }, brief)).groups.length, 4);
-  assert.equal(prepareDraft(data, { ...brief, difficulty: "easy" }).puzzle.groups[0].operation, "literal");
-  assert.equal(prepareDraft(data, { ...brief, purpose: "study" }).puzzle.groups[0].operation, "literal");
-  parentGroup.category = "Our family names";
-  const family = prepareDraft(data, brief).puzzle.groups[3];
-  assert.equal(family.operation, "reverse");
-  assert.equal(family.category, "Our family names, read backward");
-  assert.match(family.explanation, /Read each name backward/);
-  parentGroup.category = "Our son and our parents";
-  parentGroup.explanation = "Alan is your son; Beth, Cora and Drew are your parents.";
-  const mixedFamily = prepareDraft(data, brief).puzzle.groups[3];
-  assert.equal(mixedFamily.category, "Our son and our parents, read backward");
-  assert.match(mixedFamily.explanation, /Alan is your son/);
-  parentGroup.explanation = "These are your parents' names.";
-  parentGroup.category = "Our parents";
-  prepared.puzzle.groups[3].entries[0].tile = "WRONG";
-  assert.throws(() => parseOutput(JSON.stringify(prepared), brief), /consistent rule/);
-  const fixed = JSON.parse(parseClaudeResponse({ stop_reason: "end_turn", content: [{ type: "text", text: JSON.stringify(prepared) }] }, brief));
-  assert.equal(fixed.groups[3].words[0], "NALA");
-  parentGroup.entries[0] = { tile: "UNKNOWN", source: "UNKNOWN", evidence: "UNKNOWN" };
-  assert.throws(() => parseOutput(JSON.stringify(data), brief), /wasn't supported/);
+test("literal parents are never automatically reversed to force a twist", () => {
+  const {data,brief}=wordplayFixture('last-word');
+  const names=['ALAN','BETH','CORA','DREW'];
+  data.puzzle.groups[0]={category:'Our parents',kind:'personal',operation:'literal',fixedText:'',clue:'Think of your parents',explanation:'These are your parents’ names.',entries:names.map(source=>({tile:source,source,evidence:source}))};
+  brief.notes += ' '+names.join(' ');
+  const prepared=prepareDraft(data,brief);
+  assert.equal(prepared.puzzle.groups[0].operation,'literal');
+  assert.deepEqual(prepared.puzzle.groups[0].entries.map(e=>e.tile),names);
+  // Deliberate, declared reversals remain mechanically verified.
+  data.puzzle.groups[0].operation='reverse';
+  const parsed=JSON.parse(parseClaudeResponse({stop_reason:'end_turn',content:[{type:'text',text:JSON.stringify(data)}]},brief));
+  assert.deepEqual(parsed.groups[0].words,['NALA','HTEB','AROC','WERD']);
 });
 
 test("quoting grammar words does not make a meaningful personal connection", () => {
@@ -286,9 +263,9 @@ test("a remix can carry an optional question without exposing source quotations"
 });
 
 function wordplayFixture(operation) {
-  const sources = ["River Walk", "Silver Screen", "Garden Gate", "Harbor Light"];
+  const sources = operation === "first-word" ? ["River Walk", "Garden Walk", "Harbor Walk", "Forest Walk"] : ["River Walk", "River Bank", "River Bend", "River Mouth"];
   const groups = ["A", "B", "C"].map(prefix => ({ category: "Our named favorites", clue: "A clue", explanation: "Names you both recognize", kind: "personal", operation: "literal", fixedText: "", entries: [1,2,3,4].map(i => ({ tile: prefix+i, source: prefix+i, evidence: prefix+i })) }));
-  groups.push({ category: "Familiar names missing their first word", clue: "Put back a missing word", explanation: "Complete the names you recognize: River Walk, Silver Screen, Garden Gate and Harbor Light.", kind: "personal", operation, fixedText: "", entries: sources.map(source => ({ tile: source.split(' ')[operation === "first-word" ? 0 : 1], source, evidence: source })) });
+  groups.push({ category: operation === "first-word" ? "___ Walk" : "River ___", clue: "One shared word completes every name", explanation: "Complete the names you recognize: " + sources.join(", ") + ".", kind: "personal", operation, fixedText: "", entries: sources.map(source => ({ tile: source.split(' ')[operation === "first-word" ? 0 : 1], source, evidence: source })) });
   return { data: { question: "", puzzle: { title: "Our puzzle", topic: "Our story", description: "For you", groups } }, brief: { purpose: "fun", personalization: "memories-only", difficulty: "balanced", notes: groups.flatMap(g => g.entries.map(e => e.source)).join(" ") } };
 }
 
@@ -297,6 +274,7 @@ test("missing-word rules preserve full personal phrases, reject inconsistent hal
     const { data, brief } = wordplayFixture(operation);
     const parsed = JSON.parse(parseOutput(JSON.stringify(data), brief));
     assert.equal(parsed.groups[3].rule, operation);
+    assert.equal(parsed.groups[3].category, operation === "first-word" ? "___ Walk" : "River ___");
     assert.equal(parsed.groups[3].sourceWords[0], "River Walk");
     assert.ok(!JSON.stringify(parsed).includes('"evidence"'));
     data.puzzle.groups[3].entries[0].tile = "NOPE";
@@ -446,4 +424,37 @@ test("an older client generation receives a fifth memory already in cloud withou
   assert.equal((await worker.fetch(request, { DB: db, ANTHROPIC_API_KEY: "test-secret" })).status, 422);
   assert.equal(calls, 1);
  } finally { globalThis.fetch = original; }
+});
+
+test("mixed personal phrase fragments are rejected in code even when every source is quoted", () => {
+  for(const operation of ['first-word','last-word']) {
+    const {data,brief}=wordplayFixture(operation);
+    const sources=operation==='first-word' ? ['Breaking Bad','Strange Things','Spring Valley','Outer Banks'] : ['Breaking Bad','Strange Things','Spring Valley','Outer Banks'];
+    const g=data.puzzle.groups[3];
+    g.entries=sources.map(source=>({tile:source.split(' ')[operation==='first-word'?0:1],source,evidence:source}));
+    g.category='Familiar two-word names and titles missing their last word';
+    brief.notes=data.puzzle.groups.flatMap(g=>g.entries.map(e=>e.source)).join(' ');
+    const response={stop_reason:'end_turn',content:[{type:'text',text:JSON.stringify(data)}]};
+    assert.throws(()=>parseOutput(JSON.stringify(data),brief),/unrelated missing words/);
+    assert.throws(()=>parseClaudeResponse(response,brief),/unrelated missing words/);
+    g.category='Our favorite shared memories';
+    assert.throws(()=>parseOutput(JSON.stringify(data),brief),/unrelated missing words/);
+  }
+});
+
+test("the generation and independent review instructions reject arbitrary fragments without demanding a wordplay quota", () => {
+  const {data,brief}=wordplayFixture('last-word');
+  const request=claudeRequest(brief),review=reviewRequest(JSON.parse(parseOutput(JSON.stringify(data),brief)),brief);
+  assert.match(request.system,/ALL FOUR OMITTED WORDS MUST BE IDENTICAL/);
+  assert.match(review.system,/Mechanical consistency alone is NOT/);
+  assert.match(review.system,/coherent literal board may pass/);
+  assert.ok(!request.system.includes('when no single shared blank is available'));
+});
+
+test("unsupported first-named hints are neutralized without changing story evidence", () => {
+  const {data,brief}=wordplayFixture('last-word');
+  data.puzzle.groups[0].clue='These are the spots you name first.';
+  const prepared=prepareDraft(data,brief);
+  assert.equal(prepared.puzzle.groups[0].clue,'Look for one clear connection that fits all four.');
+  assert.deepEqual(prepared.puzzle.groups[0].entries,data.puzzle.groups[0].entries);
 });
