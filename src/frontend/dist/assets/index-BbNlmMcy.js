@@ -17654,7 +17654,7 @@ function KnowledgePacks({ onHome }) {
           ]
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "generation-status", children: busy ? "Finding connections and checking the answers. This can take a minute." : "" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "generation-status", children: busy ? input.kind === "material" ? "Reading your material and checking a puzzle. This may take a couple of minutes." : "Finding connections and checking the answers. This can take a minute." : "" }),
       error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-error", role: "alert", children: error })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "ready-puzzles", children: [

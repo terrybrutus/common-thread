@@ -1,4 +1,4 @@
-import { SYSTEM, MODEL, validateBrief, claudeRequest, parseClaudeResponse, CLAUDE_TIMEOUT_MS, claudeError, storyQuestionResponse, reviewPersonalPuzzle } from "../../services/claude/worker/index.js";
+import { SYSTEM, MODEL, validateBrief, claudeRequest, parseClaudeResponse, CLAUDE_TIMEOUT_MS, claudeError, storyQuestionResponse, reviewPersonalPuzzle, prepareLearningMaterial } from "../../services/claude/worker/index.js";
 export { SYSTEM, MODEL, validateBrief };
 
 // Vite development middleware only. This module and the key never enter the browser bundle.
@@ -29,10 +29,13 @@ export function claudeDevPlugin(env) {
           let brief;
           try { brief = validateBrief(JSON.parse(body)); }
           catch (error) { return send(400, { error: error instanceof Error ? error.message : "Please check your puzzle input." }); }
+          let materialPlan;
+          try { materialPlan = await prepareLearningMaterial(brief, env.ANTHROPIC_API_KEY); }
+          catch (error) { return send(422, storyQuestionResponse(error, brief)); }
           const response = await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: { "Content-Type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-            body: JSON.stringify(claudeRequest(brief)),
+            body: JSON.stringify(claudeRequest(brief, materialPlan)),
             signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS),
           });
           if (!response.ok) return send(502, { error: await claudeError(response) });

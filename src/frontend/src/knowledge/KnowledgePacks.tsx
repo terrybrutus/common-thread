@@ -276,7 +276,9 @@ export function KnowledgePacks({ onHome }: { onHome: () => void }) {
         </button>
         <output className="generation-status">
           {busy
-            ? "Finding connections and checking the answers. This can take a minute."
+            ? input.kind === "material"
+              ? "Reading your material and checking a puzzle. This may take a couple of minutes."
+              : "Finding connections and checking the answers. This can take a minute."
             : ""}
         </output>
         {error && (
