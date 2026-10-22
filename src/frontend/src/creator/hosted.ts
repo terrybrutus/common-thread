@@ -1,8 +1,18 @@
+import {
+  AccountServiceError,
+  accountRequest,
+  hasAccountSession,
+} from "../account/session";
 import { StoryQuestionError, cleanStoryQuestion } from "./followUp";
 export const CLAUDE_SERVICE =
   "https://common-thread-claude-service.terrbrutus.chatgpt.site";
 export const CONNECTION_EVENT = "common-thread-connection";
-type Operation = "generate" | "save-story" | "load-story";
+type Operation =
+  | "generate"
+  | "save-story"
+  | "load-story"
+  | "restore-beta"
+  | "visitors";
 type Pending = {
   operation: Operation;
   brief: unknown;
@@ -23,7 +33,10 @@ let connection:
   | undefined;
 const notify = () => window.dispatchEvent(new Event(CONNECTION_EVENT));
 export function isStoryConnected() {
-  return Boolean(connection?.ready && !connection.popup.closed);
+  return (
+    hasAccountSession() ||
+    Boolean(connection?.ready && !connection.popup.closed)
+  );
 }
 export function disconnectStoryCloud() {
   const current = connection;
@@ -43,6 +56,10 @@ export function disconnectStoryCloud() {
   notify();
 }
 export function connectStoryCloud() {
+  if (hasAccountSession()) return;
+  openLegacyCloud();
+}
+function openLegacyCloud() {
   if (connection && !connection.popup.closed) {
     if (!connection.ready) connection.popup.focus?.();
     return;
@@ -132,13 +149,38 @@ export function hostedOperation(
   operation: Operation,
   brief: unknown,
   background = false,
+  legacy = false,
 ): Promise<unknown> {
+  if (!legacy && hasAccountSession()) {
+    const path =
+      operation === "generate"
+        ? "/api/puzzle"
+        : operation === "save-story"
+          ? "/api/story/save"
+          : "/api/story/load";
+    return accountRequest(path, brief)
+      .then((data) => (operation === "generate" ? data.text : data))
+      .catch((error) => {
+        if (
+          operation === "generate" &&
+          error instanceof AccountServiceError &&
+          error.code === "needs_story"
+        ) {
+          const question = cleanStoryQuestion(error.question);
+          if ((brief as { purpose?: string })?.purpose === "study")
+            throw new Error(question || error.message);
+          throw new StoryQuestionError(question);
+        }
+        throw error;
+      });
+  }
   try {
     if (background && !isStoryConnected())
       throw new Error(
         "Reconnect to sync this story. Your answers are saved on this device.",
       );
-    connectStoryCloud();
+    if (legacy) openLegacyCloud();
+    else connectStoryCloud();
   } catch (error) {
     return Promise.reject(error);
   }
@@ -181,4 +223,11 @@ export async function hostedGeneration(brief: unknown): Promise<string> {
   if (typeof result !== "string")
     throw new Error("The private service returned an invalid puzzle.");
   return result;
+}
+
+export function legacyOwnerOperation(
+  operation: "restore-beta" | "visitors",
+  brief: unknown,
+): Promise<any> {
+  return hostedOperation(operation, brief, false, true);
 }

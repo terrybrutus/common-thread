@@ -1796,3 +1796,51 @@ textarea {
     font-size: 16px;
   }
 }
+
+.account-dialog {
+  width: min(92vw, 580px);
+  max-height: 85dvh;
+  overflow-y: auto;
+  border: 1px solid #cdd4c6;
+  border-radius: 18px;
+  padding: 24px;
+  background: #fafaf5;
+  color: #153c38;
+}
+.account-dialog::backdrop {
+  background: rgb(15 35 30 / 45%);
+}
+.account-dialog label {
+  display: block;
+  margin: 12px 0;
+}
+.account-dialog input[type="email"] {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+}
+.account-dialog small {
+  display: block;
+}
+.account-dialog button {
+  min-height: 44px;
+  margin-top: 8px;
+}
+.saved-topic-list {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+.saved-topic-list li {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.site-header {
+  flex-wrap: wrap;
+}

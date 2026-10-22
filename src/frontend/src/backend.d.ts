@@ -100,10 +100,13 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    checkServiceSession(hash: string): Promise<Principal | null>;
+    closeServiceSession(hash: string): Promise<void>;
     execute(qJson: string): Promise<Result>;
     generatePersonalPuzzle(brief: GenerationBrief): Promise<string>;
     getApiDoc(): Promise<string>;
     getCallerUserRole(): Promise<UserRole>;
     isCallerAdmin(): Promise<boolean>;
+    openServiceSession(hash: string): Promise<bigint>;
     schema(): Promise<string>;
 }

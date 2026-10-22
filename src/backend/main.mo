@@ -3,6 +3,7 @@ import MixinAuthorization "mo:caffeineai-authorization/MixinAuthorization";
 import Expose "mo:caffeineai-oql/Expose";
 import ApiDocMixin "mixins/api-doc";
 import PuzzleCreatorMixin "mixins/puzzle-creator";
+import ServiceSessions "mixins/service-sessions";
 
 actor {
   let accessControlState : AccessControl.AccessControlState;
@@ -10,4 +11,5 @@ actor {
   include Expose({ entities = [] });
   include ApiDocMixin();
   include PuzzleCreatorMixin();
+  include ServiceSessions();
 };

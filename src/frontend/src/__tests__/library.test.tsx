@@ -4,7 +4,7 @@ import { useState } from "react";
 import { describe, expect, it } from "vitest";
 import App from "../App";
 import { StoryQuestions } from "../creator/StoryQuestions";
-import { STORY_KEY, parseProfile, readLibrary } from "../creator/library";
+import { parseProfile, readLibrary, storyStorageKey } from "../creator/library";
 import { defaultBrief } from "../creator/schema";
 import { storyNotes, storyQuestions } from "../creator/story";
 
@@ -35,7 +35,7 @@ describe("living story persistence", () => {
     });
     await waitFor(() =>
       expect(
-        JSON.parse(localStorage.getItem(STORY_KEY)!).profiles[0].brief
+        JSON.parse(localStorage.getItem(storyStorageKey())!).profiles[0].brief
           .storyAnswers[0],
       ).toBe("We met at the pier."),
     );

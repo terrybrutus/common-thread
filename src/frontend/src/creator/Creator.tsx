@@ -7,6 +7,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useAccount } from "../account/Account";
 import { type Group, type Puzzle, puzzles } from "../game/puzzles";
 import { CopyField } from "./CopyField";
 import { CreatorOptions } from "./CreatorOptions";
@@ -23,10 +24,10 @@ import {
   storyKey,
 } from "./history";
 import {
-  STORY_KEY,
   type StoryProfile,
   newProfile,
   readLibrary,
+  storyStorageKey,
 } from "./library";
 import {
   type CreatorBrief,
@@ -45,7 +46,12 @@ interface CreatorProps {
 
 export function Creator({ onHome, onPlay }: CreatorProps) {
   const [library, setLibrary] = useState(readLibrary);
-  const sync = useStorySync(library, setLibrary);
+  const account = useAccount();
+  const sync = useStorySync(
+    library,
+    setLibrary,
+    Boolean(account.owner) || !account.configured,
+  );
   const currentStory =
     library.profiles.find((profile) => profile.id === library.activeId) ||
     library.profiles[0];
@@ -72,7 +78,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
   }
   useEffect(() => {
     try {
-      localStorage.setItem(STORY_KEY, JSON.stringify(library));
+      localStorage.setItem(storyStorageKey(), JSON.stringify(library));
       setSaveStatus("Saved automatically on this device.");
     } catch {
       setSaveStatus(

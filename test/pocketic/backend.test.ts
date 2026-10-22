@@ -1,3 +1,5 @@
+import { AnonymousIdentity } from "@icp-sdk/core/agent";
+import { Ed25519KeyIdentity } from "@icp-sdk/core/identity";
 import { PocketIc } from "@dfinity/pic";
 import type { Actor, CanisterFixture } from "@dfinity/pic";
 import { afterAll, beforeAll, expect, it } from "vitest";
@@ -35,12 +37,24 @@ it("answers the schema query instead of trapping", async () => {
   expect(typeof schema).toBe("string");
 });
 
-it("rejects an oversized creator brief before making an inference call", async () => {
-  await expect(actor.generatePersonalPuzzle({ purpose: "fun", interests: "x".repeat(241), topic: "", notes: "", difficulty: "easy", familiarity: "new" })).rejects.toThrow(/shorten/i);
+it("disables the old Caffeine inference endpoint before any paid call", async () => {
+  await expect(actor.generatePersonalPuzzle({ purpose: "fun", interests: "Nature", topic: "", notes: "", difficulty: "easy", familiarity: "new" })).rejects.toThrow(/not used/i);
 });
 
-it("rejects unsupported difficulty before making an inference call", async () => {
-  await expect(actor.generatePersonalPuzzle({ purpose: "fun", interests: "Nature", topic: "", notes: "", difficulty: "unknown", familiarity: "new" })).rejects.toThrow(/difficulty/i);
+it("isolates service capabilities, rejects anonymous registration and expires sessions", async () => {
+  actor.setIdentity(new AnonymousIdentity());
+  await expect(actor.openServiceSession("a".repeat(64))).rejects.toThrow(/sign in/i);
+  const alice = Ed25519KeyIdentity.generate(), bob = Ed25519KeyIdentity.generate();
+  actor.setIdentity(alice);
+  await actor.openServiceSession("a".repeat(64));
+  expect((await actor.checkServiceSession("a".repeat(64)))[0]?.toText()).toBe(alice.getPrincipal().toText());
+  actor.setIdentity(bob);
+  await expect(actor.openServiceSession("a".repeat(64))).rejects.toThrow();
+  await actor.closeServiceSession("a".repeat(64));
+  expect((await actor.checkServiceSession("a".repeat(64)))[0]?.toText()).toBe(alice.getPrincipal().toText());
+  await pic!.advanceTime(31 * 60 * 1000); await pic!.tick();
+  expect(await actor.checkServiceSession("a".repeat(64))).toEqual([]);
+  actor.setIdentity(new AnonymousIdentity());
 });
 
 it("reports the caller role through the real canister", async () => {

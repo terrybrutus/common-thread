@@ -14,19 +14,34 @@ type Map__603270868<K, V> =
   {var root : Node__204828119<K, V>; var size : Nat__227979830};
 type Nat__227979830 = Nat__920180692;
 type Nat__920180692 = Nat;
+type NewActor__292834276 =
+  {
+    accessControlState : AccessControlState__201339279;
+    serviceSessions :
+      Map__230067015<Text, {expires : Int; owner : Principal}>
+  };
 type NewActor__769816496 =
   {accessControlState : AccessControlState__201339279};
 type Node__204828119<K, V> =
   {#internal : Internal__283199666<K, V>; #leaf : Leaf__598469445<K, V>};
 type OldActor__512397517 = {};
+type OldActor__778441284 =
+  {accessControlState : AccessControlState__201339279};
+type Session__287245782 = {expires : Int; owner : Principal};
 type UserRole__91647283 = {#admin; #guest; #user};
 {
-  "00000000_000000" : OldActor__512397517 -> NewActor__769816496
+  "00000000_000000" : OldActor__512397517 -> NewActor__769816496;
+  "20261022_220000" : (old : OldActor__778441284) -> NewActor__292834276
 }
 actor  {
   stable accessControlState :
     {
       var adminAssigned : Bool;
       userRoles : Map__230067015<Principal, UserRole__91647283>
+    };
+  stable serviceSessions :
+    {
+      var root : Node__204828119<Text, Session__287245782>;
+      var size : Nat__227979830
     }
 };

@@ -1,0 +1,712 @@
+[
+  ["usa:deserts", "rivers:features", "world:south", "general:desserts"],
+  ["usa:parks", "science:matter", "world:land", "presidents:bill"],
+  [
+    "presidents:amendments",
+    "rivers:cycle",
+    "world:south",
+    "general:animals-anagram"
+  ],
+  ["usa:lakes", "rivers:cycle", "presidents:civic-halves", "science:micro"],
+  ["world:capitals", "usa:lakes", "presidents:white", "science:micro"],
+  ["usa:codes", "rivers:europe", "world:country-halves", "science:micro"],
+  ["usa:lakes", "science:gases", "presidents:white", "general:desserts"],
+  ["world:ranges", "general:shapes", "presidents:white", "rivers:water"],
+  ["world:ranges", "science:gases", "usa:new", "presidents:bill"],
+  ["usa:lakes", "general:chess", "presidents:white", "rivers:water"],
+  ["usa:lakes", "general:shapes", "world:country-halves", "rivers:water"],
+  ["rivers:africa", "general:chess", "presidents:bill", "science:sphere"],
+  ["world:capitals", "usa:capitals", "rivers:water", "general:house"],
+  [
+    "rivers:boats",
+    "science:matter",
+    "world:country-halves",
+    "presidents:civic-halves"
+  ],
+  [
+    "presidents:offices",
+    "science:rocky",
+    "world:south",
+    "general:animals-drop"
+  ],
+  [
+    "presidents:rushmore",
+    "rivers:features",
+    "world:country-halves",
+    "science:sphere"
+  ],
+  ["world:islands", "general:chess", "usa:new", "presidents:civic-halves"],
+  ["usa:codes", "science:gases", "world:country-halves", "rivers:water"],
+  ["world:capitals", "usa:codes", "presidents:white", "science:sphere"],
+  ["usa:parks", "general:shapes", "presidents:white", "science:sphere"],
+  ["world:islands", "presidents:rushmore", "science:micro", "general:desserts"],
+  ["world:capitals", "usa:lakes", "science:micro", "general:animals-drop"],
+  ["rivers:europe", "science:gases", "world:oceans", "presidents:civic-halves"],
+  ["world:capitals", "rivers:boats", "usa:new", "general:desserts"],
+  ["world:capitals", "usa:parks", "presidents:bill", "science:sphere"],
+  [
+    "world:capitals",
+    "usa:codes",
+    "presidents:civic-halves",
+    "general:animals-anagram"
+  ],
+  ["world:islands", "usa:lakes", "presidents:white", "science:sphere"],
+  [
+    "presidents:offices",
+    "science:matter",
+    "world:land",
+    "general:animals-anagram"
+  ],
+  ["rivers:features", "science:gases", "world:south", "general:animals-drop"],
+  ["usa:lakes", "rivers:boats", "science:micro", "general:house"],
+  [
+    "usa:lakes",
+    "rivers:cycle",
+    "presidents:civic-halves",
+    "general:animals-drop"
+  ],
+  ["usa:lakes", "presidents:amendments", "world:land", "general:house"],
+  ["usa:capitals", "presidents:rushmore", "world:oceans", "science:sphere"],
+  [
+    "world:capitals",
+    "science:matter",
+    "presidents:civic-halves",
+    "general:house"
+  ],
+  ["presidents:rushmore", "general:shapes", "world:land", "rivers:water"],
+  ["world:capitals", "rivers:features", "science:sphere", "general:house"],
+  ["world:capitals", "usa:lakes", "presidents:white", "rivers:water"],
+  [
+    "world:islands",
+    "usa:lakes",
+    "presidents:civic-halves",
+    "general:animals-anagram"
+  ],
+  [
+    "world:capitals",
+    "rivers:africa",
+    "presidents:white",
+    "general:animals-anagram"
+  ],
+  ["world:islands", "rivers:africa", "usa:new", "general:animals-drop"],
+  ["world:ranges", "rivers:boats", "science:micro", "general:house"],
+  ["usa:capitals", "presidents:amendments", "world:oceans", "science:sphere"],
+  ["usa:deserts", "rivers:cycle", "presidents:civic-halves", "science:micro"],
+  ["usa:lakes", "rivers:cycle", "world:country-halves", "science:micro"],
+  ["usa:parks", "presidents:early", "world:south", "science:micro"],
+  ["world:capitals", "rivers:europe", "science:micro", "general:animals-drop"],
+  [
+    "rivers:boats",
+    "science:matter",
+    "presidents:bill",
+    "general:animals-anagram"
+  ],
+  ["rivers:africa", "general:shapes", "world:country-halves", "science:micro"],
+  ["rivers:boats", "science:rocky", "world:oceans", "general:animals-anagram"],
+  [
+    "world:capitals",
+    "presidents:rushmore",
+    "rivers:water",
+    "general:animals-anagram"
+  ],
+  ["usa:capitals", "rivers:boats", "world:south", "general:house"],
+  [
+    "world:capitals",
+    "rivers:features",
+    "presidents:civic-halves",
+    "general:house"
+  ],
+  ["usa:capitals", "presidents:amendments", "world:oceans", "general:desserts"],
+  [
+    "usa:capitals",
+    "rivers:europe",
+    "presidents:civic-halves",
+    "science:sphere"
+  ],
+  [
+    "presidents:offices",
+    "science:gases",
+    "world:land",
+    "general:animals-anagram"
+  ],
+  ["usa:lakes", "presidents:early", "science:micro", "general:animals-drop"],
+  ["world:capitals", "usa:deserts", "science:sphere", "general:animals-drop"],
+  ["rivers:cycle", "general:chess", "world:south", "usa:new"],
+  ["world:islands", "rivers:cycle", "presidents:white", "general:house"],
+  ["world:islands", "presidents:amendments", "usa:new", "general:animals-drop"],
+  ["usa:lakes", "presidents:offices", "world:land", "general:animals-anagram"],
+  [
+    "rivers:features",
+    "science:rocky",
+    "presidents:white",
+    "general:animals-anagram"
+  ],
+  ["usa:capitals", "rivers:africa", "world:oceans", "presidents:bill"],
+  ["usa:parks", "rivers:africa", "world:country-halves", "presidents:bill"],
+  ["usa:lakes", "science:rocky", "world:oceans", "rivers:water"],
+  ["world:capitals", "science:matter", "usa:new", "rivers:water"],
+  ["world:capitals", "rivers:boats", "science:micro", "general:house"],
+  ["usa:parks", "presidents:early", "world:land", "general:animals-anagram"],
+  ["presidents:rushmore", "rivers:cycle", "world:land", "general:house"],
+  ["usa:deserts", "science:matter", "world:land", "general:desserts"],
+  ["usa:deserts", "rivers:africa", "presidents:white", "science:micro"],
+  ["world:capitals", "usa:deserts", "science:sphere", "general:desserts"],
+  ["world:ranges", "usa:capitals", "presidents:civic-halves", "general:house"],
+  ["world:capitals", "science:rocky", "usa:new", "presidents:civic-halves"],
+  ["world:capitals", "presidents:rushmore", "usa:new", "science:sphere"],
+  ["usa:deserts", "rivers:europe", "world:south", "general:house"],
+  [
+    "world:islands",
+    "science:matter",
+    "presidents:white",
+    "general:animals-anagram"
+  ],
+  ["usa:codes", "rivers:boats", "presidents:white", "general:house"],
+  ["world:islands", "rivers:europe", "usa:new", "presidents:bill"],
+  ["world:islands", "rivers:features", "science:sphere", "general:desserts"],
+  ["world:capitals", "science:rocky", "presidents:bill", "general:house"],
+  ["usa:capitals", "science:units", "world:south", "general:desserts"],
+  [
+    "science:rocky",
+    "general:instruments",
+    "world:country-halves",
+    "presidents:white"
+  ],
+  ["presidents:rushmore", "general:chess", "usa:new", "science:micro"],
+  ["usa:parks", "presidents:early", "science:sphere", "general:desserts"],
+  ["world:ranges", "presidents:amendments", "rivers:water", "general:house"],
+  ["usa:deserts", "science:gases", "presidents:white", "rivers:water"],
+  [
+    "world:capitals",
+    "rivers:europe",
+    "presidents:bill",
+    "general:animals-drop"
+  ],
+  ["world:capitals", "rivers:features", "presidents:white", "science:micro"],
+  ["world:ranges", "presidents:offices", "usa:new", "general:desserts"],
+  ["usa:capitals", "science:matter", "presidents:civic-halves", "rivers:water"],
+  ["presidents:early", "rivers:africa", "world:land", "general:animals-drop"],
+  ["world:islands", "rivers:europe", "science:sphere", "general:house"],
+  [
+    "world:capitals",
+    "usa:deserts",
+    "presidents:civic-halves",
+    "general:desserts"
+  ],
+  [
+    "world:capitals",
+    "rivers:europe",
+    "presidents:civic-halves",
+    "general:animals-drop"
+  ],
+  ["rivers:europe", "general:shapes", "world:country-halves", "science:micro"],
+  ["usa:deserts", "science:units", "world:oceans", "general:animals-anagram"],
+  ["usa:deserts", "rivers:africa", "presidents:bill", "general:animals-drop"],
+  ["usa:lakes", "rivers:boats", "world:oceans", "presidents:civic-halves"],
+  [
+    "presidents:early",
+    "rivers:boats",
+    "science:sphere",
+    "general:animals-anagram"
+  ],
+  ["presidents:offices", "rivers:features", "usa:new", "general:house"],
+  ["usa:capitals", "rivers:boats", "world:land", "presidents:bill"],
+  ["rivers:africa", "science:units", "usa:new", "general:house"],
+  [
+    "science:units",
+    "general:instruments",
+    "usa:new",
+    "presidents:civic-halves"
+  ],
+  [
+    "world:ranges",
+    "usa:codes",
+    "presidents:civic-halves",
+    "general:animals-drop"
+  ],
+  [
+    "rivers:europe",
+    "science:matter",
+    "presidents:white",
+    "general:animals-anagram"
+  ],
+  [
+    "usa:parks",
+    "presidents:offices",
+    "world:country-halves",
+    "general:animals-anagram"
+  ],
+  ["usa:deserts", "science:gases", "world:south", "general:house"],
+  [
+    "presidents:rushmore",
+    "rivers:features",
+    "world:country-halves",
+    "general:house"
+  ],
+  ["world:ranges", "rivers:africa", "presidents:civic-halves", "general:house"],
+  [
+    "world:islands",
+    "presidents:amendments",
+    "science:micro",
+    "general:desserts"
+  ],
+  ["usa:deserts", "rivers:cycle", "world:oceans", "general:animals-drop"],
+  [
+    "presidents:rushmore",
+    "science:rocky",
+    "rivers:water",
+    "general:animals-drop"
+  ],
+  ["world:capitals", "rivers:cycle", "usa:new", "presidents:civic-halves"],
+  [
+    "world:capitals",
+    "presidents:offices",
+    "science:micro",
+    "general:animals-drop"
+  ],
+  [
+    "world:capitals",
+    "rivers:africa",
+    "presidents:civic-halves",
+    "general:desserts"
+  ],
+  ["world:capitals", "general:chess", "presidents:bill", "rivers:water"],
+  ["world:islands", "presidents:offices", "usa:new", "science:sphere"],
+  ["usa:deserts", "rivers:cycle", "science:sphere", "general:desserts"],
+  ["world:capitals", "science:rocky", "rivers:water", "general:animals-drop"],
+  ["science:gases", "general:instruments", "usa:new", "rivers:water"],
+  ["usa:parks", "rivers:africa", "world:oceans", "science:sphere"],
+  ["world:capitals", "presidents:offices", "rivers:water", "general:desserts"],
+  [
+    "presidents:offices",
+    "general:instruments",
+    "world:country-halves",
+    "rivers:water"
+  ],
+  ["rivers:boats", "science:matter", "world:land", "usa:new"],
+  ["presidents:offices", "science:units", "world:oceans", "usa:new"],
+  ["usa:lakes", "science:gases", "world:land", "presidents:white"],
+  ["usa:capitals", "science:matter", "world:land", "general:house"],
+  ["world:ranges", "presidents:early", "usa:new", "general:animals-drop"],
+  ["rivers:africa", "general:instruments", "world:south", "presidents:bill"],
+  ["world:ranges", "science:gases", "usa:new", "rivers:water"],
+  ["world:islands", "usa:codes", "presidents:bill", "general:desserts"],
+  ["usa:parks", "presidents:offices", "science:sphere", "general:house"],
+  ["usa:codes", "general:shapes", "world:oceans", "rivers:water"],
+  [
+    "world:islands",
+    "science:rocky",
+    "presidents:white",
+    "general:animals-anagram"
+  ],
+  ["usa:capitals", "presidents:early", "world:oceans", "general:house"],
+  [
+    "usa:deserts",
+    "presidents:offices",
+    "world:country-halves",
+    "science:sphere"
+  ],
+  ["world:capitals", "rivers:africa", "presidents:white", "general:house"],
+  ["usa:deserts", "science:gases", "presidents:bill", "general:house"],
+  ["rivers:cycle", "science:gases", "world:land", "general:house"],
+  ["world:ranges", "usa:parks", "presidents:civic-halves", "science:micro"],
+  ["world:capitals", "rivers:cycle", "usa:new", "science:micro"],
+  ["world:capitals", "science:gases", "usa:new", "general:house"],
+  ["usa:lakes", "rivers:africa", "world:land", "science:sphere"],
+  ["usa:capitals", "science:units", "world:oceans", "general:animals-drop"],
+  ["world:capitals", "general:chess", "presidents:white", "science:micro"],
+  [
+    "usa:codes",
+    "presidents:offices",
+    "rivers:water",
+    "general:animals-anagram"
+  ],
+  ["usa:capitals", "presidents:rushmore", "world:south", "general:house"],
+  ["usa:lakes", "rivers:europe", "world:country-halves", "science:micro"],
+  ["world:islands", "general:chess", "usa:new", "presidents:white"],
+  ["world:ranges", "usa:deserts", "science:sphere", "general:animals-drop"],
+  ["usa:parks", "rivers:europe", "world:country-halves", "science:sphere"],
+  ["world:capitals", "usa:lakes", "science:sphere", "general:animals-drop"],
+  ["rivers:features", "general:shapes", "world:oceans", "science:sphere"],
+  ["usa:parks", "rivers:africa", "world:south", "presidents:civic-halves"],
+  ["usa:capitals", "science:gases", "rivers:water", "general:house"],
+  ["usa:deserts", "rivers:boats", "world:south", "science:micro"],
+  ["world:capitals", "rivers:europe", "usa:new", "general:desserts"],
+  ["world:islands", "rivers:features", "presidents:white", "science:micro"],
+  ["presidents:offices", "general:shapes", "world:land", "usa:new"],
+  ["world:capitals", "usa:codes", "presidents:civic-halves", "science:sphere"],
+  ["usa:deserts", "science:gases", "world:land", "general:animals-anagram"],
+  ["usa:codes", "general:chess", "presidents:white", "science:sphere"],
+  ["world:ranges", "science:matter", "usa:new", "presidents:civic-halves"],
+  ["usa:lakes", "rivers:europe", "presidents:white", "science:micro"],
+  [
+    "science:units",
+    "general:shapes",
+    "world:oceans",
+    "presidents:civic-halves"
+  ],
+  [
+    "usa:lakes",
+    "presidents:amendments",
+    "world:country-halves",
+    "general:animals-anagram"
+  ],
+  [
+    "rivers:features",
+    "science:matter",
+    "presidents:civic-halves",
+    "general:house"
+  ],
+  [
+    "usa:deserts",
+    "rivers:africa",
+    "presidents:civic-halves",
+    "general:desserts"
+  ],
+  ["world:islands", "general:shapes", "usa:new", "presidents:bill"],
+  [
+    "presidents:amendments",
+    "science:units",
+    "world:land",
+    "general:animals-drop"
+  ],
+  [
+    "usa:lakes",
+    "presidents:amendments",
+    "world:country-halves",
+    "general:house"
+  ],
+  [
+    "rivers:cycle",
+    "science:gases",
+    "presidents:white",
+    "general:animals-anagram"
+  ],
+  ["usa:parks", "rivers:boats", "world:oceans", "presidents:white"],
+  ["presidents:amendments", "rivers:africa", "world:land", "usa:new"],
+  ["presidents:early", "science:gases", "world:oceans", "general:house"],
+  ["rivers:africa", "science:matter", "world:land", "usa:new"],
+  ["usa:deserts", "presidents:early", "world:oceans", "general:desserts"],
+  ["usa:lakes", "rivers:features", "world:south", "general:animals-drop"],
+  ["usa:parks", "science:units", "world:south", "rivers:water"],
+  [
+    "rivers:cycle",
+    "science:rocky",
+    "presidents:bill",
+    "general:animals-anagram"
+  ],
+  ["usa:lakes", "presidents:rushmore", "science:sphere", "general:desserts"],
+  ["rivers:cycle", "science:gases", "usa:new", "general:animals-anagram"],
+  ["world:ranges", "rivers:boats", "science:sphere", "general:house"],
+  ["world:capitals", "usa:parks", "rivers:water", "general:desserts"],
+  [
+    "world:islands",
+    "rivers:boats",
+    "presidents:civic-halves",
+    "general:desserts"
+  ],
+  ["presidents:rushmore", "general:chess", "world:south", "usa:new"],
+  ["usa:lakes", "rivers:cycle", "world:land", "science:sphere"],
+  ["usa:lakes", "science:rocky", "world:land", "presidents:bill"],
+  ["world:capitals", "rivers:boats", "usa:new", "presidents:bill"],
+  ["world:ranges", "rivers:europe", "usa:new", "general:desserts"],
+  ["world:capitals", "rivers:europe", "usa:new", "general:house"],
+  ["world:capitals", "rivers:features", "presidents:white", "general:house"],
+  ["rivers:cycle", "general:instruments", "world:land", "science:sphere"],
+  ["presidents:early", "rivers:boats", "world:oceans", "general:animals-drop"],
+  ["usa:deserts", "presidents:amendments", "world:oceans", "rivers:water"],
+  ["world:ranges", "usa:deserts", "presidents:white", "general:desserts"],
+  ["presidents:offices", "science:rocky", "world:land", "usa:new"],
+  ["rivers:cycle", "science:gases", "world:oceans", "general:animals-anagram"],
+  ["world:islands", "rivers:africa", "usa:new", "presidents:civic-halves"],
+  ["presidents:rushmore", "general:chess", "world:land", "rivers:water"],
+  ["world:ranges", "science:gases", "presidents:civic-halves", "general:house"],
+  ["presidents:early", "science:units", "usa:new", "general:house"],
+  ["usa:capitals", "science:matter", "presidents:bill", "rivers:water"],
+  ["presidents:amendments", "rivers:europe", "world:oceans", "science:micro"],
+  ["science:units", "general:chess", "world:land", "presidents:bill"],
+  ["world:ranges", "rivers:cycle", "presidents:white", "general:animals-drop"],
+  ["presidents:rushmore", "general:instruments", "world:land", "science:micro"],
+  [
+    "presidents:offices",
+    "rivers:boats",
+    "science:sphere",
+    "general:animals-anagram"
+  ],
+  ["rivers:boats", "science:units", "world:south", "presidents:civic-halves"],
+  ["world:ranges", "science:rocky", "usa:new", "presidents:civic-halves"],
+  ["presidents:rushmore", "general:instruments", "world:south", "rivers:water"],
+  ["usa:capitals", "rivers:europe", "presidents:white", "general:house"],
+  ["world:islands", "rivers:boats", "science:micro", "general:animals-drop"],
+  [
+    "world:capitals",
+    "presidents:early",
+    "science:micro",
+    "general:animals-drop"
+  ],
+  ["rivers:boats", "science:units", "world:south", "presidents:white"],
+  ["world:capitals", "usa:codes", "presidents:bill", "general:animals-drop"],
+  ["presidents:amendments", "general:chess", "world:south", "science:sphere"],
+  ["world:capitals", "usa:codes", "science:sphere", "general:animals-anagram"],
+  ["usa:parks", "rivers:europe", "world:south", "general:desserts"],
+  ["world:ranges", "usa:capitals", "presidents:bill", "general:animals-drop"],
+  ["world:ranges", "usa:deserts", "science:micro", "general:animals-anagram"],
+  ["usa:lakes", "presidents:rushmore", "science:micro", "general:animals-drop"],
+  ["world:ranges", "science:gases", "rivers:water", "general:house"],
+  ["usa:capitals", "rivers:europe", "world:oceans", "presidents:bill"],
+  ["usa:parks", "rivers:features", "world:land", "general:house"],
+  ["usa:parks", "presidents:offices", "world:oceans", "science:micro"],
+  ["usa:lakes", "science:matter", "rivers:water", "general:animals-anagram"],
+  ["world:islands", "usa:lakes", "presidents:bill", "rivers:water"],
+  ["usa:codes", "general:shapes", "world:oceans", "presidents:white"],
+  ["rivers:europe", "science:rocky", "world:land", "general:house"],
+  ["world:islands", "science:rocky", "rivers:water", "general:animals-anagram"],
+  ["world:capitals", "usa:capitals", "rivers:water", "science:sphere"],
+  ["world:islands", "usa:lakes", "science:sphere", "general:animals-anagram"],
+  ["science:gases", "general:instruments", "world:south", "presidents:bill"],
+  ["usa:codes", "rivers:europe", "world:oceans", "presidents:bill"],
+  ["world:islands", "rivers:africa", "presidents:white", "science:micro"],
+  ["world:islands", "usa:deserts", "science:micro", "general:house"],
+  ["usa:parks", "presidents:offices", "world:south", "science:micro"],
+  ["usa:lakes", "rivers:cycle", "science:sphere", "general:desserts"],
+  ["world:ranges", "rivers:africa", "usa:new", "general:animals-anagram"],
+  [
+    "world:capitals",
+    "rivers:africa",
+    "presidents:civic-halves",
+    "general:animals-anagram"
+  ],
+  ["rivers:boats", "science:gases", "world:oceans", "general:house"],
+  [
+    "world:capitals",
+    "general:instruments",
+    "usa:new",
+    "presidents:civic-halves"
+  ],
+  [
+    "world:capitals",
+    "usa:lakes",
+    "presidents:civic-halves",
+    "general:animals-drop"
+  ],
+  ["world:islands", "usa:capitals", "science:micro", "general:animals-drop"],
+  ["rivers:features", "general:shapes", "presidents:white", "science:sphere"],
+  [
+    "world:capitals",
+    "science:matter",
+    "presidents:white",
+    "general:animals-drop"
+  ],
+  [
+    "usa:lakes",
+    "presidents:rushmore",
+    "rivers:water",
+    "general:animals-anagram"
+  ],
+  ["world:islands", "science:gases", "rivers:water", "general:animals-drop"],
+  ["usa:deserts", "general:instruments", "world:oceans", "science:micro"],
+  ["world:capitals", "rivers:boats", "presidents:bill", "science:sphere"],
+  ["presidents:amendments", "rivers:europe", "world:land", "science:sphere"],
+  ["rivers:cycle", "science:rocky", "world:oceans", "general:animals-anagram"],
+  ["usa:parks", "science:matter", "world:south", "presidents:bill"],
+  ["usa:codes", "rivers:boats", "presidents:civic-halves", "general:house"],
+  ["usa:deserts", "general:shapes", "world:oceans", "rivers:water"],
+  ["world:ranges", "rivers:africa", "presidents:white", "science:sphere"],
+  ["world:islands", "presidents:rushmore", "usa:new", "general:animals-drop"],
+  ["usa:parks", "presidents:early", "world:country-halves", "general:house"],
+  ["world:islands", "usa:parks", "presidents:civic-halves", "general:house"],
+  ["world:capitals", "rivers:europe", "science:sphere", "general:house"],
+  ["usa:codes", "rivers:features", "presidents:civic-halves", "science:sphere"],
+  ["usa:capitals", "science:matter", "world:south", "presidents:white"],
+  [
+    "world:capitals",
+    "presidents:offices",
+    "science:sphere",
+    "general:animals-drop"
+  ],
+  [
+    "presidents:amendments",
+    "rivers:features",
+    "usa:new",
+    "general:animals-drop"
+  ],
+  ["usa:lakes", "rivers:cycle", "world:country-halves", "science:sphere"],
+  ["usa:parks", "general:shapes", "world:south", "science:micro"],
+  ["usa:capitals", "rivers:cycle", "world:land", "presidents:white"],
+  ["usa:deserts", "rivers:africa", "world:oceans", "presidents:white"],
+  ["world:ranges", "general:chess", "usa:new", "presidents:bill"],
+  ["rivers:africa", "science:rocky", "usa:new", "general:animals-anagram"],
+  ["world:capitals", "usa:deserts", "rivers:water", "general:desserts"],
+  [
+    "world:islands",
+    "science:gases",
+    "presidents:civic-halves",
+    "general:animals-drop"
+  ],
+  [
+    "world:islands",
+    "presidents:rushmore",
+    "science:sphere",
+    "general:animals-drop"
+  ],
+  ["usa:capitals", "rivers:features", "world:south", "science:micro"],
+  [
+    "world:ranges",
+    "rivers:cycle",
+    "presidents:civic-halves",
+    "general:animals-drop"
+  ],
+  ["rivers:cycle", "science:rocky", "world:south", "general:desserts"],
+  ["usa:capitals", "rivers:cycle", "presidents:white", "science:sphere"],
+  ["world:ranges", "usa:deserts", "science:micro", "general:animals-drop"],
+  ["usa:parks", "science:units", "world:land", "presidents:white"],
+  [
+    "usa:capitals",
+    "science:matter",
+    "world:country-halves",
+    "presidents:civic-halves"
+  ],
+  ["world:islands", "general:shapes", "usa:new", "science:micro"],
+  ["usa:parks", "rivers:europe", "world:country-halves", "presidents:bill"],
+  ["world:capitals", "presidents:early", "usa:new", "science:sphere"],
+  [
+    "rivers:africa",
+    "general:chess",
+    "world:country-halves",
+    "presidents:white"
+  ],
+  ["usa:parks", "presidents:rushmore", "world:land", "general:house"],
+  [
+    "presidents:early",
+    "rivers:europe",
+    "world:country-halves",
+    "general:house"
+  ],
+  ["rivers:boats", "science:gases", "world:oceans", "general:animals-drop"],
+  ["usa:capitals", "general:chess", "world:south", "presidents:bill"],
+  [
+    "world:capitals",
+    "science:gases",
+    "presidents:bill",
+    "general:animals-anagram"
+  ],
+  ["world:islands", "usa:codes", "presidents:white", "rivers:water"],
+  ["world:capitals", "rivers:europe", "presidents:white", "general:desserts"],
+  ["usa:capitals", "rivers:boats", "world:oceans", "general:animals-anagram"],
+  ["usa:parks", "science:rocky", "presidents:bill", "general:desserts"],
+  ["world:ranges", "presidents:rushmore", "usa:new", "general:animals-anagram"],
+  ["usa:parks", "rivers:boats", "world:south", "science:micro"],
+  [
+    "world:ranges",
+    "rivers:cycle",
+    "presidents:civic-halves",
+    "general:desserts"
+  ],
+  ["world:capitals", "science:gases", "presidents:bill", "rivers:water"],
+  ["world:capitals", "rivers:features", "presidents:white", "general:desserts"],
+  ["rivers:europe", "science:gases", "world:oceans", "general:house"],
+  ["usa:capitals", "general:shapes", "presidents:bill", "science:sphere"],
+  ["world:islands", "rivers:features", "usa:new", "general:desserts"],
+  ["usa:parks", "rivers:europe", "world:south", "presidents:white"],
+  ["usa:lakes", "rivers:africa", "world:south", "general:animals-drop"],
+  ["world:islands", "presidents:early", "usa:new", "general:house"],
+  ["usa:codes", "general:instruments", "world:south", "presidents:white"],
+  ["rivers:boats", "science:units", "presidents:civic-halves", "general:house"],
+  ["usa:capitals", "presidents:offices", "world:land", "science:micro"],
+  ["usa:parks", "general:chess", "world:south", "science:micro"],
+  ["world:islands", "general:shapes", "presidents:bill", "science:micro"],
+  ["world:capitals", "rivers:boats", "presidents:white", "general:house"],
+  ["presidents:offices", "general:instruments", "world:land", "science:sphere"],
+  [
+    "science:gases",
+    "general:instruments",
+    "world:country-halves",
+    "presidents:civic-halves"
+  ],
+  ["world:capitals", "usa:lakes", "presidents:white", "general:desserts"],
+  ["usa:codes", "rivers:africa", "world:oceans", "presidents:bill"],
+  ["usa:deserts", "science:gases", "world:country-halves", "general:house"],
+  ["world:capitals", "rivers:cycle", "science:micro", "general:house"],
+  [
+    "presidents:amendments",
+    "rivers:features",
+    "world:land",
+    "general:desserts"
+  ],
+  ["usa:lakes", "general:shapes", "presidents:white", "science:sphere"],
+  ["world:capitals", "rivers:cycle", "presidents:bill", "general:desserts"],
+  ["rivers:cycle", "science:units", "world:land", "general:desserts"],
+  ["usa:lakes", "science:matter", "presidents:bill", "general:desserts"],
+  ["presidents:offices", "science:rocky", "world:land", "general:desserts"],
+  [
+    "rivers:features",
+    "general:shapes",
+    "world:south",
+    "presidents:civic-halves"
+  ],
+  ["usa:parks", "science:matter", "world:land", "rivers:water"],
+  ["science:rocky", "general:chess", "world:oceans", "presidents:white"],
+  ["usa:capitals", "rivers:africa", "world:south", "general:animals-drop"],
+  ["world:capitals", "usa:deserts", "presidents:bill", "science:sphere"],
+  ["usa:codes", "general:chess", "world:south", "presidents:bill"],
+  ["usa:capitals", "science:gases", "rivers:water", "general:animals-anagram"],
+  ["usa:deserts", "rivers:africa", "world:south", "general:house"],
+  [
+    "usa:capitals",
+    "rivers:europe",
+    "presidents:bill",
+    "general:animals-anagram"
+  ],
+  ["usa:codes", "general:chess", "world:oceans", "presidents:civic-halves"],
+  ["usa:capitals", "presidents:amendments", "science:micro", "general:house"],
+  [
+    "world:ranges",
+    "rivers:features",
+    "science:micro",
+    "general:animals-anagram"
+  ],
+  ["world:ranges", "presidents:early", "rivers:water", "general:desserts"],
+  ["usa:codes", "science:matter", "rivers:water", "general:desserts"],
+  ["usa:parks", "rivers:africa", "science:micro", "general:animals-drop"],
+  ["usa:capitals", "rivers:africa", "presidents:bill", "science:sphere"],
+  [
+    "world:islands",
+    "rivers:cycle",
+    "presidents:civic-halves",
+    "general:animals-drop"
+  ],
+  ["rivers:boats", "general:instruments", "presidents:bill", "science:micro"],
+  ["world:capitals", "usa:capitals", "rivers:water", "general:animals-anagram"],
+  ["usa:codes", "science:rocky", "presidents:bill", "general:desserts"],
+  ["usa:capitals", "rivers:europe", "science:sphere", "general:house"],
+  ["usa:capitals", "science:matter", "presidents:bill", "general:house"],
+  ["usa:deserts", "rivers:europe", "science:micro", "general:animals-drop"],
+  ["world:islands", "general:shapes", "usa:new", "science:sphere"],
+  [
+    "world:islands",
+    "usa:capitals",
+    "presidents:civic-halves",
+    "science:sphere"
+  ],
+  ["usa:codes", "science:rocky", "world:land", "general:animals-anagram"],
+  ["usa:codes", "rivers:features", "world:country-halves", "general:desserts"],
+  ["world:islands", "science:units", "presidents:white", "general:desserts"],
+  ["presidents:offices", "science:matter", "world:land", "general:house"],
+  ["usa:capitals", "rivers:boats", "presidents:civic-halves", "science:sphere"],
+  ["science:units", "general:instruments", "usa:new", "rivers:water"],
+  ["world:islands", "rivers:boats", "science:sphere", "general:animals-drop"],
+  ["usa:codes", "presidents:offices", "world:country-halves", "rivers:water"],
+  [
+    "presidents:amendments",
+    "rivers:cycle",
+    "usa:new",
+    "general:animals-anagram"
+  ],
+  ["world:islands", "usa:lakes", "presidents:bill", "general:desserts"],
+  ["presidents:offices", "rivers:cycle", "science:micro", "general:house"],
+  ["rivers:africa", "science:rocky", "world:south", "general:animals-drop"],
+  ["world:islands", "science:rocky", "rivers:water", "general:animals-drop"],
+  ["world:capitals", "presidents:rushmore", "rivers:water", "general:house"],
+  ["usa:parks", "general:shapes", "world:oceans", "science:sphere"],
+  ["presidents:early", "rivers:cycle", "science:sphere", "general:house"]
+]

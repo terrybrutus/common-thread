@@ -5,13 +5,21 @@ import {
   knowledgePacks,
   packById,
 } from "../../../../services/claude/shared/knowledge.js";
+import { useAccount } from "../account/Account";
+import { storageKey } from "../account/session";
 import { Game } from "../game/Game";
 import type { Group, Puzzle } from "../game/puzzles";
 import {
+  connectTopic,
+  deleteTopic,
+  emptyLearning,
   generateLearning,
+  listTopics,
   loadLearningDraft,
+  openTopic,
   rememberLearning,
   saveLearningDraft,
+  saveTopic,
 } from "./learning";
 
 type History = { groups: string[]; boards: string[][] };
@@ -19,7 +27,7 @@ const emptyHistory = (): History => ({ groups: [], boards: [] });
 export function readPackHistory(id: string): History {
   try {
     const data = JSON.parse(
-      localStorage.getItem(`common-thread-pack-${id}`) || "{}",
+      localStorage.getItem(storageKey(`common-thread-pack-${id}`)) || "{}",
     );
     const ids = new Set(packById(id).groups.map((g) => g.id));
     return {
@@ -44,11 +52,25 @@ export function readPackHistory(id: string): History {
   }
 }
 export function KnowledgePacks({ onHome }: { onHome: () => void }) {
+  const account = useAccount();
   const [input, setInput] = useState(loadLearningDraft);
+  const [topics, setTopics] = useState<{ id: string; title: string }[]>([]);
+  useEffect(() => {
+    let valid = true;
+    void listTopics()
+      .then((rows) => {
+        if (valid) setTopics(rows);
+      })
+      .catch(() => {});
+    return () => {
+      valid = false;
+    };
+  }, []);
   const [mode, setMode] = useState<"relaxed" | "challenge">("relaxed");
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
   const [readyId, setReadyId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [topicSaving, setTopicSaving] = useState(false);
   const [error, setError] = useState("");
   const [session, setSession] = useState(0);
   const [discovered, setDiscovered] = useState(false);
@@ -92,7 +114,7 @@ export function KnowledgePacks({ onHome }: { onHome: () => void }) {
       h.boards.push(board);
     try {
       localStorage.setItem(
-        `common-thread-pack-${readyId}`,
+        storageKey(`common-thread-pack-${readyId}`),
         JSON.stringify({ ...h, boards: h.boards.slice(-40) }),
       );
     } catch {
@@ -101,12 +123,16 @@ export function KnowledgePacks({ onHome }: { onHome: () => void }) {
   }
   async function makePuzzle(event: React.FormEvent) {
     event.preventDefault();
-    if (inFlight.current) return;
+    if (inFlight.current || topicSaving) return;
     inFlight.current = true;
     setBusy(true);
     setError("");
     try {
-      const next = await generateLearning(input);
+      const saved = await saveTopic(input);
+      if (!active.current) return;
+      setInput({ ...saved, material: input.material });
+      setTopics(await listTopics());
+      const next = await generateLearning(saved);
       if (active.current) play(next, null);
     } catch (e) {
       if (active.current)
@@ -172,7 +198,90 @@ export function KnowledgePacks({ onHome }: { onHome: () => void }) {
         What do you want to learn?
       </h1>
       <p>Turn a subject, your notes, or a transcript into a puzzle.</p>
-      <form className="learning-form" onSubmit={makePuzzle}>
+      {account.configured && !account.owner && (
+        <p>
+          Sign in to make and save learning puzzles.{" "}
+          <button type="button" className="text-button" onClick={account.login}>
+            Sign in with Google
+          </button>
+        </p>
+      )}
+      <form
+        className="learning-form"
+        onSubmit={makePuzzle}
+        hidden={account.configured && !account.owner}
+      >
+        <details>
+          <summary>Your saved topics ({topics.length})</summary>
+          <button
+            type="button"
+            className="text-button"
+            disabled={busy || topicSaving}
+            onClick={() => setInput({ ...emptyLearning })}
+          >
+            New topic
+          </button>
+          <ul className="saved-topic-list">
+            {topics.map((t) => (
+              <li key={t.id}>
+                <button
+                  type="button"
+                  className="text-button"
+                  disabled={busy}
+                  onClick={() => {
+                    void openTopic(t.id)
+                      .then(setInput)
+                      .catch((e) => setError(e.message));
+                  }}
+                >
+                  {t.title}
+                </button>
+                <button
+                  type="button"
+                  className="text-button"
+                  disabled={busy}
+                  aria-label={`Delete ${t.title}`}
+                  onClick={() => {
+                    void deleteTopic(t.id)
+                      .then(() => {
+                        if (input.id === t.id) setInput({ ...emptyLearning });
+                        return listTopics();
+                      })
+                      .then(setTopics)
+                      .catch((e) => setError(e.message));
+                  }}
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+          <label>
+            <input
+              type="checkbox"
+              checked={input.connect === true}
+              disabled={busy || topicSaving}
+              onChange={(e) => {
+                const next = { ...input, connect: e.target.checked };
+                setInput(next);
+                if (input.id) {
+                  setTopicSaving(true);
+                  void connectTopic(input.id, next.connect)
+                    .catch((err) => {
+                      setInput(input);
+                      setError(err.message);
+                    })
+                    .finally(() => setTopicSaving(false));
+                }
+              }}
+            />{" "}
+            Use this topic with my other learning topics
+          </label>
+          <p className="field-help">
+            Only topics you switch on can be connected. Personal stories stay
+            separate. Notes-based puzzles still use only their current notes.
+          </p>
+        </details>
         <fieldset className="learning-input-choice" disabled={busy}>
           <legend>Start with</legend>
           <label>

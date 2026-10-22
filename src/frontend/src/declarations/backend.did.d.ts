@@ -51,11 +51,14 @@ export interface _SERVICE {
   '_internet_identity_sign_in_finish' : ActorMethod<[], Result__1>,
   '_internet_identity_sign_in_start' : ActorMethod<[], Uint8Array>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'checkServiceSession' : ActorMethod<[string], [] | [Principal]>,
+  'closeServiceSession' : ActorMethod<[string], undefined>,
   'execute' : ActorMethod<[string], Result>,
   'generatePersonalPuzzle' : ActorMethod<[GenerationBrief], string>,
   'getApiDoc' : ActorMethod<[], string>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'openServiceSession' : ActorMethod<[string], bigint>,
   'schema' : ActorMethod<[], string>,
 }
 export declare const idlService: IDL.ServiceClass;

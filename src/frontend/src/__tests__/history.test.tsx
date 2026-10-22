@@ -12,10 +12,10 @@ import {
   storyKey,
 } from "../creator/history";
 import {
-  STORY_KEY,
   parseProfile,
   readLibrary,
   recordPlayedGroups,
+  storyStorageKey,
 } from "../creator/library";
 import { defaultBrief, makeChallenge, validatePuzzle } from "../creator/schema";
 import { decodeChallenge, encodeChallenge } from "../creator/sharing";
@@ -35,7 +35,7 @@ function seed(played = true) {
   };
   const profile = { id: "ours", name: "Our story", updatedAt: 1, brief };
   localStorage.setItem(
-    STORY_KEY,
+    storyStorageKey(),
     JSON.stringify({ activeId: profile.id, profiles: [profile] }),
   );
   return profile;
@@ -378,7 +378,7 @@ describe("played connections and optional fresh memories", () => {
     const profile = seed(false);
     profile.brief.storyAnswers[0] = "Our first vacation was at the beach";
     localStorage.setItem(
-      STORY_KEY,
+      storyStorageKey(),
       JSON.stringify({ activeId: profile.id, profiles: [profile] }),
     );
     vi.mocked(generatePuzzle).mockRejectedValue(new StoryQuestionError());

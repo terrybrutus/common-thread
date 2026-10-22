@@ -64,10 +64,13 @@ service : {
   _internet_identity_sign_in_finish: () -> (Result__1);
   _internet_identity_sign_in_start: () -> (blob);
   assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  checkServiceSession: (hash: text) -> (opt principal) query;
+  closeServiceSession: (hash: text) -> ();
   execute: (qJson: text) -> (Result) query;
   generatePersonalPuzzle: (brief: GenerationBrief) -> (text);
   getApiDoc: () -> (text) query;
   getCallerUserRole: () -> (UserRole) query;
   isCallerAdmin: () -> (bool) query;
+  openServiceSession: (hash: text) -> (int);
   schema: () -> (text) query;
 }

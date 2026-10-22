@@ -1,5 +1,7 @@
 import { ArrowRight, CircleHelp } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AccountMenu, useAccount } from "./account/Account";
+import { Privacy } from "./account/Privacy";
 import { Creator } from "./creator/Creator";
 import { FriendHub } from "./creator/FriendHub";
 import { Invitation } from "./creator/Invitation";
@@ -7,9 +9,10 @@ import { recordPlayedGroups } from "./creator/library";
 import type { FriendChallenge } from "./creator/schema";
 import { decodeChallenge } from "./creator/sharing";
 import { Game } from "./game/Game";
+import { dailyPuzzle } from "./game/daily";
 import type { Mode } from "./game/engine";
 import type { Group } from "./game/puzzles";
-import { lessons, puzzles } from "./game/puzzles";
+import { lessons } from "./game/puzzles";
 import { KnowledgePacks } from "./knowledge/KnowledgePacks";
 
 function readInvitation() {
@@ -27,6 +30,7 @@ function readInvitation() {
 }
 
 export default function App() {
+  const account = useAccount();
   const [entry] = useState(readInvitation);
   const [personal, setPersonal] = useState<FriendChallenge | null>(
     entry.challenge,
@@ -117,7 +121,7 @@ export default function App() {
       ? personal.puzzle
       : mode === "intro"
         ? lessons[lessonIndex]
-        : puzzles[puzzleIndex];
+        : dailyPuzzle(new Date(), puzzleIndex);
 
   return (
     <div className="app-shell" data-ocid="page">
@@ -143,10 +147,28 @@ export default function App() {
         >
           <CircleHelp size={16} /> How to play
         </button>
+        <AccountMenu />
       </header>
       <main>
         {page === "packs" ? (
           <KnowledgePacks onHome={goHome} />
+        ) : page === "creator" && account.configured && !account.owner ? (
+          <section className="welcome">
+            <h1>Your memories. Your puzzle.</h1>
+            <p>
+              Sign in to save your own stories and open them on another device.
+            </p>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={account.login}
+            >
+              Sign in with Google
+            </button>
+            <button type="button" className="text-button" onClick={goHome}>
+              Back to the game
+            </button>
+          </section>
         ) : page === "creator" ? (
           <Creator
             onHome={goHome}
@@ -172,10 +194,10 @@ export default function App() {
             <div className="home-choices">
               <article className="home-choice">
                 <span className="eyebrow">JUST PLAY</span>
-                <h2>A puzzle, ready for you</h2>
+                <h2>A new puzzle each day</h2>
                 <p>
-                  Find the hidden groups in sixteen words. Get hints as you
-                  play, or take the challenge below.
+                  One mixed puzzle for everyone today, with a little wordplay. A
+                  new board arrives each day (UTC).
                 </p>
                 <label className="challenge-choice">
                   <input
@@ -268,7 +290,7 @@ export default function App() {
                   setLessonIndex(1);
                 else if (mode === "intro") {
                   start("relaxed");
-                } else setPuzzleIndex((value) => (value + 1) % puzzles.length);
+                } else setPuzzleIndex((value) => (value + 1) % 30);
               }}
               onRelaxed={() =>
                 personal
@@ -287,6 +309,7 @@ export default function App() {
       </main>
       <footer className="site-footer">
         <span>Created by Terry Brutus</span>
+        <Privacy />
       </footer>
     </div>
   );

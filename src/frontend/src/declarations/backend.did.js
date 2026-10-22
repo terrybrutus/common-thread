@@ -62,11 +62,18 @@ export const idlService = IDL.Service({
   '_internet_identity_sign_in_finish' : IDL.Func([], [Result__1], []),
   '_internet_identity_sign_in_start' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'checkServiceSession' : IDL.Func(
+      [IDL.Text],
+      [IDL.Opt(IDL.Principal)],
+      ['query'],
+    ),
+  'closeServiceSession' : IDL.Func([IDL.Text], [], []),
   'execute' : IDL.Func([IDL.Text], [Result], ['query']),
   'generatePersonalPuzzle' : IDL.Func([GenerationBrief], [IDL.Text], []),
   'getApiDoc' : IDL.Func([], [IDL.Text], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'openServiceSession' : IDL.Func([IDL.Text], [IDL.Int], []),
   'schema' : IDL.Func([], [IDL.Text], ['query']),
 });
 
@@ -127,11 +134,18 @@ export const idlFactory = ({ IDL }) => {
     '_internet_identity_sign_in_finish' : IDL.Func([], [Result__1], []),
     '_internet_identity_sign_in_start' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'checkServiceSession' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(IDL.Principal)],
+        ['query'],
+      ),
+    'closeServiceSession' : IDL.Func([IDL.Text], [], []),
     'execute' : IDL.Func([IDL.Text], [Result], ['query']),
     'generatePersonalPuzzle' : IDL.Func([GenerationBrief], [IDL.Text], []),
     'getApiDoc' : IDL.Func([], [IDL.Text], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'openServiceSession' : IDL.Func([IDL.Text], [IDL.Int], []),
     'schema' : IDL.Func([], [IDL.Text], ['query']),
   });
 };

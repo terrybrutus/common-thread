@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import App from "../App";
+import { dailyPuzzle } from "../game/daily";
 import { lessons, puzzles } from "../game/puzzles";
 
 async function selectWords(
@@ -50,7 +51,7 @@ describe("playable experience", () => {
       screen.getByRole("button", { name: "Skip practice and play" }),
     );
     expect(
-      screen.getByRole("heading", { name: puzzles[0].title }),
+      screen.getByRole("heading", { name: dailyPuzzle().title }),
     ).toBeVisible();
     await user.click(screen.getByRole("button", { name: "How to play" }));
     expect(
@@ -81,7 +82,7 @@ describe("playable experience", () => {
     for (const group of lessons[1].groups) await solve(user, group.words);
     await user.click(screen.getByRole("button", { name: "Play with hints" }));
     expect(
-      screen.getByRole("heading", { name: puzzles[0].title }),
+      screen.getByRole("heading", { name: dailyPuzzle().title }),
     ).toBeVisible();
     expect(
       within(
@@ -94,27 +95,25 @@ describe("playable experience", () => {
     const user = userEvent.setup();
     render(<App />);
     await user.click(screen.getByRole("button", { name: "Play now" }));
-    await selectWords(user, ["ROBIN"]);
+    await selectWords(user, [dailyPuzzle().groups[1].words[0]]);
     await user.click(screen.getByRole("button", { name: "Shuffle" }));
-    expect(screen.getByRole("button", { name: "ROBIN" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    expect(
+      screen.getByRole("button", { name: dailyPuzzle().groups[1].words[0] }),
+    ).toHaveAttribute("aria-pressed", "true");
     await user.click(screen.getByRole("button", { name: "I'd like a hint" }));
-    expect(screen.getByText(puzzles[0].groups[0].clue)).toBeVisible();
+    expect(screen.getByText(dailyPuzzle().groups[0].clue)).toBeVisible();
     await user.click(
       screen.getByRole("button", { name: "A little more help" }),
     );
-    expect(screen.getByRole("button", { name: "MAPLE" })).toHaveAttribute(
-      "aria-describedby",
-      "hint-message",
-    );
+    expect(
+      screen.getByRole("button", { name: dailyPuzzle().groups[0].words[0] }),
+    ).toHaveAttribute("aria-describedby", "hint-message");
     await user.click(
       screen.getByRole("button", { name: "Reveal and explain this group" }),
     );
     expect(screen.getByText("GUIDED REVEAL")).toBeVisible();
     expect(
-      screen.queryByRole("button", { name: "MAPLE" }),
+      screen.queryByRole("button", { name: dailyPuzzle().groups[0].words[0] }),
     ).not.toBeInTheDocument();
     expect(screen.getByText("0 of 4 selected")).toBeVisible();
   });
@@ -129,12 +128,12 @@ describe("playable experience", () => {
     expect(
       screen.queryByRole("button", { name: "I'd like a hint" }),
     ).not.toBeInTheDocument();
-    for (const word of ["ROBIN", "FINCH", "WREN", "SPARROW"]) {
+    for (const word of dailyPuzzle().groups[1].words) {
       if (screen.queryByRole("button", { name: "Clear selection" }))
         await user.click(
           screen.getByRole("button", { name: "Clear selection" }),
         );
-      await solve(user, ["MAPLE", "BIRCH", "WILLOW", word]);
+      await solve(user, [...dailyPuzzle().groups[0].words.slice(0, 3), word]);
     }
     expect(screen.getByText("There's a discovery in every try.")).toBeVisible();
     expect(
@@ -155,13 +154,13 @@ describe("playable experience", () => {
       screen.getByRole("checkbox", { name: "Four mistakes, no hints" }),
     );
     await user.click(screen.getByRole("button", { name: "Play now" }));
-    for (const group of puzzles[0].groups) await solve(user, group.words);
+    for (const group of dailyPuzzle().groups) await solve(user, group.words);
     expect(
       screen.getByRole("heading", { name: "All connected." }),
     ).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Next puzzle" }));
     expect(
-      screen.getByRole("heading", { name: puzzles[1].title }),
+      screen.getByRole("heading", { name: dailyPuzzle(new Date(), 1).title }),
     ).toBeVisible();
     expect(screen.getByLabelText("4 mistakes remaining")).toBeVisible();
     expect(screen.queryByText("All connected.")).not.toBeInTheDocument();

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { setAccountSession } from "../account/session";
 import { StoryQuestionError } from "../creator/followUp";
 import {
   CLAUDE_SERVICE,
@@ -9,8 +10,31 @@ import {
 
 describe("private hosted connection", () => {
   afterEach(() => {
+    setAccountSession("guest");
+    vi.unstubAllGlobals();
     disconnectStoryCloud();
     vi.restoreAllMocks();
+  });
+  it("keeps the optional memory question on the authenticated direct path without opening a popup", async () => {
+    setAccountSession("alice", async () => "ab".repeat(32));
+    const open = vi.spyOn(window, "open");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json(
+          {
+            code: "needs_story",
+            question: "What did you enjoy on your first trip?",
+            error: "One memory could help",
+          },
+          { status: 422 },
+        ),
+      ),
+    );
+    await expect(hostedGeneration({ purpose: "fun" })).rejects.toBeInstanceOf(
+      StoryQuestionError,
+    );
+    expect(open).not.toHaveBeenCalled();
   });
   it("accepts only the expected popup, origin, and channel", async () => {
     const popup = { closed: false, postMessage: vi.fn() };

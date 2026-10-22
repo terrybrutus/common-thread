@@ -1,3 +1,4 @@
+import { storageKey } from "../account/session";
 import type { Group } from "../game/puzzles";
 import {
   parseFreshnessPrompt,
@@ -7,6 +8,9 @@ import {
 import { type CreatorBrief, defaultBrief } from "./schema";
 
 export const STORY_KEY = "common-thread-stories-v1";
+export function storyStorageKey() {
+  return storageKey(STORY_KEY);
+}
 export interface StoryProfile {
   id: string;
   name: string;
@@ -124,7 +128,7 @@ export function parseProfile(value: unknown): StoryProfile {
 }
 export function readLibrary(): StoryLibrary {
   try {
-    const text = localStorage.getItem(STORY_KEY);
+    const text = localStorage.getItem(storyStorageKey());
     if (text && text.length < 3000000) {
       const raw = JSON.parse(text);
       const profiles = raw.profiles.slice(0, 20).map(parseProfile);
@@ -153,7 +157,7 @@ export function recordPlayedGroups(storyId: string, groups: Group[]): boolean {
   profile.brief.playedConnections = next;
   profile.updatedAt = Math.max(Date.now(), profile.updatedAt + 1);
   try {
-    localStorage.setItem(STORY_KEY, JSON.stringify(library));
+    localStorage.setItem(storyStorageKey(), JSON.stringify(library));
     return true;
   } catch {
     return false;
