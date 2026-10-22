@@ -302,7 +302,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
   return (
     <section className="creator-page" aria-labelledby="creator-title">
       <button className="text-button" type="button" onClick={onHome}>
-        <ArrowLeft size={16} /> All modes
+        <ArrowLeft size={16} /> Home
       </button>
       <div className="creator-heading">
         <span className="eyebrow">
@@ -708,7 +708,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
               : "You'll review the answers before sharing."}{" "}
             {brief.mode === "challenge"
               ? "Four mistakes, no hints."
-              : "Relaxed play with hints."}
+              : "Hints available, with no guess limit."}
           </p>
           <button
             className="primary-button"

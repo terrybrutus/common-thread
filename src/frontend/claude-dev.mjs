@@ -24,11 +24,11 @@ export function claudeDevPlugin(env) {
           let body = "";
           for await (const chunk of req) {
             body += chunk;
-            if (Buffer.byteLength(body) > 64000) { send(413, { error: "Please shorten the brief." }); return; }
+            if (Buffer.byteLength(body) > 192000) { send(413, { error: "Please shorten the brief." }); return; }
           }
           let brief;
           try { brief = validateBrief(JSON.parse(body)); }
-          catch { return send(400, { error: "Please shorten or complete the puzzle brief." }); }
+          catch (error) { return send(400, { error: error instanceof Error ? error.message : "Please check your puzzle input." }); }
           const response = await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: { "Content-Type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
@@ -37,7 +37,7 @@ export function claudeDevPlugin(env) {
           });
           if (!response.ok) return send(502, { error: await claudeError(response) });
           const data = await response.json();
-          try { send(200, { text: await reviewPersonalPuzzle(parseClaudeResponse(data, brief), brief, env.ANTHROPIC_API_KEY) }); } catch (error) { send(422, storyQuestionResponse(error)); }
+          try { send(200, { text: await reviewPersonalPuzzle(parseClaudeResponse(data, brief), brief, env.ANTHROPIC_API_KEY) }); } catch (error) { send(422, storyQuestionResponse(error, brief)); }
         } catch {
           send(502, { error: "The local Claude connection failed. Check your connection and try again." });
         } finally { busy = false; }

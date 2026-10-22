@@ -112,6 +112,8 @@ export function validatePuzzle(value: unknown): Puzzle {
         "fill-blank",
         "first-word",
         "last-word",
+        "drop-first",
+        "anagram",
       ].includes(String(group.rule))
         ? { rule: group.rule as Group["rule"] }
         : {}),

@@ -64,11 +64,15 @@ describe("personal creator and friend challenges", () => {
       screen.getByRole("button", { name: "Create a personal puzzle" }),
     );
     await user.click(screen.getByText("Puzzle options", { exact: true }));
-    expect(screen.getByRole("combobox", { name: "Puzzle type" })).toBeVisible();
+    expect(
+      screen.getByRole("combobox", { name: "Puzzle type" }),
+    ).not.toBeVisible();
     expect(
       screen.getByRole("combobox", { name: "Puzzle difficulty" }),
+    ).not.toBeVisible();
+    expect(
+      screen.getByRole("checkbox", { name: /Limit us to four mistakes/ }),
     ).toBeVisible();
-    expect(screen.getByRole("combobox", { name: "Play mode" })).toBeVisible();
     expect(
       screen.getByText("Names & sharing (optional)").closest("details"),
     ).not.toHaveAttribute("open");

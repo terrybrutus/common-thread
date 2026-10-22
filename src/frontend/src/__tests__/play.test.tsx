@@ -24,11 +24,11 @@ describe("playable experience", () => {
     const user = userEvent.setup();
     render(<App />);
     expect(
-      screen.getByRole("combobox", { name: "Choose a puzzle" }),
-    ).not.toBeVisible();
+      screen.queryByRole("combobox", { name: "Choose a puzzle" }),
+    ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Play Challenge" }),
-    ).not.toBeVisible();
+      screen.queryByRole("button", { name: "Play Challenge" }),
+    ).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Play now" }));
     expect(
       within(
@@ -47,7 +47,7 @@ describe("playable experience", () => {
     await user.keyboard(" ");
     expect(apple).toHaveAttribute("aria-pressed", "false");
     await user.click(
-      screen.getByRole("button", { name: "Skip practice and play Relaxed" }),
+      screen.getByRole("button", { name: "Skip practice and play" }),
     );
     expect(
       screen.getByRole("heading", { name: puzzles[0].title }),
@@ -79,7 +79,7 @@ describe("playable experience", () => {
       screen.getByRole("heading", { name: lessons[1].title }),
     ).toBeVisible();
     for (const group of lessons[1].groups) await solve(user, group.words);
-    await user.click(screen.getByRole("button", { name: "Start Relaxed" }));
+    await user.click(screen.getByRole("button", { name: "Play with hints" }));
     expect(
       screen.getByRole("heading", { name: puzzles[0].title }),
     ).toBeVisible();
@@ -122,8 +122,10 @@ describe("playable experience", () => {
   it("ends Challenge after four mistakes, reveals answers, and resets on replay", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByText("Choose a puzzle or challenge mode"));
-    await user.click(screen.getByRole("button", { name: "Play Challenge" }));
+    await user.click(
+      screen.getByRole("checkbox", { name: "Four mistakes, no hints" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Play now" }));
     expect(
       screen.queryByRole("button", { name: "I'd like a hint" }),
     ).not.toBeInTheDocument();
@@ -149,19 +151,17 @@ describe("playable experience", () => {
   it("supports a selected study puzzle, a win, and a fresh next puzzle", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByText("Choose a puzzle or challenge mode"));
-    await user.selectOptions(
-      screen.getByRole("combobox", { name: "Choose a puzzle" }),
-      "1",
+    await user.click(
+      screen.getByRole("checkbox", { name: "Four mistakes, no hints" }),
     );
-    await user.click(screen.getByRole("button", { name: "Play Challenge" }));
-    for (const group of puzzles[1].groups) await solve(user, group.words);
+    await user.click(screen.getByRole("button", { name: "Play now" }));
+    for (const group of puzzles[0].groups) await solve(user, group.words);
     expect(
       screen.getByRole("heading", { name: "All connected." }),
     ).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Next puzzle" }));
     expect(
-      screen.getByRole("heading", { name: puzzles[2].title }),
+      screen.getByRole("heading", { name: puzzles[1].title }),
     ).toBeVisible();
     expect(screen.getByLabelText("4 mistakes remaining")).toBeVisible();
     expect(screen.queryByText("All connected.")).not.toBeInTheDocument();

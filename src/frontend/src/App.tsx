@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Creator } from "./creator/Creator";
 import { FriendHub } from "./creator/FriendHub";
 import { Invitation } from "./creator/Invitation";
-import { connectStoryCloud } from "./creator/hosted";
 import { recordPlayedGroups } from "./creator/library";
 import type { FriendChallenge } from "./creator/schema";
 import { decodeChallenge } from "./creator/sharing";
@@ -40,7 +39,8 @@ export default function App() {
   const [puzzleIndex, setPuzzleIndex] = useState(0);
   const [lessonIndex, setLessonIndex] = useState(0);
   const [session, setSession] = useState(0);
-  const [topic, setTopic] = useState(0);
+  const topic = 0;
+  const [quickChallenge, setQuickChallenge] = useState(false);
   const [returned, setReturned] = useState(false);
   const [personalStoryId, setPersonalStoryId] = useState<string | null>(null);
   const rememberSeen = useCallback(
@@ -163,20 +163,45 @@ export default function App() {
           />
         ) : mode === null ? (
           <>
-            <section className="welcome quick-start">
-              <span className="eyebrow">FIND FOUR GROUPS OF FOUR</span>
+            <section className="welcome home-intro">
               <h1 ref={homeTitle} tabIndex={-1} data-ocid="page.title">
-                Find the <em>common thread.</em>
+                What will you connect?
               </h1>
-              <p>Sixteen words. Four connections. Ready to play?</p>
-              <div className="quick-start-actions">
+              <p>Find four groups of four. Follow the connections.</p>
+            </section>
+            <div className="home-choices">
+              <article className="home-choice">
+                <span className="eyebrow">JUST PLAY</span>
+                <h2>A puzzle, ready for you</h2>
+                <p>
+                  Find the hidden groups in sixteen words. Get hints as you
+                  play, or take the challenge below.
+                </p>
+                <label className="challenge-choice">
+                  <input
+                    type="checkbox"
+                    checked={quickChallenge}
+                    onChange={(e) => setQuickChallenge(e.target.checked)}
+                  />{" "}
+                  Four mistakes, no hints
+                </label>
                 <button
                   className="primary-button"
                   type="button"
-                  onClick={() => start("relaxed")}
+                  onClick={() =>
+                    start(quickChallenge ? "challenge" : "relaxed")
+                  }
                 >
                   Play now <ArrowRight size={17} />
                 </button>
+              </article>
+              <article className="home-choice">
+                <span className="eyebrow">MAKE IT PERSONAL</span>
+                <h2>Your memories. Your puzzle.</h2>
+                <p>
+                  Use your shared stories and inside jokes to make a puzzle for
+                  someone you know.
+                </p>
                 <button
                   className="secondary-button"
                   type="button"
@@ -186,60 +211,29 @@ export default function App() {
                     setPage("creator");
                   }}
                 >
-                  Create a personal puzzle
+                  Create a personal puzzle <ArrowRight size={17} />
                 </button>
-              </div>
-              <p className="field-help">
-                Play now starts a relaxed puzzle. Personal puzzles use your
-                shared memories.
-              </p>
-            </section>
-            <button
-              className="text-button explore-packs"
-              type="button"
-              onClick={() => {
-                setPersonalStoryId(null);
-                setMode(null);
-                setPage("packs");
-              }}
-            >
-              Explore knowledge packs <ArrowRight size={16} />
-            </button>
-            <details className="play-options">
-              <summary>Choose a puzzle or challenge mode</summary>
-              <label className="topic-picker">
-                Choose a puzzle
-                <select
-                  value={topic}
-                  onChange={(event) => setTopic(Number(event.target.value))}
-                >
-                  {puzzles.map((entry, index) => (
-                    <option key={entry.id} value={index}>
-                      {entry.topic} · {entry.title}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <div className="creator-actions">
+              </article>
+              <article className="home-choice">
+                <span className="eyebrow">LEARN THROUGH PLAY</span>
+                <h2>Something you’re curious about</h2>
+                <p>
+                  Choose any subject, or use your notes or a transcript to make
+                  a learning puzzle.
+                </p>
                 <button
                   className="secondary-button"
                   type="button"
-                  onClick={() => start("relaxed")}
+                  onClick={() => {
+                    setPersonalStoryId(null);
+                    setMode(null);
+                    setPage("packs");
+                  }}
                 >
-                  Play Relaxed
+                  Choose a topic <ArrowRight size={17} />
                 </button>
-                <button
-                  className="secondary-button"
-                  type="button"
-                  onClick={() => start("challenge")}
-                >
-                  Play Challenge
-                </button>
-              </div>
-              <p className="field-help">
-                Relaxed has hints. Challenge gives you four mistakes.
-              </p>
-            </details>
+              </article>
+            </div>
             {linkError && (
               <p className="form-error" role="alert">
                 {linkError}
@@ -292,7 +286,6 @@ export default function App() {
         )}
       </main>
       <footer className="site-footer">
-        <span>Common Thread</span>
         <span>Created by Terry Brutus</span>
       </footer>
     </div>

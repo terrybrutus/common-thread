@@ -14529,48 +14529,52 @@ function CreatorOptions({
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "creator-options", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Puzzle options" }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "editor-fields", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-        "Puzzle type",
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "select",
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "challenge-choice", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
           {
-            value: brief.purpose,
-            onChange: (e) => update("purpose", e.target.value),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "fun", children: "Personal story" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "study", children: "Learning puzzle" })
-            ]
+            type: "checkbox",
+            checked: brief.mode === "challenge",
+            onChange: (e) => update("mode", e.target.checked ? "challenge" : "relaxed")
           }
-        )
+        ),
+        " ",
+        "Limit us to four mistakes, with no hints"
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-        "Puzzle difficulty",
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "select",
-          {
-            value: brief.difficulty,
-            onChange: (e) => update("difficulty", e.target.value),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "easy", children: "Gentle start" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "balanced", children: "A little twist" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tricky", children: "Make us think" })
-            ]
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-        "Play mode",
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "select",
-          {
-            value: brief.mode,
-            onChange: (e) => update("mode", e.target.value),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "relaxed", children: "Relaxed · hints available" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "challenge", children: "Challenge · four mistakes" })
-            ]
-          }
-        )
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "story-followup", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "More puzzle settings" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          "Puzzle type",
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: brief.purpose,
+              onChange: (e) => update("purpose", e.target.value),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "fun", children: "Personal story" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "study", children: "Learning puzzle" })
+              ]
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          "Puzzle difficulty",
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            "select",
+            {
+              value: brief.difficulty,
+              onChange: (e) => update(
+                "difficulty",
+                e.target.value
+              ),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "easy", children: "Gentle start" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "balanced", children: "A little twist" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tricky", children: "Make us think" })
+              ]
+            }
+          )
+        ] })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "story-followup", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Names & sharing (optional)" }),
@@ -15048,7 +15052,7 @@ function underlyingWords(connection2) {
     )
   );
 }
-function familiarCount(puzzle, history = []) {
+function familiarCount(puzzle, history2 = []) {
   return puzzle.groups.filter((group) => {
     const words = new Set(
       underlyingWords({
@@ -15057,13 +15061,13 @@ function familiarCount(puzzle, history = []) {
         sourceWords: group.sourceWords
       })
     );
-    return history.some(
+    return history2.some(
       (old) => underlyingWords(old).filter((word) => words.has(word)).length >= 3
     );
   }).length;
 }
-function rememberConnections(history, groups, now2 = Date.now()) {
-  const result = [...history];
+function rememberConnections(history2, groups, now2 = Date.now()) {
+  const result = [...history2];
   for (const group of groups) {
     const words = group.words.map(
       (word) => word.normalize("NFC").toUpperCase()
@@ -15272,7 +15276,9 @@ function validatePuzzle(value) {
         "reverse",
         "fill-blank",
         "first-word",
-        "last-word"
+        "last-word",
+        "drop-first",
+        "anagram"
       ].includes(String(group.rule)) ? { rule: group.rule } : {},
       ...group.sourceWords !== void 0 ? {
         sourceWords: (() => {
@@ -15445,9 +15451,9 @@ function recordPlayedGroups(storyId, groups) {
   const library = readLibrary();
   const profile = library.profiles.find((item) => item.id === storyId);
   if (!profile) return false;
-  const history = profile.brief.playedConnections || [];
-  const next = rememberConnections(history, groups);
-  if (JSON.stringify(next) === JSON.stringify(history)) return true;
+  const history2 = profile.brief.playedConnections || [];
+  const next = rememberConnections(history2, groups);
+  if (JSON.stringify(next) === JSON.stringify(history2)) return true;
   profile.brief.playedConnections = next;
   profile.updatedAt = Math.max(Date.now(), profile.updatedAt + 1);
   try {
@@ -15938,10 +15944,10 @@ function mergeBriefs(primary, secondary) {
     if (answers.size > 8) throw new Error("Both story copies are kept on your devices. Download a backup before combining more than eight extra answers.");
     result.extraAnswers = [...answers.values()];
   }
-  const history = [...secondary.playedConnections || [], ...primary.playedConnections || []];
-  if (history.length) {
+  const history2 = [...secondary.playedConnections || [], ...primary.playedConnections || []];
+  if (history2.length) {
     const key = (item) => `${item.rule}|${(item.sourceWords || item.words).map((w) => w.normalize("NFC").toLowerCase()).sort().join("|")}`;
-    result.playedConnections = [...new Map(history.map((item) => [key(item), item])).values()].slice(-80);
+    result.playedConnections = [...new Map(history2.map((item) => [key(item), item])).values()].slice(-80);
   }
   if (primary.usedTerms || secondary.usedTerms) result.usedTerms = [.../* @__PURE__ */ new Set([...secondary.usedTerms || [], ...primary.usedTerms || []])].slice(-320);
   return result;
@@ -16317,7 +16323,7 @@ function Creator({ onHome, onPlay }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "creator-page", "aria-labelledby": "creator-title", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "text-button", type: "button", onClick: onHome, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 16 }),
-      " All modes"
+      " Home"
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-heading", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "eyebrow", children: [
@@ -16671,7 +16677,7 @@ function Creator({ onHome, onPlay }) {
           /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "field-help", children: [
             brief.style === "together" ? "Answers stay hidden so you can play together." : "You'll review the answers before sharing.",
             " ",
-            brief.mode === "challenge" ? "Four mistakes, no hints." : "Relaxed play with hints."
+            brief.mode === "challenge" ? "Four mistakes, no hints." : "Hints available, with no guess limit."
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "button",
@@ -16723,7 +16729,7 @@ function FriendHub({
       className: "friend-hub compact-friends",
       "aria-label": "Open a friend’s puzzle",
       children: /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "join-challenge", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Have a challenge from a friend?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Open a friend’s puzzle" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           "form",
           {
@@ -16739,7 +16745,7 @@ function FriendHub({
               }
             },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "friend-code", children: "Paste a challenge link or code" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "friend-code", children: "Paste the puzzle link your friend sent" }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(
                 "textarea",
                 {
@@ -16752,7 +16758,7 @@ function FriendHub({
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "secondary-button", type: "submit", children: [
-                "Open challenge",
+                "Open puzzle",
                 /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 15 })
               ] }),
               error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-error", role: "alert", children: error })
@@ -16776,7 +16782,7 @@ function Invitation({
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "text-button", type: "button", onClick: onHome, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 16 }),
-          " All modes"
+          " Home"
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "invitation-card", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(HeartHandshake, { size: 35 }),
@@ -16790,7 +16796,7 @@ function Invitation({
           challenge.note && /* @__PURE__ */ jsxRuntimeExports.jsx("blockquote", { children: challenge.note }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: challenge.puzzle.title }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: challenge.puzzle.description }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mode-label", children: challenge.mode === "relaxed" ? "Relaxed · hints welcome" : "Challenge · four mistakes" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "mode-label", children: challenge.mode === "relaxed" ? "Hints available · no guess limit" : "Four mistakes · no hints" }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
@@ -16809,7 +16815,7 @@ function Invitation({
               className: "text-button",
               type: "button",
               onClick: () => onPlay("relaxed"),
-              children: "I'd rather explore in Relaxed"
+              children: "Play with hints instead"
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "invitation-footnote", children: "A friendly puzzle, with no rankings. Solve side by side, or open the same puzzle on separate screens and compare notes. Progress isn't synced between screens." })
@@ -16944,7 +16950,8 @@ function Game({
   onRelaxed,
   personal = false,
   onConnectionsSeen,
-  nextLabel
+  nextLabel,
+  homeLabel = "Home"
 }) {
   const [state, dispatch] = reactExports.useReducer(
     (current, action) => reduceGame(current, action, puzzle, mode),
@@ -16990,12 +16997,13 @@ function Game({
     /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "game-nav", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "text-button", type: "button", onClick: onHome, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 16 }),
-        " All modes"
+        " ",
+        homeLabel
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: `mode-label ${mode}`, children: {
-        intro: "First threads",
-        relaxed: "Relaxed",
-        challenge: "Challenge"
+        intro: "Practice",
+        relaxed: "With hints",
+        challenge: "Four-mistake challenge"
       }[mode] }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "button",
@@ -17179,10 +17187,10 @@ function Game({
         children: [
           state.outcome === "won" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 26 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, { size: 26 }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: state.outcome === "lost" ? "There's a discovery in every try." : tutorial ? "You've got the idea." : "All connected." }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: state.outcome === "lost" ? `You found ${state.solved.length} of ${puzzle.groups.length} threads. The remaining connections are below.` : tutorial ? puzzle.id === lessons[0].id ? "Now try a word that can point in more than one direction." : "Ready for a full board? Relaxed mode gives you the same room to explore." : `${puzzle.groups.length} threads connected. ${state.assisted ? "You explored with a little help." : state.mistakes ? `${state.mistakes} incorrect ${state.mistakes === 1 ? "guess" : "guesses"} along the way.` : "Without an incorrect guess!"} Take a discovery into your next puzzle.` }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: state.outcome === "lost" ? `You found ${state.solved.length} of ${puzzle.groups.length} threads. The remaining connections are below.` : tutorial ? puzzle.id === lessons[0].id ? "Now try a word that can point in more than one direction." : "Ready for a full puzzle? Hints are there when you need them." : `${puzzle.groups.length} threads connected. ${state.assisted ? "You explored with a little help." : state.mistakes ? `${state.mistakes} incorrect ${state.mistakes === 1 ? "guess" : "guesses"} along the way.` : "Without an incorrect guess!"} Take a discovery into your next puzzle.` }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-actions", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "primary-button", type: "button", onClick: onNext, children: [
-              tutorial ? puzzle.id === lessons[0].id ? "Try the next practice" : "Start Relaxed" : personal ? "Back to invitation" : nextLabel || "Next puzzle",
+              tutorial ? puzzle.id === lessons[0].id ? "Try the next practice" : "Play with hints" : personal ? "Back to invitation" : nextLabel || "Next puzzle",
               /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 16 })
             ] }),
             !tutorial && /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -17197,14 +17205,14 @@ function Game({
                 ]
               }
             ),
-            mode === "challenge" && state.outcome === "lost" && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "text-button", type: "button", onClick: onRelaxed, children: "Explore in Relaxed" })
+            mode === "challenge" && state.outcome === "lost" && /* @__PURE__ */ jsxRuntimeExports.jsx("button", { className: "text-button", type: "button", onClick: onRelaxed, children: "Play with hints" })
           ] }),
           personal && /* @__PURE__ */ jsxRuntimeExports.jsx(
             CopyField,
             {
               label: "Your result · copy and send it yourself",
               value: `Common Thread — ${puzzle.title}
-${mode === "relaxed" ? "Relaxed" : "Challenge"}: ${state.solved.length}/${puzzle.groups.length} threads connected.
+${mode === "relaxed" ? "With hints" : "Four-mistake challenge"}: ${state.solved.length}/${puzzle.groups.length} threads connected.
 ${state.mistakes} incorrect guesses${state.assisted ? ", with hints or guided reveals" : ""}. ${state.outcome === "won" ? "All connected!" : "A discovery in every try."}`
             }
           )
@@ -17234,7 +17242,7 @@ ${state.mistakes} incorrect guesses${state.assisted ? ", with hints or guided re
         type: "button",
         onClick: onRelaxed,
         children: [
-          "Skip practice and play Relaxed",
+          "Skip practice and play",
           /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 15 })
         ]
       }
@@ -17344,6 +17352,86 @@ function knowledgeBoard(id, choices = starters[id]) {
   }
   return { id: `pack-${id}-${choices.join("-")}`, title: `${pack.name}: find the thread`, topic: pack.name, description: "Four connections to discover. Some use facts; others play with the words themselves.", groups };
 }
+const emptyLearning = {
+  kind: "topic",
+  topic: "",
+  material: ""
+};
+function loadLearningDraft() {
+  try {
+    const raw = JSON.parse(
+      localStorage.getItem("common-thread-learning-draft") || "{}"
+    );
+    return {
+      kind: raw.kind === "material" ? "material" : "topic",
+      topic: typeof raw.topic === "string" ? raw.topic.slice(0, 500) : "",
+      material: typeof raw.material === "string" ? raw.material : ""
+    };
+  } catch {
+    return emptyLearning;
+  }
+}
+function saveLearningDraft(input) {
+  try {
+    localStorage.setItem("common-thread-learning-draft", JSON.stringify(input));
+  } catch {
+  }
+}
+function historyKey(input) {
+  let hash = 2166136261;
+  for (const c of `${input.kind}|${input.topic.trim().toLowerCase()}|${input.kind === "material" ? input.material.trim() : ""}`)
+    hash = Math.imul(hash ^ c.charCodeAt(0), 16777619);
+  return `common-thread-learning-history-${hash >>> 0}`;
+}
+function history(input) {
+  try {
+    const items = JSON.parse(localStorage.getItem(historyKey(input)) || "[]");
+    return Array.isArray(items) ? items.filter(
+      (g) => typeof g.category === "string" && Array.isArray(g.words) && g.words.length === 4 && g.words.every((w) => typeof w === "string")
+    ).slice(-40) : [];
+  } catch {
+    return [];
+  }
+}
+function rememberLearning(input, groups) {
+  const key = (g) => `${g.rule}|${g.words.slice().sort().join("|")}`;
+  const next = new Map(history(input).map((g) => [key(g), g]));
+  for (const g of groups) next.set(key(g), { ...g, playedAt: Date.now() });
+  try {
+    localStorage.setItem(
+      historyKey(input),
+      JSON.stringify([...next.values()].slice(-40))
+    );
+  } catch {
+  }
+}
+async function generateLearning(input) {
+  const brief = {
+    purpose: "study",
+    learningMode: input.kind,
+    topic: input.topic.trim(),
+    notes: input.kind === "material" ? input.material.trim() : "",
+    playedConnections: history(input).map(
+      ({ category, words, rule, sourceWords, playedAt }) => ({
+        category,
+        words,
+        rule: rule || "literal",
+        sourceWords,
+        playedAt
+      })
+    )
+  };
+  if (new TextEncoder().encode(JSON.stringify(brief)).length > 185e3)
+    throw new Error(
+      "This text is too large for one puzzle. Use a shorter section; your full draft is kept."
+    );
+  let text2;
+  text2 = await hostedGeneration(brief);
+  return {
+    ...parseGeneratedPuzzle(text2),
+    id: `learning-${crypto.randomUUID()}`
+  };
+}
 const emptyHistory = () => ({ groups: [], boards: [] });
 function readPackHistory(id) {
   try {
@@ -17361,44 +17449,15 @@ function readPackHistory(id) {
     return emptyHistory();
   }
 }
-async function generateKnowledgeBoard(id, difficulty, interest) {
-  const history = readPackHistory(id);
-  const brief = {
-    purpose: "study",
-    topic: packById(id).name,
-    notes: "",
-    interests: interest,
-    familiarity: "new",
-    difficulty,
-    knowledgePack: id,
-    knowledgeHistory: history.groups,
-    knowledgeBoards: history.boards
-  };
-  let text2;
-  text2 = await hostedGeneration(brief);
-  const data = JSON.parse(text2);
-  if (!Array.isArray(data.groups))
-    throw new Error("The knowledge board was incomplete. Please try again.");
-  return knowledgeBoard(
-    id,
-    data.groups.map((g) => {
-      if (typeof g.id !== "string" || !g.id.startsWith(`${id}:`))
-        throw new Error("This board did not match your pack.");
-      return g.id.slice(id.length + 1);
-    })
-  );
-}
 function KnowledgePacks({ onHome }) {
-  const [id, setId] = reactExports.useState("world");
+  const [input, setInput] = reactExports.useState(loadLearningDraft);
   const [mode, setMode] = reactExports.useState("relaxed");
-  const [difficulty, setDifficulty] = reactExports.useState("balanced");
-  const [interest, setInterest] = reactExports.useState("");
   const [puzzle, setPuzzle] = reactExports.useState(null);
-  const [source, setSource] = reactExports.useState("starter");
+  const [readyId, setReadyId] = reactExports.useState(null);
   const [busy, setBusy] = reactExports.useState(false);
   const [error, setError] = reactExports.useState("");
-  const [familiar, setFamiliar] = reactExports.useState(false);
   const [session, setSession] = reactExports.useState(0);
+  const [discovered, setDiscovered] = reactExports.useState(false);
   const active = reactExports.useRef(true);
   const inFlight = reactExports.useRef(false);
   const title = reactExports.useRef(null);
@@ -17412,63 +17471,60 @@ function KnowledgePacks({ onHome }) {
     var _a2;
     if (!puzzle) (_a2 = title.current) == null ? void 0 : _a2.focus();
   }, [puzzle]);
-  const pack = packById(id);
-  function play(next, origin) {
-    const history = readPackHistory(id);
-    setFamiliar(
-      next.groups.filter((g) => history.groups.includes(g.id.split(":")[1])).length >= 3
-    );
-    setSource(origin);
+  reactExports.useEffect(() => {
+    saveLearningDraft(input);
+  }, [input]);
+  function play(next, id) {
+    setReadyId(id);
     setPuzzle(next);
+    setDiscovered(false);
     setSession((s) => s + 1);
     setError("");
   }
   function remember(groups) {
-    const history = readPackHistory(id);
-    history.groups = [
-      .../* @__PURE__ */ new Set([...history.groups, ...groups.map((g) => g.id.split(":")[1])])
+    setDiscovered(true);
+    if (!readyId) {
+      rememberLearning(input, groups);
+      return;
+    }
+    const h = readPackHistory(readyId);
+    h.groups = [
+      .../* @__PURE__ */ new Set([...h.groups, ...groups.map((g) => g.id.split(":")[1])])
     ].slice(-40);
     const board = puzzle == null ? void 0 : puzzle.groups.map((g) => g.id.split(":")[1]).sort();
-    if (board && !history.boards.some(
-      (b) => b.slice().sort().join("|") === board.join("|")
-    ))
-      history.boards.push(board);
+    if (board && !h.boards.some((b) => b.slice().sort().join("|") === board.join("|")))
+      h.boards.push(board);
     try {
       localStorage.setItem(
-        `common-thread-pack-${id}`,
-        JSON.stringify({ ...history, boards: history.boards.slice(-40) })
+        `common-thread-pack-${readyId}`,
+        JSON.stringify({ ...h, boards: h.boards.slice(-40) })
       );
     } catch {
     }
   }
-  async function remix() {
+  async function makePuzzle(event) {
+    event.preventDefault();
     if (inFlight.current) return;
     inFlight.current = true;
     setBusy(true);
     setError("");
     try {
-      const next = await generateKnowledgeBoard(
-        id,
-        difficulty,
-        interest.trim()
-      );
-      if (active.current) play(next, "ai");
+      const next = await generateLearning(input);
+      if (active.current) play(next, null);
     } catch (e) {
       if (active.current)
         setError(
-          e instanceof Error ? e.message : "Could not connect. Try again when ready."
+          e instanceof Error ? e.message : "Could not make this puzzle. Your text is kept."
         );
     } finally {
       inFlight.current = false;
       if (active.current) setBusy(false);
     }
   }
+  const displayName = (id, name) => id === "presidents" ? "Presidents & government" : name;
   if (puzzle)
     return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "pack-round-note", children: [
-        source === "ai" ? "AI remix · reviewed pack facts" : "Starter board · no AI needed",
-        familiar ? " · Familiar connections, remixed" : ""
-      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "pack-round-note", children: readyId ? "Ready to play" : input.kind === "material" ? "Made from your material" : "Made for your topic" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         Game,
         {
@@ -17482,125 +17538,145 @@ function KnowledgePacks({ onHome }) {
             setSession((s) => s + 1);
           },
           onConnectionsSeen: remember,
-          nextLabel: "Explore this pack"
+          nextLabel: "Choose another topic",
+          homeLabel: "Change topic"
         },
         `${puzzle.id}-${session}`
-      )
+      ),
+      readyId && discovered && /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "reading-links", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Read more about this subject" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { children: packById(readyId).sources.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: s.url, target: "_blank", rel: "noreferrer", children: s.title }) }, s.url)) })
+      ] })
     ] });
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "knowledge-packs", "aria-labelledby": "packs-title", children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "learning-page", "aria-labelledby": "packs-title", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "text-button", type: "button", onClick: onHome, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowLeft, { size: 16 }),
-      " All modes"
+      " Home"
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "FOLLOW YOUR CURIOSITY" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { id: "packs-title", ref: title, tabIndex: -1, children: "Find a thread. Learn something." }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Pick a pack and play. Discover facts, missing words, and unexpected connections." }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("fieldset", { className: "pack-grid", "aria-label": "Knowledge packs", children: knowledgePacks.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "button",
-      {
-        type: "button",
-        className: `pack-card ${id === p.id ? "selected" : ""}`,
-        "aria-pressed": id === p.id,
-        disabled: busy,
-        onClick: () => {
-          setId(p.id);
-          setInterest("");
-          setError("");
-        },
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: p.name }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: p.summary })
-        ]
-      },
-      p.id
-    )) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "pack-launch", "aria-label": `${pack.name} play options`, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: pack.name }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            className: "primary-button",
-            type: "button",
-            disabled: busy,
-            onClick: () => play(knowledgeBoard(id), "starter"),
-            children: [
-              "Play starter board ",
-              /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 16 })
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          "button",
-          {
-            className: "secondary-button",
-            type: "button",
-            disabled: busy,
-            onClick: remix,
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 16 }),
-              busy ? "Making and checking your board…" : "Make an AI remix"
-            ]
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "field-help pack-status", children: busy ? "Choosing connections and checking the whole board. Answers stay hidden." : "Starters play instantly. AI remixes combine reviewed facts and wordplay; some connections may return as you explore." }),
-      error && /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "form-error", role: "alert", children: [
-        error,
-        " No replacement board was substituted."
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "pack-options", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Play options & interests" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { id: "packs-title", ref: title, tabIndex: -1, children: "What do you want to learn?" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Turn a subject, your notes, or a transcript into a puzzle." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("form", { className: "learning-form", onSubmit: makePuzzle, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("fieldset", { className: "learning-input-choice", disabled: busy, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("legend", { children: "Start with" }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-          "Play mode",
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "select",
-            {
-              value: mode,
-              disabled: busy,
-              onChange: (e) => setMode(e.target.value),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "relaxed", children: "Relaxed · hints and room to learn" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "challenge", children: "Challenge · four mistakes, no hints" })
-              ]
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-          "Connection difficulty",
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            "select",
-            {
-              value: difficulty,
-              disabled: busy,
-              onChange: (e) => setDifficulty(e.target.value),
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "easy", children: "Easy" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "balanced", children: "Balanced" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("option", { value: "tricky", children: "Tricky" })
-              ]
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
-          "Curious about something in this pack? (optional)",
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             "input",
             {
-              value: interest,
-              disabled: busy,
-              maxLength: 160,
-              onChange: (e) => setInterest(e.target.value)
+              type: "radio",
+              name: "learning-input",
+              checked: input.kind === "topic",
+              onChange: () => {
+                setInput((v) => ({ ...v, kind: "topic" }));
+                setError("");
+              }
             }
-          )
+          ),
+          " ",
+          "A subject"
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "AI uses your interest where the pack supports it. These test packs have a finite set of reviewed connections; new facts aren’t invented to fill a board. Played connections are remembered on this device." })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "input",
+            {
+              type: "radio",
+              name: "learning-input",
+              checked: input.kind === "material",
+              onChange: () => {
+                setInput((v) => ({ ...v, kind: "material" }));
+                setError("");
+              }
+            }
+          ),
+          " ",
+          "My notes or a transcript"
+        ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "pack-options", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Learning references" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Background reading for the pack. AI checks are an additional review, not live web fact-checking." }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("ul", { children: pack.sources.map((s) => /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: /* @__PURE__ */ jsxRuntimeExports.jsx("a", { href: s.url, target: "_blank", rel: "noreferrer", children: s.title }) }, s.url)) })
-      ] })
+      /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "learning-topic", children: input.kind === "topic" ? "Your subject" : "Focus on a subject (optional)" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        "input",
+        {
+          id: "learning-topic",
+          value: input.topic,
+          onChange: (e) => setInput((v) => ({ ...v, topic: e.target.value })),
+          maxLength: 500,
+          required: input.kind === "topic",
+          disabled: busy,
+          "aria-describedby": "topic-examples"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { id: "topic-examples", className: "field-help", children: "For example: oceans, the New York Knicks, Shakespeare, or the 1970s." }),
+      input.kind === "material" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("label", { htmlFor: "learning-material", children: "Paste your notes or transcript" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "textarea",
+          {
+            id: "learning-material",
+            rows: 9,
+            value: input.material,
+            onChange: (e) => setInput((v) => ({ ...v, material: e.target.value })),
+            minLength: 80,
+            required: true,
+            disabled: busy,
+            "aria-describedby": "material-help"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { id: "material-help", className: "field-help", children: [
+          "The puzzle will use what you paste.",
+          " ",
+          input.material.length.toLocaleString(),
+          " / 100,000 characters."
+        ] }),
+        input.material.length > 1e5 && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-error", role: "alert", children: "This text is longer than one puzzle can use. Choose a section under 100,000 characters; your full draft is kept here." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "challenge-choice", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: mode === "challenge",
+            onChange: (e) => setMode(e.target.checked ? "challenge" : "relaxed"),
+            disabled: busy
+          }
+        ),
+        " ",
+        "Limit me to four mistakes, with no hints"
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Leave this off to play with hints and no guess limit." }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          className: "primary-button",
+          type: "submit",
+          disabled: busy || (input.kind === "topic" ? !input.topic.trim() : input.material.trim().length < 80 || input.material.length > 1e5),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 16 }),
+            busy ? "Making your puzzle…" : "Make my puzzle"
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "generation-status", children: busy ? "Finding connections and checking the answers. This can take a minute." : "" }),
+      error && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-error", role: "alert", children: error })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "ready-puzzles", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Or play a ready-made puzzle" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "pack-grid", "aria-label": "Ready-made subjects", children: knowledgePacks.map((p) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "button",
+        {
+          className: "pack-card",
+          type: "button",
+          disabled: busy,
+          onClick: () => play(knowledgeBoard(p.id), p.id),
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: displayName(p.id, p.name) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: p.summary }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "ready-cta", children: [
+              "Play ",
+              /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 15 })
+            ] })
+          ]
+        },
+        p.id
+      )) })
     ] })
   ] });
 }
@@ -17629,7 +17705,8 @@ function App() {
   const [puzzleIndex, setPuzzleIndex] = reactExports.useState(0);
   const [lessonIndex, setLessonIndex] = reactExports.useState(0);
   const [session, setSession] = reactExports.useState(0);
-  const [topic, setTopic] = reactExports.useState(0);
+  const topic = 0;
+  const [quickChallenge, setQuickChallenge] = reactExports.useState(false);
   const [returned, setReturned] = reactExports.useState(false);
   const [personalStoryId, setPersonalStoryId] = reactExports.useState(null);
   const rememberSeen = reactExports.useCallback(
@@ -17749,27 +17826,45 @@ function App() {
         onPlay: (selectedMode) => playPersonal(personal, selectedMode)
       }
     ) : mode === null ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "welcome quick-start", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "FIND FOUR GROUPS OF FOUR" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("h1", { ref: homeTitle, tabIndex: -1, "data-ocid": "page.title", children: [
-          "Find the ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: "common thread." })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Sixteen words. Four connections. Ready to play?" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "quick-start-actions", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { className: "welcome home-intro", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { ref: homeTitle, tabIndex: -1, "data-ocid": "page.title", children: "What will you connect?" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Find four groups of four. Follow the connections." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "home-choices", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { className: "home-choice", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "JUST PLAY" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "A puzzle, ready for you" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Find the hidden groups in sixteen words. Get hints as you play, or take the challenge below." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "challenge-choice", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              "input",
+              {
+                type: "checkbox",
+                checked: quickChallenge,
+                onChange: (e) => setQuickChallenge(e.target.checked)
+              }
+            ),
+            " ",
+            "Four mistakes, no hints"
+          ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
               className: "primary-button",
               type: "button",
-              onClick: () => start("relaxed"),
+              onClick: () => start(quickChallenge ? "challenge" : "relaxed"),
               children: [
                 "Play now ",
                 /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 17 })
               ]
             }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { className: "home-choice", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "MAKE IT PERSONAL" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Your memories. Your puzzle." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Use your shared stories and inside jokes to make a puzzle for someone you know." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
               className: "secondary-button",
@@ -17779,66 +17874,34 @@ function App() {
                 setMode(null);
                 setPage("creator");
               },
-              children: "Create a personal puzzle"
+              children: [
+                "Create a personal puzzle ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 17 })
+              ]
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Play now starts a relaxed puzzle. Personal puzzles use your shared memories." })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "button",
-        {
-          className: "text-button explore-packs",
-          type: "button",
-          onClick: () => {
-            setPersonalStoryId(null);
-            setMode(null);
-            setPage("packs");
-          },
-          children: [
-            "Explore knowledge packs ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 16 })
-          ]
-        }
-      ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs("details", { className: "play-options", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("summary", { children: "Choose a puzzle or challenge mode" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "topic-picker", children: [
-          "Choose a puzzle",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "select",
-            {
-              value: topic,
-              onChange: (event) => setTopic(Number(event.target.value)),
-              children: puzzles.map((entry2, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs("option", { value: index2, children: [
-                entry2.topic,
-                " · ",
-                entry2.title
-              ] }, entry2.id))
-            }
-          )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "creator-actions", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { className: "home-choice", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "LEARN THROUGH PLAY" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "Something you’re curious about" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Choose any subject, or use your notes or a transcript to make a learning puzzle." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
             "button",
             {
               className: "secondary-button",
               type: "button",
-              onClick: () => start("relaxed"),
-              children: "Play Relaxed"
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            "button",
-            {
-              className: "secondary-button",
-              type: "button",
-              onClick: () => start("challenge"),
-              children: "Play Challenge"
+              onClick: () => {
+                setPersonalStoryId(null);
+                setMode(null);
+                setPage("packs");
+              },
+              children: [
+                "Choose a topic ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 17 })
+              ]
             }
           )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "field-help", children: "Relaxed has hints. Challenge gives you four mistakes." })
+        ] })
       ] }),
       linkError && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "form-error", role: "alert", children: linkError }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(FriendHub, { onOpen: openChallenge })
@@ -17877,10 +17940,7 @@ function App() {
         `${mode}-${puzzle.id}-${session}`
       )
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs("footer", { className: "site-footer", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Common Thread" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Created by Terry Brutus" })
-    ] })
+    /* @__PURE__ */ jsxRuntimeExports.jsx("footer", { className: "site-footer", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Created by Terry Brutus" }) })
   ] });
 }
 BigInt.prototype.toJSON = function() {

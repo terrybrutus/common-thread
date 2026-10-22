@@ -5,9 +5,14 @@ import {
   knowledgePacks,
   packById,
 } from "../../../../services/claude/shared/knowledge.js";
-import { hostedGeneration } from "../creator/hosted";
 import { Game } from "../game/Game";
 import type { Group, Puzzle } from "../game/puzzles";
+import {
+  generateLearning,
+  loadLearningDraft,
+  rememberLearning,
+  saveLearningDraft,
+} from "./learning";
 
 type History = { groups: string[]; boards: string[][] };
 const emptyHistory = (): History => ({ groups: [], boards: [] });
@@ -38,62 +43,15 @@ export function readPackHistory(id: string): History {
     return emptyHistory();
   }
 }
-export async function generateKnowledgeBoard(
-  id: string,
-  difficulty: string,
-  interest: string,
-) {
-  const history = readPackHistory(id);
-  const brief = {
-    purpose: "study",
-    topic: packById(id).name,
-    notes: "",
-    interests: interest,
-    familiarity: "new",
-    difficulty,
-    knowledgePack: id,
-    knowledgeHistory: history.groups,
-    knowledgeBoards: history.boards,
-  };
-  let text: string;
-  if (import.meta.env.DEV) {
-    const response = await fetch("/__local-ai/puzzle", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(brief),
-    });
-    const data = await response.json();
-    if (!response.ok)
-      throw new Error(
-        data.error ||
-          "This knowledge board could not be made. Please try again.",
-      );
-    text = data.text;
-  } else text = await hostedGeneration(brief);
-  const data = JSON.parse(text);
-  if (!Array.isArray(data.groups))
-    throw new Error("The knowledge board was incomplete. Please try again.");
-  return knowledgeBoard(
-    id,
-    data.groups.map((g: { id: string }) => {
-      if (typeof g.id !== "string" || !g.id.startsWith(`${id}:`))
-        throw new Error("This board did not match your pack.");
-      return g.id.slice(id.length + 1);
-    }),
-  );
-}
-
 export function KnowledgePacks({ onHome }: { onHome: () => void }) {
-  const [id, setId] = useState("world");
+  const [input, setInput] = useState(loadLearningDraft);
   const [mode, setMode] = useState<"relaxed" | "challenge">("relaxed");
-  const [difficulty, setDifficulty] = useState("balanced");
-  const [interest, setInterest] = useState("");
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
-  const [source, setSource] = useState<"starter" | "ai">("starter");
+  const [readyId, setReadyId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [familiar, setFamiliar] = useState(false);
   const [session, setSession] = useState(0);
+  const [discovered, setDiscovered] = useState(false);
   const active = useRef(true);
   const inFlight = useRef(false);
   const title = useRef<HTMLHeadingElement>(null);
@@ -106,72 +64,73 @@ export function KnowledgePacks({ onHome }: { onHome: () => void }) {
   useEffect(() => {
     if (!puzzle) title.current?.focus();
   }, [puzzle]);
-  const pack = packById(id);
-  function play(next: Puzzle, origin: "starter" | "ai") {
-    const history = readPackHistory(id);
-    setFamiliar(
-      next.groups.filter((g) => history.groups.includes(g.id.split(":")[1]))
-        .length >= 3,
-    );
-    setSource(origin);
+  useEffect(() => {
+    saveLearningDraft(input);
+  }, [input]);
+  function play(next: Puzzle, id: string | null) {
+    setReadyId(id);
     setPuzzle(next);
+    setDiscovered(false);
     setSession((s) => s + 1);
     setError("");
   }
   function remember(groups: Group[]) {
-    const history = readPackHistory(id);
-    history.groups = [
-      ...new Set([...history.groups, ...groups.map((g) => g.id.split(":")[1])]),
+    setDiscovered(true);
+    if (!readyId) {
+      rememberLearning(input, groups);
+      return;
+    }
+    const h = readPackHistory(readyId);
+    h.groups = [
+      ...new Set([...h.groups, ...groups.map((g) => g.id.split(":")[1])]),
     ].slice(-40);
     const board = puzzle?.groups.map((g) => g.id.split(":")[1]).sort();
     if (
       board &&
-      !history.boards.some(
-        (b) => b.slice().sort().join("|") === board.join("|"),
-      )
+      !h.boards.some((b) => b.slice().sort().join("|") === board.join("|"))
     )
-      history.boards.push(board);
+      h.boards.push(board);
     try {
       localStorage.setItem(
-        `common-thread-pack-${id}`,
-        JSON.stringify({ ...history, boards: history.boards.slice(-40) }),
+        `common-thread-pack-${readyId}`,
+        JSON.stringify({ ...h, boards: h.boards.slice(-40) }),
       );
     } catch {
-      /* Play remains available if browser storage is unavailable. */
+      /* Play doesn't require browser storage. */
     }
   }
-  async function remix() {
+  async function makePuzzle(event: React.FormEvent) {
+    event.preventDefault();
     if (inFlight.current) return;
     inFlight.current = true;
     setBusy(true);
     setError("");
     try {
-      const next = await generateKnowledgeBoard(
-        id,
-        difficulty,
-        interest.trim(),
-      );
-      if (active.current) play(next, "ai");
+      const next = await generateLearning(input);
+      if (active.current) play(next, null);
     } catch (e) {
       if (active.current)
         setError(
           e instanceof Error
             ? e.message
-            : "Could not connect. Try again when ready.",
+            : "Could not make this puzzle. Your text is kept.",
         );
     } finally {
       inFlight.current = false;
       if (active.current) setBusy(false);
     }
   }
+  const displayName = (id: string, name: string) =>
+    id === "presidents" ? "Presidents & government" : name;
   if (puzzle)
     return (
       <>
         <p className="pack-round-note">
-          {source === "ai"
-            ? "AI remix · reviewed pack facts"
-            : "Starter board · no AI needed"}
-          {familiar ? " · Familiar connections, remixed" : ""}
+          {readyId
+            ? "Ready to play"
+            : input.kind === "material"
+              ? "Made from your material"
+              : "Made for your topic"}
         </p>
         <Game
           key={`${puzzle.id}-${session}`}
@@ -185,132 +144,167 @@ export function KnowledgePacks({ onHome }: { onHome: () => void }) {
             setSession((s) => s + 1);
           }}
           onConnectionsSeen={remember}
-          nextLabel="Explore this pack"
+          nextLabel="Choose another topic"
+          homeLabel="Change topic"
         />
+        {readyId && discovered && (
+          <details className="reading-links">
+            <summary>Read more about this subject</summary>
+            <ul>
+              {packById(readyId).sources.map((s) => (
+                <li key={s.url}>
+                  <a href={s.url} target="_blank" rel="noreferrer">
+                    {s.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
       </>
     );
   return (
-    <section className="knowledge-packs" aria-labelledby="packs-title">
+    <section className="learning-page" aria-labelledby="packs-title">
       <button className="text-button" type="button" onClick={onHome}>
-        <ArrowLeft size={16} /> All modes
+        <ArrowLeft size={16} /> Home
       </button>
-      <span className="eyebrow">FOLLOW YOUR CURIOSITY</span>
       <h1 id="packs-title" ref={title} tabIndex={-1}>
-        Find a thread. Learn something.
+        What do you want to learn?
       </h1>
-      <p>
-        Pick a pack and play. Discover facts, missing words, and unexpected
-        connections.
-      </p>
-      <fieldset className="pack-grid" aria-label="Knowledge packs">
-        {knowledgePacks.map((p) => (
-          <button
-            type="button"
-            className={`pack-card ${id === p.id ? "selected" : ""}`}
-            aria-pressed={id === p.id}
-            key={p.id}
+      <p>Turn a subject, your notes, or a transcript into a puzzle.</p>
+      <form className="learning-form" onSubmit={makePuzzle}>
+        <fieldset className="learning-input-choice" disabled={busy}>
+          <legend>Start with</legend>
+          <label>
+            <input
+              type="radio"
+              name="learning-input"
+              checked={input.kind === "topic"}
+              onChange={() => {
+                setInput((v) => ({ ...v, kind: "topic" }));
+                setError("");
+              }}
+            />{" "}
+            A subject
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="learning-input"
+              checked={input.kind === "material"}
+              onChange={() => {
+                setInput((v) => ({ ...v, kind: "material" }));
+                setError("");
+              }}
+            />{" "}
+            My notes or a transcript
+          </label>
+        </fieldset>
+        <label htmlFor="learning-topic">
+          {input.kind === "topic"
+            ? "Your subject"
+            : "Focus on a subject (optional)"}
+        </label>
+        <input
+          id="learning-topic"
+          value={input.topic}
+          onChange={(e) => setInput((v) => ({ ...v, topic: e.target.value }))}
+          maxLength={500}
+          required={input.kind === "topic"}
+          disabled={busy}
+          aria-describedby="topic-examples"
+        />
+        <p id="topic-examples" className="field-help">
+          For example: oceans, the New York Knicks, Shakespeare, or the 1970s.
+        </p>
+        {input.kind === "material" && (
+          <>
+            <label htmlFor="learning-material">
+              Paste your notes or transcript
+            </label>
+            <textarea
+              id="learning-material"
+              rows={9}
+              value={input.material}
+              onChange={(e) =>
+                setInput((v) => ({ ...v, material: e.target.value }))
+              }
+              minLength={80}
+              required
+              disabled={busy}
+              aria-describedby="material-help"
+            />
+            <p id="material-help" className="field-help">
+              The puzzle will use what you paste.{" "}
+              {input.material.length.toLocaleString()} / 100,000 characters.
+            </p>
+            {input.material.length > 100000 && (
+              <p className="form-error" role="alert">
+                This text is longer than one puzzle can use. Choose a section
+                under 100,000 characters; your full draft is kept here.
+              </p>
+            )}
+          </>
+        )}
+        <label className="challenge-choice">
+          <input
+            type="checkbox"
+            checked={mode === "challenge"}
+            onChange={(e) =>
+              setMode(e.target.checked ? "challenge" : "relaxed")
+            }
             disabled={busy}
-            onClick={() => {
-              setId(p.id);
-              setInterest("");
-              setError("");
-            }}
-          >
-            <strong>{p.name}</strong>
-            <span>{p.summary}</span>
-          </button>
-        ))}
-      </fieldset>
-      <section className="pack-launch" aria-label={`${pack.name} play options`}>
-        <h2>{pack.name}</h2>
-        <div className="creator-actions">
-          <button
-            className="primary-button"
-            type="button"
-            disabled={busy}
-            onClick={() => play(knowledgeBoard(id), "starter")}
-          >
-            Play starter board <ArrowRight size={16} />
-          </button>
-          <button
-            className="secondary-button"
-            type="button"
-            disabled={busy}
-            onClick={remix}
-          >
-            <Sparkles size={16} />
-            {busy ? "Making and checking your board…" : "Make an AI remix"}
-          </button>
-        </div>
-        <output className="field-help pack-status">
+          />{" "}
+          Limit me to four mistakes, with no hints
+        </label>
+        <p className="field-help">
+          Leave this off to play with hints and no guess limit.
+        </p>
+        <button
+          className="primary-button"
+          type="submit"
+          disabled={
+            busy ||
+            (input.kind === "topic"
+              ? !input.topic.trim()
+              : input.material.trim().length < 80 ||
+                input.material.length > 100000)
+          }
+        >
+          <Sparkles size={16} />
+          {busy ? "Making your puzzle…" : "Make my puzzle"}
+        </button>
+        <output className="generation-status">
           {busy
-            ? "Choosing connections and checking the whole board. Answers stay hidden."
-            : "Starters play instantly. AI remixes combine reviewed facts and wordplay; some connections may return as you explore."}
+            ? "Finding connections and checking the answers. This can take a minute."
+            : ""}
         </output>
         {error && (
           <p className="form-error" role="alert">
-            {error} No replacement board was substituted.
+            {error}
           </p>
         )}
-        <details className="pack-options">
-          <summary>Play options & interests</summary>
-          <label>
-            Play mode
-            <select
-              value={mode}
+      </form>
+      <details className="ready-puzzles">
+        <summary>Or play a ready-made puzzle</summary>
+        <div className="pack-grid" aria-label="Ready-made subjects">
+          {knowledgePacks.map((p) => (
+            <button
+              className="pack-card"
+              type="button"
+              key={p.id}
               disabled={busy}
-              onChange={(e) => setMode(e.target.value as typeof mode)}
+              onClick={() => play(knowledgeBoard(p.id), p.id)}
             >
-              <option value="relaxed">Relaxed · hints and room to learn</option>
-              <option value="challenge">
-                Challenge · four mistakes, no hints
-              </option>
-            </select>
-          </label>
-          <label>
-            Connection difficulty
-            <select
-              value={difficulty}
-              disabled={busy}
-              onChange={(e) => setDifficulty(e.target.value)}
-            >
-              <option value="easy">Easy</option>
-              <option value="balanced">Balanced</option>
-              <option value="tricky">Tricky</option>
-            </select>
-          </label>
-          <label>
-            Curious about something in this pack? (optional)
-            <input
-              value={interest}
-              disabled={busy}
-              maxLength={160}
-              onChange={(e) => setInterest(e.target.value)}
-            />
-          </label>
-          <p className="field-help">
-            AI uses your interest where the pack supports it. These test packs
-            have a finite set of reviewed connections; new facts aren’t invented
-            to fill a board. Played connections are remembered on this device.
-          </p>
-        </details>
-        <details className="pack-options">
-          <summary>Learning references</summary>
-          <p>
-            Background reading for the pack. AI checks are an additional review,
-            not live web fact-checking.
-          </p>
-          <ul>
-            {pack.sources.map((s) => (
-              <li key={s.url}>
-                <a href={s.url} target="_blank" rel="noreferrer">
-                  {s.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </details>
-      </section>
+              <strong>{displayName(p.id, p.name)}</strong>
+              <span>{p.summary}</span>
+              <span className="ready-cta">
+                Play <ArrowRight size={15} />
+              </span>
+            </button>
+          ))}
+        </div>
+      </details>
     </section>
   );
 }

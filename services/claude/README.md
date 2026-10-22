@@ -46,3 +46,7 @@ Connected story edits debounce to private cloud without calling Claude. The crea
 # Knowledge-pack generation
 
 The existing authenticated puzzle route accepts a whitelisted `knowledgePack` plus bounded pack history. It rejects attached personal stories or notes. `shared/knowledge.js` is the reviewed public catalog used by both clients and the service. `worker/knowledge.js` asks Claude for four catalog IDs, reconstructs the board, verifies exact words/mechanics, and runs a separate factual/partition audit. No outside model-authored facts, automatic retries, or hidden starter fallback are accepted. Ordinary study and personal requests keep their existing paths. Mirror both new JS files and `scripts/build.mjs` when deploying; the build bundles known pure dependencies into one Worker ESM.
+
+## Custom learning requests
+
+The same authenticated endpoint now also accepts learningMode=topic or material, purpose=study, topic (up to 500 characters), notes (up to 100,000), and bounded playedConnections. Learning rejects attached story, people or knowledgePack fields. Material source terms require exact supporting excerpts; a second model call audits relationships against the actual material. Topic mode uses stable knowledge, not live retrieval or the starter whitelist. Both paths keep evidence internal, validate shared blanks and letter transformations, and never retry paid calls automatically. Input bounds are 192 KB for the request stream and 185 KB for the serialized validated learning brief. Browser and local middleware enforce compatible bounds.

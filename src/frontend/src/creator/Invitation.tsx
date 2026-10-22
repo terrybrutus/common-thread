@@ -16,7 +16,7 @@ export function Invitation({
       aria-labelledby="invitation-title"
     >
       <button className="text-button" type="button" onClick={onHome}>
-        <ArrowLeft size={16} /> All modes
+        <ArrowLeft size={16} /> Home
       </button>
       <div className="invitation-card">
         <HeartHandshake size={35} />
@@ -36,8 +36,8 @@ export function Invitation({
         <p>{challenge.puzzle.description}</p>
         <span className="mode-label">
           {challenge.mode === "relaxed"
-            ? "Relaxed · hints welcome"
-            : "Challenge · four mistakes"}
+            ? "Hints available · no guess limit"
+            : "Four mistakes · no hints"}
         </span>
         <button
           className="primary-button"
@@ -55,7 +55,7 @@ export function Invitation({
             type="button"
             onClick={() => onPlay("relaxed")}
           >
-            I'd rather explore in Relaxed
+            Play with hints instead
           </button>
         )}
         <p className="invitation-footnote">

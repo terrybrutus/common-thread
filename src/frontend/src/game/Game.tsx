@@ -32,6 +32,7 @@ interface GameProps {
   personal?: boolean;
   onConnectionsSeen?: (groups: Group[]) => void;
   nextLabel?: string;
+  homeLabel?: string;
 }
 export function Game({
   puzzle,
@@ -43,6 +44,7 @@ export function Game({
   personal = false,
   onConnectionsSeen,
   nextLabel,
+  homeLabel = "Home",
 }: GameProps) {
   const [state, dispatch] = useReducer(
     (
@@ -91,14 +93,14 @@ export function Game({
     <section className="game" aria-labelledby="game-title">
       <div className="game-nav">
         <button className="text-button" type="button" onClick={onHome}>
-          <ArrowLeft size={16} /> All modes
+          <ArrowLeft size={16} /> {homeLabel}
         </button>
         <span className={`mode-label ${mode}`}>
           {
             {
-              intro: "First threads",
-              relaxed: "Relaxed",
-              challenge: "Challenge",
+              intro: "Practice",
+              relaxed: "With hints",
+              challenge: "Four-mistake challenge",
             }[mode]
           }
         </span>
@@ -309,7 +311,7 @@ export function Game({
               : tutorial
                 ? puzzle.id === lessons[0].id
                   ? "Now try a word that can point in more than one direction."
-                  : "Ready for a full board? Relaxed mode gives you the same room to explore."
+                  : "Ready for a full puzzle? Hints are there when you need them."
                 : `${puzzle.groups.length} threads connected. ${state.assisted ? "You explored with a little help." : state.mistakes ? `${state.mistakes} incorrect ${state.mistakes === 1 ? "guess" : "guesses"} along the way.` : "Without an incorrect guess!"} Take a discovery into your next puzzle.`}
           </p>
           <div className="result-actions">
@@ -317,7 +319,7 @@ export function Game({
               {tutorial
                 ? puzzle.id === lessons[0].id
                   ? "Try the next practice"
-                  : "Start Relaxed"
+                  : "Play with hints"
                 : personal
                   ? "Back to invitation"
                   : nextLabel || "Next puzzle"}
@@ -334,14 +336,14 @@ export function Game({
             )}
             {mode === "challenge" && state.outcome === "lost" && (
               <button className="text-button" type="button" onClick={onRelaxed}>
-                Explore in Relaxed
+                Play with hints
               </button>
             )}
           </div>
           {personal && (
             <CopyField
               label="Your result · copy and send it yourself"
-              value={`Common Thread — ${puzzle.title}\n${mode === "relaxed" ? "Relaxed" : "Challenge"}: ${state.solved.length}/${puzzle.groups.length} threads connected.\n${state.mistakes} incorrect guesses${state.assisted ? ", with hints or guided reveals" : ""}. ${state.outcome === "won" ? "All connected!" : "A discovery in every try."}`}
+              value={`Common Thread — ${puzzle.title}\n${mode === "relaxed" ? "With hints" : "Four-mistake challenge"}: ${state.solved.length}/${puzzle.groups.length} threads connected.\n${state.mistakes} incorrect guesses${state.assisted ? ", with hints or guided reveals" : ""}. ${state.outcome === "won" ? "All connected!" : "A discovery in every try."}`}
             />
           )}
         </div>
@@ -370,7 +372,7 @@ export function Game({
           type="button"
           onClick={onRelaxed}
         >
-          Skip practice and play Relaxed
+          Skip practice and play
           <ArrowRight size={15} />
         </button>
       )}

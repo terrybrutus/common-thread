@@ -24,43 +24,47 @@ export function CreatorOptions({
     <details className="creator-options">
       <summary>Puzzle options</summary>
       <div className="editor-fields">
-        <label>
-          Puzzle type
-          <select
-            value={brief.purpose}
+        <label className="challenge-choice">
+          <input
+            type="checkbox"
+            checked={brief.mode === "challenge"}
             onChange={(e) =>
-              update("purpose", e.target.value as CreatorBrief["purpose"])
+              update("mode", e.target.checked ? "challenge" : "relaxed")
             }
-          >
-            <option value="fun">Personal story</option>
-            <option value="study">Learning puzzle</option>
-          </select>
+          />{" "}
+          Limit us to four mistakes, with no hints
         </label>
-        <label>
-          Puzzle difficulty
-          <select
-            value={brief.difficulty}
-            onChange={(e) =>
-              update("difficulty", e.target.value as CreatorBrief["difficulty"])
-            }
-          >
-            <option value="easy">Gentle start</option>
-            <option value="balanced">A little twist</option>
-            <option value="tricky">Make us think</option>
-          </select>
-        </label>
-        <label>
-          Play mode
-          <select
-            value={brief.mode}
-            onChange={(e) =>
-              update("mode", e.target.value as CreatorBrief["mode"])
-            }
-          >
-            <option value="relaxed">Relaxed · hints available</option>
-            <option value="challenge">Challenge · four mistakes</option>
-          </select>
-        </label>
+        <details className="story-followup">
+          <summary>More puzzle settings</summary>
+          <label>
+            Puzzle type
+            <select
+              value={brief.purpose}
+              onChange={(e) =>
+                update("purpose", e.target.value as CreatorBrief["purpose"])
+              }
+            >
+              <option value="fun">Personal story</option>
+              <option value="study">Learning puzzle</option>
+            </select>
+          </label>
+          <label>
+            Puzzle difficulty
+            <select
+              value={brief.difficulty}
+              onChange={(e) =>
+                update(
+                  "difficulty",
+                  e.target.value as CreatorBrief["difficulty"],
+                )
+              }
+            >
+              <option value="easy">Gentle start</option>
+              <option value="balanced">A little twist</option>
+              <option value="tricky">Make us think</option>
+            </select>
+          </label>
+        </details>
         <details className="story-followup">
           <summary>Names & sharing (optional)</summary>
           <div className="editor-fields">

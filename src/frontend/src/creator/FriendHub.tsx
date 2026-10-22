@@ -14,7 +14,7 @@ export function FriendHub({
       aria-label="Open a friend’s puzzle"
     >
       <details className="join-challenge">
-        <summary>Have a challenge from a friend?</summary>
+        <summary>Open a friend’s puzzle</summary>
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -30,7 +30,9 @@ export function FriendHub({
             }
           }}
         >
-          <label htmlFor="friend-code">Paste a challenge link or code</label>
+          <label htmlFor="friend-code">
+            Paste the puzzle link your friend sent
+          </label>
           <textarea
             id="friend-code"
             value={code}
@@ -40,7 +42,7 @@ export function FriendHub({
             required
           />
           <button className="secondary-button" type="submit">
-            Open challenge
+            Open puzzle
             <ArrowRight size={15} />
           </button>
           {error && (
