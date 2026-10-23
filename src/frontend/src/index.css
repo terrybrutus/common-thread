@@ -1544,7 +1544,13 @@ summary {
   text-align: left;
 }
 .site-footer {
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.site-footer > .text-button {
+  margin: 0;
+  font-size: inherit;
 }
 .site-footer > span:first-child {
   font-family: inherit;
