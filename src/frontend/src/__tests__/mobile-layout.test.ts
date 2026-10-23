@@ -10,4 +10,5 @@ it("bounds the document horizontally while retaining vertical pan and pinch zoom
   expect(css).toContain("html:has(dialog:modal)");
   expect(css).toContain("font-size: 16px");
   expect(css).toContain("overflow-wrap: anywhere");
+  expect(css).toMatch(/\.site-footer\s*\{[^}]*flex-direction: column;[^}]*align-items: center;[^}]*text-align: center;/s);
 });
