@@ -136,6 +136,25 @@ body {
   color: var(--ink);
   font-family: var(--font-body);
 }
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+}
+body {
+  min-height: 100dvh;
+  touch-action: pan-y pinch-zoom;
+}
+#root {
+  min-width: 0;
+  width: 100%;
+}
+html:has(dialog:modal) {
+  overflow-y: hidden;
+}
 button,
 select {
   font: inherit;

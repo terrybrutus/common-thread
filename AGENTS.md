@@ -4,6 +4,7 @@
 
 ## User Preferences
 
+- Mobile must remain horizontally fixed in portrait and landscape without document-level sideways overflow. Preserve vertical scrolling and pinch zoom; this tap-based puzzle needs no swipe interception or global touchmove preventDefault. Check phones from 320px, landscape, tablets, long terms, forms, dialogs, keyboard-sized heights, dynamic browser chrome, and safe-area insets. Verify gameplay and account/creator/learning flows, not only the home screen. Emulated viewport checks do not establish real iPhone/browser-edge gesture behavior; state that limit. Apply the same standard to future games.
 - Keep the code clean, minimal, and ready to export to GitHub for continued development in Codex.
 - No elaborate styling.
 - Commit and push completed revisions and iterations to `origin/main` after relevant checks pass. The user explicitly requested automatic GitHub pushes on 2026-10-19; do not ask again for routine pushes. The user will import GitHub changes into Caffeine later; do not publish to Caffeine automatically.
