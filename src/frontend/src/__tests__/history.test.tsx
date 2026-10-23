@@ -250,6 +250,7 @@ describe("played connections and optional fresh memories", () => {
           screen.getByRole("button", { name: "Clear selection" }),
         );
     }
+    await screen.findByRole("heading", { name: "No mistakes left" });
     expect(readLibrary().profiles[0].brief.playedConnections).toHaveLength(4);
     expect(seen).toHaveBeenCalledTimes(2);
     expect(recordPlayedGroups("a-different-story", board.groups)).toBe(false);

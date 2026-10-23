@@ -135,7 +135,7 @@ describe("playable experience", () => {
         );
       await solve(user, [...dailyPuzzle().groups[0].words.slice(0, 3), word]);
     }
-    expect(screen.getByText("There's a discovery in every try.")).toBeVisible();
+    expect(await screen.findByText("No mistakes left")).toBeVisible();
     expect(
       screen.getByRole("heading", { name: "The remaining threads" }),
     ).toBeVisible();

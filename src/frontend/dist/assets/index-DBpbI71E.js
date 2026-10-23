@@ -14135,11 +14135,22 @@ const createLucideIcon = (iconName, iconNode) => {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$d = [
+const __iconNode$e = [
   ["path", { d: "m12 19-7-7 7-7", key: "1l729n" }],
   ["path", { d: "M19 12H5", key: "x3x0zl" }]
 ];
-const ArrowLeft = createLucideIcon("arrow-left", __iconNode$d);
+const ArrowLeft = createLucideIcon("arrow-left", __iconNode$e);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$d = [
+  ["path", { d: "M5 12h14", key: "1ays0h" }],
+  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
+];
+const ArrowRight = createLucideIcon("arrow-right", __iconNode$d);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -14147,17 +14158,6 @@ const ArrowLeft = createLucideIcon("arrow-left", __iconNode$d);
  * See the LICENSE file in the root directory of this source tree.
  */
 const __iconNode$c = [
-  ["path", { d: "M5 12h14", key: "1ays0h" }],
-  ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
-];
-const ArrowRight = createLucideIcon("arrow-right", __iconNode$c);
-/**
- * @license lucide-react v0.511.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */
-const __iconNode$b = [
   ["path", { d: "M12 7v14", key: "1akyts" }],
   [
     "path",
@@ -14167,15 +14167,27 @@ const __iconNode$b = [
     }
   ]
 ];
-const BookOpen = createLucideIcon("book-open", __iconNode$b);
+const BookOpen = createLucideIcon("book-open", __iconNode$c);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const __iconNode$a = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
-const Check = createLucideIcon("check", __iconNode$a);
+const __iconNode$b = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+const Check = createLucideIcon("check", __iconNode$b);
+/**
+ * @license lucide-react v0.511.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */
+const __iconNode$a = [
+  ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+  ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
+  ["path", { d: "M12 17h.01", key: "p32p05" }]
+];
+const CircleHelp = createLucideIcon("circle-help", __iconNode$a);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -14184,10 +14196,10 @@ const Check = createLucideIcon("check", __iconNode$a);
  */
 const __iconNode$9 = [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
-  ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
-  ["path", { d: "M12 17h.01", key: "p32p05" }]
+  ["path", { d: "m15 9-6 6", key: "1uzhvr" }],
+  ["path", { d: "m9 9 6 6", key: "z0biqf" }]
 ];
-const CircleHelp = createLucideIcon("circle-help", __iconNode$9);
+const CircleX = createLucideIcon("circle-x", __iconNode$9);
 /**
  * @license lucide-react v0.511.0 - ISC
  *
@@ -32646,15 +32658,53 @@ function Game({
     () => shuffleWords(puzzle.groups.flatMap((group) => group.words))
   );
   const [showRules, setShowRules] = reactExports.useState(false);
+  const [feedback, setFeedback] = reactExports.useState(null);
+  const [lossPending, setLossPending] = reactExports.useState(false);
   const titleRef = reactExports.useRef(null);
   const resultRef = reactExports.useRef(null);
   const connectionRef = reactExports.useRef(null);
   const remaining = remainingWords(puzzle, state);
   const hint = hintFor(puzzle, state);
-  const ended = state.outcome !== "playing";
+  const ended = state.outcome !== "playing" && !lossPending;
   const tutorial = mode === "intro";
   const canHelp = mode !== "challenge";
   const reported = reactExports.useRef(/* @__PURE__ */ new Set());
+  reactExports.useEffect(() => {
+    if (!lossPending) return;
+    const timer = window.setTimeout(() => setLossPending(false), 560);
+    return () => window.clearTimeout(timer);
+  }, [lossPending]);
+  function submitGuess() {
+    var _a2, _b2;
+    if (lossPending || state.outcome !== "playing" || state.selected.length !== 4)
+      return;
+    const next = reduceGame(state, { type: "submit" }, puzzle, mode);
+    if (next.mistakes > state.mistakes) {
+      setFeedback({
+        kind: "wrong",
+        words: [...state.selected],
+        remaining: MISTAKE_LIMIT - next.mistakes
+      });
+      const reducedMotion = (_a2 = window.matchMedia) == null ? void 0 : _a2.call(
+        window,
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      if (next.outcome === "lost" && !reducedMotion) setLossPending(true);
+      if (!reducedMotion) {
+        try {
+          (_b2 = navigator.vibrate) == null ? void 0 : _b2.call(navigator, [70, 45, 70]);
+        } catch {
+        }
+      }
+    } else if (next.guesses.length === state.guesses.length) {
+      setFeedback({
+        kind: "repeat",
+        words: [...state.selected],
+        remaining: MISTAKE_LIMIT - state.mistakes
+      });
+    } else setFeedback(null);
+    dispatch({ type: "submit" });
+  }
   reactExports.useEffect(() => {
     if (!onConnectionsSeen) return;
     const visible = puzzle.groups.filter(
@@ -32729,7 +32779,7 @@ function Game({
       mode === "challenge" ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
         "span",
         {
-          className: "mistakes",
+          className: `mistakes ${(feedback == null ? void 0 : feedback.kind) === "wrong" ? "mistake-used" : ""}`,
           "aria-label": `${MISTAKE_LIMIT - state.mistakes} mistakes remaining`,
           children: [
             "Mistakes left",
@@ -32773,11 +32823,15 @@ function Game({
         "button",
         {
           type: "button",
-          className: `word-tile ${state.selected.includes(word) ? "selected" : ""} ${hint.anchors.includes(word) ? "hint-anchor" : ""}`,
+          className: `word-tile ${state.selected.includes(word) ? "selected" : ""} ${hint.anchors.includes(word) ? "hint-anchor" : ""} ${(feedback == null ? void 0 : feedback.kind) === "wrong" && feedback.words.includes(word) ? "rejected" : ""}`,
+          "aria-invalid": (feedback == null ? void 0 : feedback.kind) === "wrong" && feedback.words.includes(word) ? true : void 0,
           "aria-pressed": state.selected.includes(word),
           "aria-describedby": hint.anchors.includes(word) ? "hint-message" : void 0,
-          disabled: state.selected.length === 4 && !state.selected.includes(word),
-          onClick: () => dispatch({ type: "toggle", word }),
+          disabled: lossPending || state.selected.length === 4 && !state.selected.includes(word),
+          onClick: () => {
+            setFeedback(null);
+            dispatch({ type: "toggle", word });
+          },
           children: [
             word,
             hint.anchors.includes(word) && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "anchor-dot", "aria-hidden": "true" })
@@ -32790,7 +32844,23 @@ function Game({
         " of 4 selected"
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("output", { className: "game-feedback", "aria-live": "polite", "aria-atomic": "true", children: state.message }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      "output",
+      {
+        className: `game-feedback ${feedback ? `guess-feedback ${feedback.kind}` : ""}`,
+        role: feedback ? "alert" : void 0,
+        "aria-live": feedback ? "assertive" : "polite",
+        "aria-atomic": "true",
+        children: feedback ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("strong", { className: "guess-feedback-title", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(CircleX, { size: 20, "aria-hidden": "true" }),
+            feedback.kind === "wrong" ? "Not a connection" : "Already tried"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "guess-feedback-count", children: feedback.kind === "repeat" ? "No extra mistake used. Change at least one word." : mode === "challenge" ? `Mistake used — ${feedback.remaining} of ${MISTAKE_LIMIT} remaining.` : "Try a different group — you still have unlimited guesses." }),
+          feedback.kind === "wrong" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: state.message })
+        ] }) : state.message
+      }
+    ),
     !ended && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "board-actions", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -32798,6 +32868,7 @@ function Game({
           {
             className: "secondary-button",
             type: "button",
+            disabled: lossPending,
             onClick: () => setOrder(shuffleWords(order)),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Shuffle, { size: 16 }),
@@ -32810,8 +32881,11 @@ function Game({
           {
             className: "secondary-button",
             type: "button",
-            disabled: state.selected.length === 0,
-            onClick: () => dispatch({ type: "clear" }),
+            disabled: lossPending || state.selected.length === 0,
+            onClick: () => {
+              setFeedback(null);
+              dispatch({ type: "clear" });
+            },
             children: [
               "Clear",
               /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "wide-label", children: " selection" })
@@ -32823,8 +32897,8 @@ function Game({
           {
             className: "primary-button check-button",
             type: "button",
-            disabled: state.selected.length !== 4,
-            onClick: () => dispatch({ type: "submit" }),
+            disabled: lossPending || state.selected.length !== 4,
+            onClick: submitGuess,
             children: [
               "Check group",
               /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowRight, { size: 16 })
@@ -32838,7 +32912,7 @@ function Game({
           {
             className: "text-button",
             type: "button",
-            disabled: state.hintLevel >= 3,
+            disabled: lossPending || state.hintLevel >= 3,
             onClick: () => dispatch({ type: "hint" }),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Lightbulb, { size: 17 }),
@@ -32854,7 +32928,11 @@ function Game({
             {
               className: "text-button",
               type: "button",
-              onClick: () => dispatch({ type: "reveal" }),
+              disabled: lossPending,
+              onClick: () => {
+                setFeedback(null);
+                dispatch({ type: "reveal" });
+              },
               children: "Reveal and explain this group"
             }
           )
@@ -32870,7 +32948,7 @@ function Game({
         "aria-label": "Round result",
         children: [
           state.outcome === "won" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Sparkles, { size: 26 }) : /* @__PURE__ */ jsxRuntimeExports.jsx(BookOpen, { size: 26 }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: state.outcome === "lost" ? "There's a discovery in every try." : tutorial ? "You've got the idea." : "All connected." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: state.outcome === "lost" ? "No mistakes left" : tutorial ? "You've got the idea." : "All connected." }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: state.outcome === "lost" ? `You found ${state.solved.length} of ${puzzle.groups.length} threads. The remaining connections are below.` : tutorial ? puzzle.id === lessons[0].id ? "Now try a word that can point in more than one direction." : "Ready for a full puzzle? Hints are there when you need them." : `${puzzle.groups.length} threads connected. ${state.assisted ? "You explored with a little help." : state.mistakes ? `${state.mistakes} incorrect ${state.mistakes === 1 ? "guess" : "guesses"} along the way.` : "Without an incorrect guess!"} Take a discovery into your next puzzle.` }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "result-actions", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { className: "primary-button", type: "button", onClick: onNext, children: [

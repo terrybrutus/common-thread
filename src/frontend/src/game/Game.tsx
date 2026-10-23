@@ -4,6 +4,7 @@ import {
   BookOpen,
   Check,
   CircleHelp,
+  CircleX,
   Lightbulb,
   RotateCcw,
   Shuffle,
@@ -58,15 +59,61 @@ export function Game({
     shuffleWords(puzzle.groups.flatMap((group) => group.words)),
   );
   const [showRules, setShowRules] = useState(false);
+  const [feedback, setFeedback] = useState<{
+    kind: "wrong" | "repeat";
+    words: string[];
+    remaining: number;
+  } | null>(null);
+  const [lossPending, setLossPending] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
   const connectionRef = useRef<HTMLElement>(null);
   const remaining = remainingWords(puzzle, state);
   const hint = hintFor(puzzle, state);
-  const ended = state.outcome !== "playing";
+  const ended = state.outcome !== "playing" && !lossPending;
   const tutorial = mode === "intro";
   const canHelp = mode !== "challenge";
   const reported = useRef(new Set<string>());
+  useEffect(() => {
+    if (!lossPending) return;
+    // Let the last rejected selection finish its shake before revealing answers.
+    const timer = window.setTimeout(() => setLossPending(false), 560);
+    return () => window.clearTimeout(timer);
+  }, [lossPending]);
+  function submitGuess() {
+    if (
+      lossPending ||
+      state.outcome !== "playing" ||
+      state.selected.length !== 4
+    )
+      return;
+    const next = reduceGame(state, { type: "submit" }, puzzle, mode);
+    if (next.mistakes > state.mistakes) {
+      setFeedback({
+        kind: "wrong",
+        words: [...state.selected],
+        remaining: MISTAKE_LIMIT - next.mistakes,
+      });
+      const reducedMotion = window.matchMedia?.(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      if (next.outcome === "lost" && !reducedMotion) setLossPending(true);
+      if (!reducedMotion) {
+        try {
+          navigator.vibrate?.([70, 45, 70]);
+        } catch {
+          /* Visual feedback remains available when vibration is blocked. */
+        }
+      }
+    } else if (next.guesses.length === state.guesses.length) {
+      setFeedback({
+        kind: "repeat",
+        words: [...state.selected],
+        remaining: MISTAKE_LIMIT - state.mistakes,
+      });
+    } else setFeedback(null);
+    dispatch({ type: "submit" });
+  }
   useEffect(() => {
     if (!onConnectionsSeen) return;
     const visible = puzzle.groups.filter(
@@ -141,7 +188,7 @@ export function Game({
         </span>
         {mode === "challenge" ? (
           <span
-            className="mistakes"
+            className={`mistakes ${feedback?.kind === "wrong" ? "mistake-used" : ""}`}
             aria-label={`${MISTAKE_LIMIT - state.mistakes} mistakes remaining`}
           >
             Mistakes left{" "}
@@ -196,16 +243,25 @@ export function Game({
                 <button
                   key={word}
                   type="button"
-                  className={`word-tile ${state.selected.includes(word) ? "selected" : ""} ${hint.anchors.includes(word) ? "hint-anchor" : ""}`}
+                  className={`word-tile ${state.selected.includes(word) ? "selected" : ""} ${hint.anchors.includes(word) ? "hint-anchor" : ""} ${feedback?.kind === "wrong" && feedback.words.includes(word) ? "rejected" : ""}`}
+                  aria-invalid={
+                    feedback?.kind === "wrong" && feedback.words.includes(word)
+                      ? true
+                      : undefined
+                  }
                   aria-pressed={state.selected.includes(word)}
                   aria-describedby={
                     hint.anchors.includes(word) ? "hint-message" : undefined
                   }
                   disabled={
-                    state.selected.length === 4 &&
-                    !state.selected.includes(word)
+                    lossPending ||
+                    (state.selected.length === 4 &&
+                      !state.selected.includes(word))
                   }
-                  onClick={() => dispatch({ type: "toggle", word })}
+                  onClick={() => {
+                    setFeedback(null);
+                    dispatch({ type: "toggle", word });
+                  }}
                 >
                   {word}
                   {hint.anchors.includes(word) && (
@@ -219,8 +275,30 @@ export function Game({
           </output>
         </>
       )}
-      <output className="game-feedback" aria-live="polite" aria-atomic="true">
-        {state.message}
+      <output
+        className={`game-feedback ${feedback ? `guess-feedback ${feedback.kind}` : ""}`}
+        role={feedback ? "alert" : undefined}
+        aria-live={feedback ? "assertive" : "polite"}
+        aria-atomic="true"
+      >
+        {feedback ? (
+          <>
+            <strong className="guess-feedback-title">
+              <CircleX size={20} aria-hidden="true" />
+              {feedback.kind === "wrong" ? "Not a connection" : "Already tried"}
+            </strong>
+            <span className="guess-feedback-count">
+              {feedback.kind === "repeat"
+                ? "No extra mistake used. Change at least one word."
+                : mode === "challenge"
+                  ? `Mistake used — ${feedback.remaining} of ${MISTAKE_LIMIT} remaining.`
+                  : "Try a different group — you still have unlimited guesses."}
+            </span>
+            {feedback.kind === "wrong" && <span>{state.message}</span>}
+          </>
+        ) : (
+          state.message
+        )}
       </output>
       {!ended && (
         <>
@@ -228,6 +306,7 @@ export function Game({
             <button
               className="secondary-button"
               type="button"
+              disabled={lossPending}
               onClick={() => setOrder(shuffleWords(order))}
             >
               <Shuffle size={16} /> Shuffle
@@ -235,16 +314,19 @@ export function Game({
             <button
               className="secondary-button"
               type="button"
-              disabled={state.selected.length === 0}
-              onClick={() => dispatch({ type: "clear" })}
+              disabled={lossPending || state.selected.length === 0}
+              onClick={() => {
+                setFeedback(null);
+                dispatch({ type: "clear" });
+              }}
             >
               Clear<span className="wide-label"> selection</span>
             </button>
             <button
               className="primary-button check-button"
               type="button"
-              disabled={state.selected.length !== 4}
-              onClick={() => dispatch({ type: "submit" })}
+              disabled={lossPending || state.selected.length !== 4}
+              onClick={submitGuess}
             >
               Check group
               <ArrowRight size={16} />
@@ -255,7 +337,7 @@ export function Game({
               <button
                 className="text-button"
                 type="button"
-                disabled={state.hintLevel >= 3}
+                disabled={lossPending || state.hintLevel >= 3}
                 onClick={() => dispatch({ type: "hint" })}
               >
                 <Lightbulb size={17} />
@@ -276,7 +358,11 @@ export function Game({
                   <button
                     className="text-button"
                     type="button"
-                    onClick={() => dispatch({ type: "reveal" })}
+                    disabled={lossPending}
+                    onClick={() => {
+                      setFeedback(null);
+                      dispatch({ type: "reveal" });
+                    }}
                   >
                     Reveal and explain this group
                   </button>
@@ -300,7 +386,7 @@ export function Game({
           )}
           <h2>
             {state.outcome === "lost"
-              ? "There's a discovery in every try."
+              ? "No mistakes left"
               : tutorial
                 ? "You've got the idea."
                 : "All connected."}

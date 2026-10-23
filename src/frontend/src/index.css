@@ -1844,3 +1844,89 @@ textarea {
 .site-header {
   flex-wrap: wrap;
 }
+
+/* Rejected guesses stay obvious even without motion or device vibration. */
+.word-tile.rejected,
+.word-tile.rejected:hover,
+.word-tile.rejected:disabled {
+  background: #8b342b;
+  border-color: #5f211b;
+  color: #fff;
+  opacity: 1;
+  animation: rejected-guess 480ms ease-in-out;
+}
+@keyframes rejected-guess {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15%,
+  45%,
+  75% {
+    transform: translateX(-7px);
+  }
+  30%,
+  60%,
+  90% {
+    transform: translateX(7px);
+  }
+}
+.mistakes {
+  padding: 7px 10px;
+  border: 1px solid #d7c6b6;
+  border-radius: 8px;
+  background: #f6f0e8;
+  color: #66452e;
+  font-weight: 600;
+}
+.mistakes strong {
+  font-size: 17px;
+}
+.mistakes.mistake-used {
+  color: #762a23;
+  border-color: #ba6658;
+  background: #fce9e4;
+  animation: mistake-notice 600ms ease-out;
+}
+@keyframes mistake-notice {
+  0%,
+  45% {
+    box-shadow: 0 0 0 3px #ba665844;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+.game-feedback.guess-feedback {
+  flex-direction: column;
+  gap: 5px;
+  padding: 15px;
+  border: 2px solid #ba6658;
+  border-radius: 10px;
+  background: #fceee9;
+  color: #702b25;
+  line-height: 1.5;
+}
+.guess-feedback-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 17px;
+}
+.guess-feedback-count {
+  font-size: 15px;
+  font-weight: 700;
+}
+.game-feedback.guess-feedback.repeat {
+  background: #faf1dd;
+  border-color: #b8954d;
+  color: #6c501d;
+}
+@media (max-width: 480px) {
+  .board-meta {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+}
