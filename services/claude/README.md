@@ -55,3 +55,5 @@ The same authenticated endpoint now also accepts learningMode=topic or material,
 
 
 Pasted learning material now goes through one bounded concept-inventory call before generation and the independent audit (at most three API calls; no automatic retries). Raw transcripts, filler and local speech errors are expected. The inventory suggests distinct concepts and relationships but never replaces the original material as evidence. Invalid inventory excerpts are discarded. Full source terms and quotations still pass the original provenance checks, and the final displayed board still must pass the independent fairness audit. This step does not run for topic-only or personal puzzles. Invented facts and claims of guaranteed trading performance remain excluded.
+
+Reveal copy uses normal sentence case and explains the shared link. Reviewed wordplay entries show all four completed forms; factual entries use a shared explanation or balanced mappings. The generation prompt follows the same rule without adding API calls, paid retries or new formatting-rejection gates. Tiles, IDs, mechanics and private evidence remain unchanged.
