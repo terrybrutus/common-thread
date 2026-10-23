@@ -11,7 +11,7 @@ export function SignInButton({ className }: { className?: string }) {
     useInternetIdentity();
   const queryClient = useQueryClient();
   const authenticated = !!identity && !identity.getPrincipal().isAnonymous();
-  let label = authenticated ? "Sign out" : "Sign in with Internet Identity";
+  let label = authenticated ? "Sign out" : "Sign in with Google";
   if (isInitializing) {
     label = "Loading sign-in…";
   } else if (isLoggingIn) {
@@ -31,7 +31,7 @@ export function SignInButton({ className }: { className?: string }) {
             clear();
           } else {
             // Keep the popup inside the user's activation frame: no await before login.
-            login();
+            login({ provider: "google" });
           }
         }}
       >
@@ -89,7 +89,7 @@ export function RequireSignIn({
 export function AuthenticatedApp({
   children,
   title = "Sign in to continue",
-  description = "Sign in with Internet Identity to access your private workspace.",
+  description = "Sign in to save your stories and learning topics.",
   className,
   buttonClassName,
 }: {
