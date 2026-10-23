@@ -6,6 +6,7 @@ import {
   disconnectStoryCloud,
   hostedGeneration,
   hostedOperation,
+  legacyOwnerOperation,
 } from "../creator/hosted";
 
 describe("private hosted connection", () => {
@@ -43,7 +44,7 @@ describe("private hosted connection", () => {
       .mockReturnValue(popup as unknown as Window);
     vi.spyOn(window, "focus").mockImplementation(() => {});
     const brief = { notes: "Private memories" };
-    const promise = hostedGeneration(brief);
+    const promise = legacyOwnerOperation("restore-beta", brief);
     const target = new URL(String(open.mock.calls[0][0]));
     const channel = target.searchParams.get("channel");
     expect(target.search).not.toContain("Private");
@@ -64,7 +65,7 @@ describe("private hosted connection", () => {
         type: "common-thread-brief",
         channel,
         brief,
-        operation: "generate",
+        operation: "restore-beta",
         requestId: expect.any(String),
       }),
       CLAUDE_SERVICE,
@@ -72,56 +73,30 @@ describe("private hosted connection", () => {
     message(CLAUDE_SERVICE, "common-thread-result", "puzzle-json");
     await expect(promise).resolves.toBe("puzzle-json");
   });
-  it("reuses one connection for repeated generation and background saving", async () => {
-    const popup = { closed: false, postMessage: vi.fn() };
-    const open = vi
-      .spyOn(window, "open")
-      .mockReturnValue(popup as unknown as Window);
-    vi.spyOn(window, "focus").mockImplementation(() => {});
-    const first = hostedGeneration({ notes: "One" });
-    const channel = new URL(String(open.mock.calls[0][0])).searchParams.get(
-      "channel",
-    );
-    const reply = (data: object) =>
-      window.dispatchEvent(
-        new MessageEvent("message", {
-          origin: CLAUDE_SERVICE,
-          source: popup as unknown as Window,
-          data: { channel, ...data },
-        }),
-      );
-    reply({ type: "common-thread-ready" });
-    const firstId = popup.postMessage.mock.calls[0][0].requestId;
-    reply({ type: "common-thread-result", requestId: firstId, text: "first" });
-    await expect(first).resolves.toBe("first");
-    const second = hostedGeneration({ notes: "Two" });
-    const save = hostedOperation("save-story", { id: "ours" }, true);
-    expect(open).toHaveBeenCalledTimes(1);
-    const secondId = popup.postMessage.mock.calls[1][0].requestId;
-    const saveId = popup.postMessage.mock.calls[2][0].requestId;
-    reply({
-      type: "common-thread-result",
-      requestId: saveId,
-      value: { saved: true },
-    });
-    reply({
-      type: "common-thread-result",
-      requestId: secondId,
-      text: "second",
-    });
-    await expect(save).resolves.toEqual({ saved: true });
-    await expect(second).resolves.toBe("second");
-  });
-  it("never opens another window for a disconnected background autosave", async () => {
+  it("never opens ChatGPT storage when saving or loading without Google sign-in", async () => {
     const open = vi.spyOn(window, "open");
-    await expect(hostedOperation("save-story", {}, true)).rejects.toThrow(
-      "Reconnect",
-    );
+    for (const operation of ["save-story", "load-story", "generate"] as const) {
+      await expect(hostedOperation(operation, {})).rejects.toThrow(
+        "Sign in with Google",
+      );
+      await expect(hostedOperation(operation, {}, true)).rejects.toThrow(
+        "Sign in with Google",
+      );
+    }
     expect(open).not.toHaveBeenCalled();
   });
-  it("explains blocked popups", async () => {
-    vi.spyOn(window, "open").mockReturnValue(null);
-    await expect(hostedGeneration({})).rejects.toThrow("Allow pop-ups");
+  it("uses the Google-linked game session for saved stories without another login", async () => {
+    setAccountSession("alice", async () => "ab".repeat(32));
+    const open = vi.spyOn(window, "open");
+    const fetcher = vi.fn(async (_url: string, _options?: RequestInit) =>
+      Response.json({ saved: true }),
+    );
+    vi.stubGlobal("fetch", fetcher);
+    await hostedOperation("save-story", { id: "mine" });
+    await hostedOperation("load-story", {});
+    expect(fetcher.mock.calls[0][0]).toBe(`${CLAUDE_SERVICE}/api/story/save`);
+    expect(fetcher.mock.calls[1][0]).toBe(`${CLAUDE_SERVICE}/api/story/load`);
+    expect(open).not.toHaveBeenCalled();
   });
   it("preserves a structured story question through the trusted private window", async () => {
     const popup = { closed: false, postMessage: vi.fn() };
@@ -129,7 +104,7 @@ describe("private hosted connection", () => {
       .spyOn(window, "open")
       .mockReturnValue(popup as unknown as Window);
     vi.spyOn(window, "focus").mockImplementation(() => {});
-    const promise = hostedGeneration({});
+    const promise = hostedOperation("generate", {}, false, true);
     const question = "Which places do you remember from that trip?";
     const channel = new URL(String(open.mock.calls[0][0])).searchParams.get(
       "channel",

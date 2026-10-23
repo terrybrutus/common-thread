@@ -47,11 +47,7 @@ interface CreatorProps {
 export function Creator({ onHome, onPlay }: CreatorProps) {
   const [library, setLibrary] = useState(readLibrary);
   const account = useAccount();
-  const sync = useStorySync(
-    library,
-    setLibrary,
-    Boolean(account.owner) || !account.configured,
-  );
+  const sync = useStorySync(library, setLibrary, Boolean(account.owner));
   const currentStory =
     library.profiles.find((profile) => profile.id === library.activeId) ||
     library.profiles[0];
@@ -82,7 +78,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
       setSaveStatus("Saved automatically on this device.");
     } catch {
       setSaveStatus(
-        "Browser saving is unavailable. Download a backup or save to private cloud to keep these answers.",
+        "Browser saving is unavailable. Download a story backup to keep these answers.",
       );
     }
   }, [library]);
@@ -353,14 +349,16 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
       </div>
       {!draft && !shared && (
         <p className="field-help" aria-live="polite">
-          {sync.message || saveStatus}
-          {!sync.connected && (
+          {account.owner
+            ? sync.message || saveStatus
+            : `${saveStatus} Sign in with Google in the published game to save across devices.`}
+          {account.owner && !sync.connected && (
             <button
               className="text-button"
               type="button"
               onClick={sync.connect}
             >
-              Connect saved story
+              Retry account sync
             </button>
           )}
         </p>

@@ -1,5 +1,7 @@
 # Account release
 
+Normal story saving/loading uses the signed-in Google-linked game account only; signed-out requests never fall back to ChatGPT/Sites login. Local preview stories remain device-only. Saved stories & backups provides paired Download story (.json) and Import story (.json) buttons for manual transfer or recovery. The legacy native login is reserved for the explicit original-owner beta restore/visitor tools, not ordinary saving. Automated storage tests cover account save/load without popups, valid backup import and remount persistence, and invalid-file preservation.
+
 ## Personal story contexts (2026-10-23)
 
 Personal creation now supports My life, Someone I know, and A group. The selected storyScope is saved in backups/cloud records and passed to both Claude generation and the independent audit. Existing stories keep their answers, original generation-question context and play preferences; new stories start with hints and no guess limit. Optional subject/group labels are not a two-person membership list. Solo requests exclude stale recipient names. Play now opens the board directly; Share puzzle creates the optional link/code. Learning keeps its separate entry point, and connected story tools no longer show duplicate manual cloud-save buttons.

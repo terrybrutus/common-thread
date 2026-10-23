@@ -57,7 +57,9 @@ export function disconnectStoryCloud() {
 }
 export function connectStoryCloud() {
   if (hasAccountSession()) return;
-  openLegacyCloud();
+  throw new Error(
+    "Sign in with Google in Common Thread to save and load your stories.",
+  );
 }
 function openLegacyCloud() {
   if (connection && !connection.popup.closed) {
@@ -174,6 +176,12 @@ export function hostedOperation(
         throw error;
       });
   }
+  if (!legacy)
+    return Promise.reject(
+      new Error(
+        "Sign in with Google in Common Thread to save and load your stories.",
+      ),
+    );
   try {
     if (background && !isStoryConnected())
       throw new Error(

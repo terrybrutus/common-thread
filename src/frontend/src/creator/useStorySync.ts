@@ -55,7 +55,7 @@ export function useStorySync(
       hydrated.current = true;
       setSaveTick((value) => value + 1);
       setMessage(
-        "Story connected. Changes sync automatically across your computers.",
+        "Account connected. Story changes save automatically across your devices.",
       );
     } catch (error) {
       if (mounted.current)
@@ -140,7 +140,7 @@ export function useStorySync(
       else {
         hydrated.current = false;
         setMessage(
-          "Saved on this device. Reconnect your story to sync across computers.",
+          "Saved on this device. Sign in with Google to sync across devices.",
         );
       }
     };

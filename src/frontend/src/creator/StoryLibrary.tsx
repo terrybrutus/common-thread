@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { hostedOperation } from "./hosted";
+import { useRef, useState } from "react";
 import { type StoryProfile, parseProfile } from "./library";
 
 export function StoryLibraryControls({
@@ -22,39 +21,8 @@ export function StoryLibraryControls({
   connected?: boolean;
 }) {
   const [message, setMessage] = useState("");
-  const [busy, setBusy] = useState(false);
-  async function cloud(action: "load-story" | "save-story") {
-    setBusy(true);
-    setMessage("");
-    try {
-      const data = await hostedOperation(
-        action,
-        action === "save-story" ? current : { id: current.id },
-      );
-      if (action === "load-story") {
-        const result = data as { profiles: unknown[] };
-        if (!Array.isArray(result.profiles) || !result.profiles.length)
-          throw new Error(
-            "No cloud story yet. Save this story to private cloud first.",
-          );
-        const choices = result.profiles.map(parseProfile);
-        for (const profile of choices.reverse()) onImport(profile);
-        setMessage("Cloud stories loaded. Choose one above to continue.");
-      } else {
-        const saved = (data as { profile?: unknown }).profile;
-        if (saved) onImport(parseProfile(saved));
-        setMessage("Saved across your computers.");
-      }
-    } catch (error) {
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : "Couldn't connect to story storage.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
+  const [importFailed, setImportFailed] = useState(false);
+  const backupInput = useRef<HTMLInputElement>(null);
   function download() {
     const blob = new Blob(
       [JSON.stringify({ version: 1, ...current }, null, 2)],
@@ -99,63 +67,61 @@ export function StoryLibraryControls({
         </label>
         <output className="field-help">{status}</output>
         <div className="creator-actions">
-          {!connected && (
-            <button
-              type="button"
-              className="secondary-button"
-              disabled={busy}
-              onClick={() => void cloud("load-story")}
-            >
-              Load private cloud stories
-            </button>
-          )}
-          {!connected && (
-            <button
-              type="button"
-              className="secondary-button"
-              disabled={busy}
-              onClick={() => void cloud("save-story")}
-            >
-              Save to private cloud
-            </button>
-          )}
           <button type="button" className="text-button" onClick={onNew}>
             Start another story
           </button>
           <button type="button" className="text-button" onClick={download}>
-            Download story backup
+            Download story (.json)
+          </button>
+          <button
+            type="button"
+            className="secondary-button"
+            onClick={() => backupInput.current?.click()}
+          >
+            Import story (.json)
           </button>
         </div>
-        <label>
-          Import story backup
-          <input
-            type="file"
-            accept="application/json,.json"
-            onChange={async (event) => {
-              const file = event.target.files?.[0];
-              if (!file) return;
-              try {
-                if (file.size > 300000)
-                  throw new Error("That backup is too large.");
-                onImport(parseProfile(JSON.parse(await file.text())));
-                setMessage("Story imported. Your answers are ready.");
-              } catch (error) {
-                setMessage(
-                  error instanceof Error
-                    ? error.message
-                    : "Couldn't import that story.",
-                );
-              }
-              event.target.value = "";
-            }}
-          />
-        </label>
+        <input
+          hidden
+          aria-label="Import story backup"
+          ref={backupInput}
+          type="file"
+          accept="application/json,.json"
+          onChange={async (event) => {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            setImportFailed(false);
+            try {
+              if (file.size > 300000)
+                throw new Error("That backup is too large.");
+              onImport(parseProfile(JSON.parse(await file.text())));
+              setMessage("Story imported. Your answers are ready.");
+            } catch (error) {
+              setImportFailed(true);
+              setMessage(
+                error instanceof Error
+                  ? error.message
+                  : "Couldn't import that story.",
+              );
+            }
+            event.target.value = "";
+          }}
+        />
         <p className="field-help">
-          Browser saving stays on this device and site address. Private cloud
-          saving works across computers. Backups contain your personal answers;
-          keep them private.
+          {connected
+            ? "Your Google-linked game account syncs your stories across devices."
+            : "Stories stay on this device until you sign in with Google in the published game."}{" "}
+          Download a file for a backup; import it to restore a story. Backups
+          contain your personal answers.
         </p>
-        {message && <output className="field-help">{message}</output>}
+        {message &&
+          (importFailed ? (
+            <p role="alert" className="form-error">
+              {message}
+            </p>
+          ) : (
+            <output className="field-help">{message}</output>
+          ))}
       </section>
     </details>
   );
