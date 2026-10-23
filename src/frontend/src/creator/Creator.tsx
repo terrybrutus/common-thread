@@ -292,6 +292,24 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
       );
     }
   }
+  function playDraft() {
+    setError("");
+    try {
+      if (draft)
+        onPlay(
+          makeChallenge(brief, draft, source),
+          source !== "example" && brief.purpose === "fun"
+            ? currentStory.id
+            : undefined,
+        );
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Check this puzzle before playing.",
+      );
+    }
+  }
   const hasStory = Boolean(
     brief.storyAnswers?.some((answer) => answer.trim()) ||
       brief.extraAnswers?.some((item) => item.answer.trim()) ||
@@ -328,9 +346,9 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
             ? "Send the link yourself, or copy a challenge code. No account needed to solve it."
             : draft
               ? brief.style === "together"
-                ? "The connections are hidden so you can discover them together."
+                ? "The answers are hidden so you can play without spoilers."
                 : "AI does the heavy lifting. You get the final say."
-              : "A little about you. Then a puzzle to play."}
+              : "Make a puzzle from memories and favorites. Play it yourself or share it."}
         </p>
       </div>
       {!draft && !shared && (
@@ -351,7 +369,8 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
         <StoryLibraryControls
           profiles={library.profiles}
           current={currentStory}
-          status={saveStatus}
+          status={sync.message || saveStatus}
+          connected={sync.connected}
           onSelect={(id) => {
             setLibrary((current) => ({ ...current, activeId: id }));
             setError("");
@@ -433,9 +452,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                 )
               }
             >
-              {shared.style === "together"
-                ? "Start our puzzle"
-                : "Test the puzzle"}
+              {shared.style === "together" ? "Play now" : "Test the puzzle"}
               <ArrowRight size={16} />
             </button>
             <button
@@ -556,8 +573,8 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
                 <Sparkles size={24} />
                 <h3>Four connections. No spoilers.</h3>
                 <p>
-                  Play side by side on one screen, or share the same board and
-                  compare notes. Each screen keeps its own progress.
+                  Play on your own, gather around one screen, or share a link.
+                  Separate screens keep their own progress.
                 </p>
                 <p>Want to inspect or edit the answers first?</p>
                 <button
@@ -573,11 +590,19 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
               <button
                 className="primary-button"
                 type="button"
+                onClick={playDraft}
+                disabled={pending}
+              >
+                Play now
+                <ArrowRight size={16} />
+              </button>
+              <button
+                type="button"
+                className="secondary-button"
                 onClick={finish}
                 disabled={pending}
               >
-                Use this puzzle
-                <ArrowRight size={16} />
+                Share puzzle
               </button>
               <button
                 className="secondary-button"
@@ -616,6 +641,36 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
         >
           {brief.purpose === "fun" ? (
             <>
+              <fieldset className="story-scope">
+                <legend>What would you like this puzzle to be about?</legend>
+                <div className="story-scope-choices">
+                  {(
+                    [
+                      ["self", "My life"],
+                      ["someone", "Someone I know"],
+                      ["group", "A group"],
+                    ] as const
+                  ).map(([value, label]) => (
+                    <label key={value}>
+                      <input
+                        type="radio"
+                        name="story-scope"
+                        value={value}
+                        checked={(brief.storyScope || "someone") === value}
+                        onChange={() => update("storyScope", value)}
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+                <p className="field-help">
+                  {brief.storyScope === "self"
+                    ? "Your memories, people, places, and favorites."
+                    : brief.storyScope === "group"
+                      ? "Family, friends, a team, or any group. Mention who's involved in your answers."
+                      : "A friend, relative, partner, or anyone you know. Mention who they are in your answers."}
+                </p>
+              </fieldset>
               {brief.inputMode === "free" ? (
                 <>
                   <label>
@@ -659,6 +714,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
               ) : (
                 <StoryQuestions
                   key={currentStory.id}
+                  scope={brief.storyScope}
                   answers={brief.storyAnswers || []}
                   onChange={(answers) => update("storyAnswers", answers)}
                   extraAnswers={brief.extraAnswers || []}
@@ -710,8 +766,8 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
           <CreatorOptions brief={brief} update={update} />
           <p className="field-help">
             {brief.style === "together"
-              ? "Answers stay hidden so you can play together."
-              : "You'll review the answers before sharing."}{" "}
+              ? "Answers stay hidden so you can play."
+              : "You'll review the answers before playing or sharing."}{" "}
             {brief.mode === "challenge"
               ? "Four mistakes, no hints."
               : "Hints available, with no guess limit."}
@@ -729,7 +785,7 @@ export function Creator({ onHome, onPlay }: CreatorProps) {
               </>
             ) : (
               <>
-                <Sparkles size={17} /> Make our puzzle
+                <Sparkles size={17} /> Make my puzzle
               </>
             )}
           </button>

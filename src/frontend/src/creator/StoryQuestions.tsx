@@ -1,18 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { Dictation } from "./Dictation";
-import { storyHints, storyQuestions } from "./story";
+import { type StoryScope, questionsFor, storyHints } from "./story";
 
 export function StoryQuestions({
   answers,
   onChange,
   extraAnswers = [],
   onExtraChange,
+  scope,
 }: {
   answers: string[];
   onChange: (answers: string[]) => void;
   extraAnswers?: { question: string; answer: string }[];
   onExtraChange?: (answers: { question: string; answer: string }[]) => void;
+  scope?: StoryScope;
 }) {
+  const storyQuestions = questionsFor(scope);
   const prompts = [
     ...storyQuestions,
     ...extraAnswers.map((item) => item.question),
@@ -55,10 +58,10 @@ export function StoryQuestions({
   }
 
   return (
-    <section className="story-questions" aria-label="Your shared story">
+    <section className="story-questions" aria-label="Your story">
       <h3 ref={heading} tabIndex={-1}>
         {question < prompts.length
-          ? `A little about you two · ${question + 1} of ${prompts.length}`
+          ? `Your story · ${question + 1} of ${prompts.length}`
           : "Your story so far"}
       </h3>
       {question < prompts.length ? (
@@ -69,7 +72,7 @@ export function StoryQuestions({
           <label htmlFor="story-answer">{prompts[question]}</label>
           <p id="story-answer-help" className="field-help">
             {storyHints[question] ||
-              "Add names or details you both recognize. You can skip this or return later."}
+              "Add recognizable names or details. You can skip this or return later."}
           </p>
           {!quiet && (
             <Dictation
@@ -166,8 +169,8 @@ export function StoryQuestions({
           </button>
           {!answers.some((value) => value.trim()) && (
             <p className="field-help">
-              No memories added. We'll use your shared interests for a themed
-              puzzle.
+              No memories added yet. Add a few details, or try the example
+              below.
             </p>
           )}
           {onExtraChange && extraAnswers.length < 8 && (
@@ -183,13 +186,13 @@ export function StoryQuestions({
                 onClick={() => {
                   const options = [
                     "Which restaurants or foods are part of your story? Name a few favorites.",
-                    "Who are the family members or friends you both know, and how are they connected?",
-                    "Which shows, films, or games have you enjoyed together?",
+                    "Who are the family members, friends, or pets in this story, and how are they connected?",
+                    "Which shows, films, or games belong in this story?",
                     "What places have you lived in or visited, and what happened there?",
-                    "What nicknames, sayings, or inside jokes do you share?",
+                    "What nicknames, sayings, or inside jokes belong in this story?",
                     "What new memory would you like to add today?",
-                    "What traditions or celebrations do you share?",
-                    "What hobbies or plans are you looking forward to together?",
+                    "What traditions or celebrations belong in this story?",
+                    "What hobbies or plans would you like to add to this story?",
                   ];
                   const next = options.find(
                     (prompt) => !prompts.includes(prompt),

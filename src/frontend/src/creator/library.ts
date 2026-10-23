@@ -24,8 +24,8 @@ export interface StoryLibrary {
 export function newProfile(): StoryProfile {
   return {
     id: crypto.randomUUID(),
-    name: "Our story",
-    brief: { ...defaultBrief },
+    name: "My story",
+    brief: { ...defaultBrief, storyScope: "self", mode: "relaxed" },
     updatedAt: Date.now(),
   };
 }
@@ -65,6 +65,7 @@ export function parseProfile(value: unknown): StoryProfile {
     familiarity: ["new", "familiar"],
     mode: ["relaxed", "challenge"],
     inputMode: ["guided", "free"],
+    storyScope: ["self", "someone", "group"],
   })) {
     if (choices.includes(String(input[key])))
       Object.assign(brief, { [key]: input[key] });

@@ -26,6 +26,7 @@ async function reachFinalStep(
   await user.click(
     screen.getByRole("button", { name: "Create a personal puzzle" }),
   );
+  await user.click(screen.getByRole("radio", { name: "Someone I know" }));
   await user.type(
     screen.getByRole("textbox", { name: /early memory/ }),
     "We enjoy the garden together",
@@ -41,7 +42,7 @@ async function reachFinalStep(
     "Terry",
   );
   await user.type(
-    screen.getByRole("textbox", { name: "Playing with (optional)" }),
+    screen.getByRole("textbox", { name: "Person's name (optional)" }),
     "Jessica",
   );
   await user.type(
@@ -65,13 +66,13 @@ describe("personal creator and friend challenges", () => {
     );
     await user.click(screen.getByText("Puzzle options", { exact: true }));
     expect(
-      screen.getByRole("combobox", { name: "Puzzle type" }),
-    ).not.toBeVisible();
+      screen.queryByRole("combobox", { name: "Puzzle type" }),
+    ).not.toBeInTheDocument();
     expect(
       screen.getByRole("combobox", { name: "Puzzle difficulty" }),
     ).not.toBeVisible();
     expect(
-      screen.getByRole("checkbox", { name: /Limit us to four mistakes/ }),
+      screen.getByRole("checkbox", { name: /Limit me to four mistakes/ }),
     ).toBeVisible();
     expect(
       screen.getByText("Names & sharing (optional)").closest("details"),
@@ -81,12 +82,13 @@ describe("personal creator and friend challenges", () => {
         .getByText("Themes & extra interests (optional)")
         .closest("details"),
     ).not.toHaveAttribute("open");
+    await user.click(screen.getByRole("radio", { name: "Someone I know" }));
     await user.click(screen.getByText("Names & sharing (optional)"));
     expect(
       screen.getByRole("textbox", { name: "Your name (optional)" }),
     ).toBeVisible();
     expect(
-      screen.getByRole("textbox", { name: "Playing with (optional)" }),
+      screen.getByRole("textbox", { name: "Person's name (optional)" }),
     ).toBeVisible();
     expect(screen.queryByText(/Your nickname/)).not.toBeInTheDocument();
     expect(
@@ -113,13 +115,13 @@ describe("personal creator and friend challenges", () => {
       screen.getByRole("button", { name: "Skip this question" }),
     );
     await user.type(
-      screen.getByRole("textbox", { name: /Which places mean/ }),
+      screen.getByRole("textbox", { name: /Which places matter/ }),
       "We both lived by the river.",
     );
     expect(
-      screen.getByRole("button", { name: "Make our puzzle" }),
+      screen.getByRole("button", { name: "Make my puzzle" }),
     ).toBeEnabled();
-    await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
+    await user.click(screen.getByRole("button", { name: "Make my puzzle" }));
     expect(generatePuzzle).toHaveBeenCalledWith(
       expect.objectContaining({
         interests: "",
@@ -136,7 +138,7 @@ describe("personal creator and friend challenges", () => {
     vi.mocked(generatePuzzle).mockResolvedValue(validatePuzzle(puzzles[0]));
     render(<App />);
     await reachFinalStep(user);
-    await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
+    await user.click(screen.getByRole("button", { name: "Make my puzzle" }));
     expect(await screen.findByText("AI-GENERATED DRAFT")).toBeVisible();
     expect(generatePuzzle).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -149,7 +151,7 @@ describe("personal creator and friend challenges", () => {
     expect(
       screen.getByText("MAPLE · BIRCH · WILLOW · CEDAR").closest("summary"),
     ).not.toBeNull();
-    await user.click(screen.getByRole("button", { name: "Use this puzzle" }));
+    await user.click(screen.getByRole("button", { name: "Share puzzle" }));
     await user.click(screen.getByText("Copy a challenge code instead"));
     const field = screen.getByRole("textbox", {
       name: "Challenge code",
@@ -176,8 +178,8 @@ describe("personal creator and friend challenges", () => {
       screen.queryByText("MAPLE · BIRCH · WILLOW · CEDAR"),
     ).not.toBeInTheDocument();
     expect(generatePuzzle).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", { name: "Use this puzzle" }));
-    await user.click(screen.getByRole("button", { name: "Start our puzzle" }));
+    await user.click(screen.getByRole("button", { name: "Share puzzle" }));
+    await user.click(screen.getByRole("button", { name: "Play now" }));
     expect(
       screen.getByRole("heading", { name: `Example: ${puzzles[0].title}` }),
     ).toBeVisible();
@@ -190,7 +192,7 @@ describe("personal creator and friend challenges", () => {
     vi.mocked(generatePuzzle).mockResolvedValueOnce(validatePuzzle(puzzles[0]));
     render(<App />);
     await reachFinalStep(user);
-    await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
+    await user.click(screen.getByRole("button", { name: "Make my puzzle" }));
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Your story is saved",
     );
@@ -201,7 +203,7 @@ describe("personal creator and friend challenges", () => {
       "We enjoy the garden together",
     );
     expect(screen.queryByText("AI-GENERATED DRAFT")).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
+    await user.click(screen.getByRole("button", { name: "Make my puzzle" }));
     expect(await screen.findByText("AI-GENERATED DRAFT")).toBeVisible();
     expect(generatePuzzle).toHaveBeenCalledTimes(2);
   });
@@ -210,7 +212,7 @@ describe("personal creator and friend challenges", () => {
     vi.mocked(generatePuzzle).mockResolvedValue(validatePuzzle(puzzles[0]));
     render(<App />);
     await reachFinalStep(user);
-    await user.click(screen.getByRole("button", { name: "Make our puzzle" }));
+    await user.click(screen.getByRole("button", { name: "Make my puzzle" }));
     const category = await screen.findByText("Trees");
     await user.click(category);
     const editor = within(category.closest("details")!);
@@ -223,7 +225,7 @@ describe("personal creator and friend challenges", () => {
     fireEvent.change(words, {
       target: { value: "MAPLE, BIRCH, WILLOW, ROBIN" },
     });
-    await user.click(screen.getByRole("button", { name: "Use this puzzle" }));
+    await user.click(screen.getByRole("button", { name: "Share puzzle" }));
     expect(screen.getByRole("alert")).toHaveTextContent(
       "appears more than once",
     );

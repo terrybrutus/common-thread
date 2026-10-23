@@ -20,7 +20,7 @@ describe("guided shared story", () => {
     const first = screen.getByRole("textbox", { name: storyQuestions[0] });
     await user.type(first, "First date at the arcade");
     expect(screen.getByText(storyQuestions[0])).toBeVisible();
-    expect(screen.getByText(/A first hangout/)).toBeVisible();
+    expect(screen.getByText(/A few names/)).toBeVisible();
     expect(first).toHaveFocus();
     await user.click(screen.getByRole("button", { name: "Next question" }));
     expect(screen.getByRole("heading", { name: /2 of 4/ })).toHaveFocus();

@@ -30,9 +30,12 @@ describe("living story persistence", () => {
       screen.getByRole("textbox", { name: "Your name (optional)" }),
       { target: { value: "Player" } },
     );
-    fireEvent.change(screen.getByRole("textbox", { name: storyQuestions[0] }), {
-      target: { value: "We met at the pier." },
-    });
+    fireEvent.change(
+      screen.getByRole("textbox", { name: /early memory or milestone/ }),
+      {
+        target: { value: "We met at the pier." },
+      },
+    );
     await waitFor(() =>
       expect(
         JSON.parse(localStorage.getItem(storyStorageKey())!).profiles[0].brief

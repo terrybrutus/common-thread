@@ -167,6 +167,7 @@ export function parseFreshnessPrompt(
 export function storyKey(brief: CreatorBrief): string {
   const text = JSON.stringify([
     brief.purpose,
+    brief.storyScope,
     brief.storyAnswers,
     brief.extraAnswers,
     brief.memories,
@@ -202,12 +203,13 @@ export function nextFreshQuestion(brief: CreatorBrief): string {
       from: /trip|vacation|travel|beach/i,
       asked: /favorite stops|remember from that trip/i,
       question:
-        "You mentioned trips together. What are a few favorite stops or places you remember?",
+        "You mentioned travel. What are a few favorite stops or places you remember?",
     },
     {
       from: /show|game|tv/i,
       asked: /film|series/i,
-      question: "What are a few films or series you've enjoyed together?",
+      question:
+        "What are a few favorite films or series you could add to this story?",
     },
     {
       from: /place|home|trip|travel/i,
@@ -217,7 +219,7 @@ export function nextFreshQuestion(brief: CreatorBrief): string {
     {
       from: /restaurant|food|eat/i,
       asked: /foods or drinks/i,
-      question: "Which foods or drinks do you both have strong opinions about?",
+      question: "Which foods or drinks stand out in this story, and why?",
     },
     {
       from: /parent|family|name/i,
@@ -227,7 +229,8 @@ export function nextFreshQuestion(brief: CreatorBrief): string {
     {
       from: /./,
       asked: /sayings or inside jokes/i,
-      question: "What are a few sayings or inside jokes you both recognize?",
+      question:
+        "What are a few sayings or inside jokes that belong in this story?",
     },
   ];
   return (

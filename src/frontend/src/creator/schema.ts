@@ -3,6 +3,7 @@ import { cleanStoryQuestion } from "./followUp";
 import type { FreshnessPrompt, PlayedConnection } from "./history";
 
 export interface CreatorBrief {
+  storyScope?: "self" | "someone" | "group";
   creator: string;
   recipient: string;
   note: string;
@@ -194,7 +195,10 @@ export function makeChallenge(
     version: 1,
     puzzle,
     creator: brief.creator || brief.people?.you || "",
-    recipient: brief.recipient || brief.people?.partner || "",
+    recipient:
+      brief.storyScope === "self"
+        ? ""
+        : brief.recipient || brief.people?.partner || "",
     note: brief.note,
     mode: brief.mode,
     style: brief.style,

@@ -8,7 +8,7 @@ import { storyNotes } from "./story";
 export function generationErrorMessage(error: unknown): string {
   if (!(error instanceof Error)) return "Please try again in a moment.";
   if (error.message.includes("A displayed term didn't match its source"))
-    return "Claude's draft changed a word in a way we couldn't verify, so we didn't use that board. Your story is saved—you don't need to edit it. Press Make our puzzle to try a fresh board.";
+    return "Claude's draft changed a word in a way we couldn't verify, so we didn't use that board. Your story is saved—you don't need to edit it. Press Make my puzzle to try a fresh board.";
   if (error.message.includes("CANISTER_ID_BACKEND"))
     return "This local preview isn't connected to the Caffeine backend. You can try the example below and test live generation after importing into Caffeine.";
   return error.message.length < 1000
@@ -19,10 +19,16 @@ export function generationErrorMessage(error: unknown): string {
 export function generationRequest(brief: CreatorBrief) {
   const people = {
     you: (brief.creator || brief.people?.you || "").trim(),
-    partner: (brief.recipient || brief.people?.partner || "").trim(),
+    partner:
+      brief.storyScope === "self"
+        ? ""
+        : (brief.recipient || brief.people?.partner || "").trim(),
   };
   return {
     purpose: brief.purpose,
+    ...(brief.purpose === "fun" && brief.storyScope
+      ? { storyScope: brief.storyScope }
+      : {}),
     interests: brief.interests.trim(),
     topic: brief.topic.trim(),
     notes:
@@ -30,7 +36,11 @@ export function generationRequest(brief: CreatorBrief) {
         ? brief.notes.trim()
         : brief.storyAnswers
           ? [
-              storyNotes(brief.storyAnswers, brief.extraAnswers),
+              storyNotes(
+                brief.storyAnswers,
+                brief.extraAnswers,
+                brief.storyScope,
+              ),
               brief.freeStory || "",
               brief.conversation
                 ? `Reviewed conversation:\n${brief.conversation}`
@@ -42,7 +52,7 @@ export function generationRequest(brief: CreatorBrief) {
           : [
               brief.memories || "",
               brief.extraAnswers?.length
-                ? storyNotes([], brief.extraAnswers)
+                ? storyNotes([], brief.extraAnswers, brief.storyScope)
                 : "",
               brief.freeStory || "",
               brief.conversation

@@ -1,5 +1,11 @@
 # Account release
 
+## Personal story contexts (2026-10-23)
+
+Personal creation now supports My life, Someone I know, and A group. The selected storyScope is saved in backups/cloud records and passed to both Claude generation and the independent audit. Existing stories keep their answers, original generation-question context and play preferences; new stories start with hints and no guess limit. Optional subject/group labels are not a two-person membership list. Solo requests exclude stale recipient names. Play now opens the board directly; Share puzzle creates the optional link/code. Learning keeps its separate entry point, and connected story tools no longer show duplicate manual cloud-save buttons.
+
+Validation: 99 frontend tests passed, with the changed question/persistence/context tests rerun after final copy edits; 58 service tests passed. Three real Claude generations using fictional solo, coworker and four-friend stories each returned four personal groups and passed the independent audit. The coworker's dogs, solo trip and favorites remained attributed to that coworker; no couple was invented. These deliberately clear fixtures test context handling, not challenging wordplay or arbitrary-story success rates. The local 375px layout had no horizontal overflow. Production build and TypeScript checks passed. Service version 20 deploys independently; import the matching game revision into Caffeine to expose the new choices.
+
 Import this GitHub revision into Caffeine, including the new Motoko migration and generated frontend. Do not import only the frontend: openServiceSession, checkServiceSession and closeServiceSession must exist in the deployed canister. Keep the current published Caffeine address; a different address may produce a different Internet Identity principal and requires explicit service-origin/backend configuration. The AI service is deployed independently from Caffeine.
 
 ## Before LinkedIn

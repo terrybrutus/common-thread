@@ -1552,6 +1552,28 @@ summary {
   margin: 0;
   font-size: inherit;
 }
+.story-scope {
+  border: 0;
+  padding: 0 0 20px;
+  margin: 0 0 20px;
+  border-bottom: 1px solid var(--line, #dedfd7);
+  min-width: 0;
+}
+.story-scope legend {
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.story-scope-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.story-scope-choices label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
 .site-footer > span:first-child {
   font-family: inherit;
   font-size: inherit;

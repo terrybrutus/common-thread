@@ -10,6 +10,7 @@ export function StoryLibraryControls({
   onRename,
   onImport,
   status,
+  connected = false,
 }: {
   profiles: StoryProfile[];
   current: StoryProfile;
@@ -18,6 +19,7 @@ export function StoryLibraryControls({
   onRename: (name: string) => void;
   onImport: (profile: StoryProfile) => void;
   status: string;
+  connected?: boolean;
 }) {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -97,22 +99,26 @@ export function StoryLibraryControls({
         </label>
         <output className="field-help">{status}</output>
         <div className="creator-actions">
-          <button
-            type="button"
-            className="secondary-button"
-            disabled={busy}
-            onClick={() => void cloud("load-story")}
-          >
-            Load private cloud stories
-          </button>
-          <button
-            type="button"
-            className="secondary-button"
-            disabled={busy}
-            onClick={() => void cloud("save-story")}
-          >
-            Save to private cloud
-          </button>
+          {!connected && (
+            <button
+              type="button"
+              className="secondary-button"
+              disabled={busy}
+              onClick={() => void cloud("load-story")}
+            >
+              Load private cloud stories
+            </button>
+          )}
+          {!connected && (
+            <button
+              type="button"
+              className="secondary-button"
+              disabled={busy}
+              onClick={() => void cloud("save-story")}
+            >
+              Save to private cloud
+            </button>
+          )}
           <button type="button" className="text-button" onClick={onNew}>
             Start another story
           </button>

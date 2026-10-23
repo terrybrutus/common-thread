@@ -223,8 +223,8 @@ export default function App() {
                 <span className="eyebrow">MAKE IT PERSONAL</span>
                 <h2>Your memories. Your puzzle.</h2>
                 <p>
-                  Use your shared stories and inside jokes to make a puzzle for
-                  someone you know.
+                  Turn memories and favorites into a puzzle about yourself,
+                  someone you know, or a group.
                 </p>
                 <button
                   className="secondary-button"
@@ -272,7 +272,11 @@ export default function App() {
                 <p>
                   Made{" "}
                   {personal.recipient ? `for ${personal.recipient}` : "for you"}{" "}
-                  by {personal.creator || "a friend"}
+                  {personal.creator
+                    ? `by ${personal.creator}`
+                    : personalStoryId
+                      ? "from your story"
+                      : "by a friend"}
                   {personal.source === "example" ? " · Example puzzle" : ""}
                   {personal.note && <span>{personal.note}</span>}
                 </p>
@@ -287,7 +291,7 @@ export default function App() {
               onNext={() => {
                 if (personal) {
                   setMode(null);
-                  setPage("invitation");
+                  setPage(personalStoryId ? "creator" : "invitation");
                 } else if (mode === "intro" && lessonIndex === 0)
                   setLessonIndex(1);
                 else if (mode === "intro") {
@@ -300,6 +304,7 @@ export default function App() {
                   : start("relaxed", puzzleIndex)
               }
               personal={personal !== null}
+              nextLabel={personalStoryId ? "Back to my story" : undefined}
               onConnectionsSeen={
                 personalStoryId && personal?.source !== "example"
                   ? rememberSeen

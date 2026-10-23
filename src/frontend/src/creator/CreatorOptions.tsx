@@ -32,22 +32,10 @@ export function CreatorOptions({
               update("mode", e.target.checked ? "challenge" : "relaxed")
             }
           />{" "}
-          Limit us to four mistakes, with no hints
+          Limit me to four mistakes, with no hints
         </label>
         <details className="story-followup">
           <summary>More puzzle settings</summary>
-          <label>
-            Puzzle type
-            <select
-              value={brief.purpose}
-              onChange={(e) =>
-                update("purpose", e.target.value as CreatorBrief["purpose"])
-              }
-            >
-              <option value="fun">Personal story</option>
-              <option value="study">Learning puzzle</option>
-            </select>
-          </label>
           <label>
             Puzzle difficulty
             <select
@@ -61,7 +49,7 @@ export function CreatorOptions({
             >
               <option value="easy">Gentle start</option>
               <option value="balanced">A little twist</option>
-              <option value="tricky">Make us think</option>
+              <option value="tricky">A bigger challenge</option>
             </select>
           </label>
         </details>
@@ -77,19 +65,23 @@ export function CreatorOptions({
                   onChange={(e) => name("you", e.target.value)}
                 />
               </label>
-              <label>
-                Playing with <span>(optional)</span>
-                <input
-                  value={brief.recipient || brief.people?.partner || ""}
-                  maxLength={40}
-                  onChange={(e) => name("partner", e.target.value)}
-                />
-              </label>
+              {brief.storyScope !== "self" && (
+                <label>
+                  {brief.storyScope === "group"
+                    ? "Group name"
+                    : "Person's name"}{" "}
+                  <span>(optional)</span>
+                  <input
+                    value={brief.recipient || brief.people?.partner || ""}
+                    maxLength={40}
+                    onChange={(e) => name("partner", e.target.value)}
+                  />
+                </label>
+              )}
             </div>
             <p className="field-help">
-              One pair of names for the puzzle and invitation. For personal
-              puzzles, Claude uses these to understand who's who. You can leave
-              them blank.
+              Names help with wording. Describe other people and how they fit
+              into your story in your answers; no extra name fields needed.
             </p>
             <label>
               Answer visibility
@@ -99,8 +91,10 @@ export function CreatorOptions({
                   update("style", e.target.value as CreatorBrief["style"])
                 }
               >
-                <option value="together">Solve together · surprise us</option>
-                <option value="gift">Review answers before sharing</option>
+                <option value="together">
+                  Keep answers hidden so I can play
+                </option>
+                <option value="gift">Let me review the answers first</option>
               </select>
             </label>
             <label>
@@ -151,7 +145,7 @@ export function CreatorOptions({
                     }
                   >
                     <option value="memories-only">
-                      All four groups from our story
+                      All four groups from this story
                     </option>
                     <option value="mix">Allow one related theme</option>
                   </select>

@@ -406,9 +406,11 @@ export function Game({
                 ? puzzle.id === lessons[0].id
                   ? "Try the next practice"
                   : "Play with hints"
-                : personal
-                  ? "Back to invitation"
-                  : nextLabel || "Next puzzle"}
+                : nextLabel
+                  ? nextLabel
+                  : personal
+                    ? "Back to invitation"
+                    : nextLabel || "Next puzzle"}
               <ArrowRight size={16} />
             </button>
             {!tutorial && (

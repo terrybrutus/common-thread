@@ -2,7 +2,18 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync, readdirSync } from "node:fs";
-import worker, { parseOutput, validateBrief, saveStory, outputSchema, claudeError, identitySource, claudeRequest, parseClaudeResponse, prepareDraft, CLAUDE_TIMEOUT_MS, reviewRequest, parseReview, reviewPersonalPuzzle, groundExcerpt } from "./index.js";
+import worker, { parseOutput, validateBrief, validateStory, saveStory, outputSchema, claudeError, identitySource, claudeRequest, parseClaudeResponse, prepareDraft, CLAUDE_TIMEOUT_MS, reviewRequest, parseReview, reviewPersonalPuzzle, groundExcerpt } from "./index.js";
+
+test("personal subject context survives generation, audit and private story storage", () => {
+  for (const storyScope of ["self", "someone", "group"]) {
+    const brief = validateBrief({ purpose: "fun", storyScope, interests: "", topic: "", notes: "My family visits Lake Cedar.", difficulty: "balanced", familiarity: "new" });
+    assert.equal(JSON.parse(claudeRequest(brief).messages[0].content).storyScope, storyScope);
+    assert.equal(JSON.parse(reviewRequest({}, brief).messages[0].content).storyScope, storyScope);
+    assert.equal(validateStory({ id: "scope", name: "Story", brief }).brief.storyScope, storyScope);
+    assert.match(claudeRequest(brief).system, /never assume they are a romantic partner/);
+  }
+  assert.throws(() => validateBrief({ purpose: "fun", storyScope: "couple-by-default", interests: "Games", topic: "", notes: "", difficulty: "balanced", familiarity: "new" }));
+});
 
 function database() {
   const sqlite = new DatabaseSync(":memory:");
