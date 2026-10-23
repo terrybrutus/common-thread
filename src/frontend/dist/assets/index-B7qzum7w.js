@@ -35307,7 +35307,17 @@ const plan = [
   ]
 ];
 function dailyPuzzle(date = /* @__PURE__ */ new Date(), daysAgo = 0) {
-  const stamp = new Date(date.getTime() - daysAgo * 864e5).toISOString().slice(0, 10);
+  const local = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() - daysAgo,
+    12
+  );
+  const stamp = [
+    local.getFullYear(),
+    String(local.getMonth() + 1).padStart(2, "0"),
+    String(local.getDate()).padStart(2, "0")
+  ].join("-");
   const day = Math.floor(Date.parse(`${stamp}T00:00:00Z`) / 864e5);
   const choices = plan[(day % plan.length + plan.length) % plan.length];
   const groups = choices.map((key) => {
@@ -35319,7 +35329,7 @@ function dailyPuzzle(date = /* @__PURE__ */ new Date(), daysAgo = 0) {
   return {
     id: `daily-${stamp}`,
     title: daysAgo ? `Daily puzzle · ${stamp}` : "Today’s Common Thread",
-    topic: `Daily · ${stamp} (UTC)`,
+    topic: `Daily · ${stamp}`,
     description: "Four connections from a mix of subjects. Two use facts; two play with words.",
     groups
   };
@@ -35890,6 +35900,7 @@ function App() {
   const [linkError, setLinkError] = reactExports.useState(entry.error);
   const [mode, setMode] = reactExports.useState(null);
   const [puzzleIndex, setPuzzleIndex] = reactExports.useState(0);
+  const [roundDate, setRoundDate] = reactExports.useState(() => /* @__PURE__ */ new Date());
   const [lessonIndex, setLessonIndex] = reactExports.useState(0);
   const [session, setSession] = reactExports.useState(0);
   const topic = 0;
@@ -35932,6 +35943,7 @@ function App() {
     setPage("home");
     setLessonIndex(0);
     setPuzzleIndex(index2);
+    setRoundDate(/* @__PURE__ */ new Date());
     setSession((value) => value + 1);
     setMode(nextMode);
   }
@@ -35962,7 +35974,7 @@ function App() {
     setPage("invitation");
     setLinkError("");
   }
-  const puzzle = personal && mode !== "intro" ? personal.puzzle : mode === "intro" ? lessons[lessonIndex] : dailyPuzzle(/* @__PURE__ */ new Date(), puzzleIndex);
+  const puzzle = personal && mode !== "intro" ? personal.puzzle : mode === "intro" ? lessons[lessonIndex] : dailyPuzzle(roundDate, puzzleIndex);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "app-shell", "data-ocid": "page", children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: "site-header", children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -36035,7 +36047,7 @@ function App() {
         /* @__PURE__ */ jsxRuntimeExports.jsxs("article", { className: "home-choice", children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "eyebrow", children: "JUST PLAY" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { children: "A new puzzle each day" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "One mixed puzzle for everyone today, with a little wordplay. A new board arrives each day (UTC)." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "A daily mix of subjects and wordplay. A new puzzle arrives at midnight in your time zone." }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("label", { className: "challenge-choice", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               "input",

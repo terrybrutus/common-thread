@@ -177,12 +177,32 @@ describe("daily puzzle collection", () => {
     }
     expect(combinations.size).toBe(365);
   });
-  it("uses the same daily board across timezones and switches at UTC midnight", () => {
-    expect(dailyPuzzle(new Date("2026-10-22T23:30:00Z")).id).toBe(
-      dailyPuzzle(new Date("2026-10-22T19:30:00-04:00")).id,
+  it("changes at local midnight and uses the same board throughout a local calendar date", () => {
+    expect(dailyPuzzle(new Date(2026, 9, 22, 0, 1)).id).toBe(
+      "daily-2026-10-22",
     );
-    expect(dailyPuzzle(new Date("2026-10-23T00:00:00Z")).groups).not.toEqual(
-      dailyPuzzle(new Date("2026-10-22T23:59:59Z")).groups,
+    expect(dailyPuzzle(new Date(2026, 9, 22, 23, 59, 59)).id).toBe(
+      "daily-2026-10-22",
+    );
+    expect(dailyPuzzle(new Date(2026, 9, 23, 0, 0)).id).toBe(
+      "daily-2026-10-23",
+    );
+    expect(dailyPuzzle(new Date(2026, 9, 23, 0, 0)).groups).not.toEqual(
+      dailyPuzzle(new Date(2026, 9, 22, 23, 59, 59)).groups,
+    );
+  });
+  it("uses calendar dates for archives across daylight-saving changes, leap days and year boundaries", () => {
+    expect(dailyPuzzle(new Date(2026, 2, 9, 0, 30), 1).id).toBe(
+      "daily-2026-03-08",
+    );
+    expect(dailyPuzzle(new Date(2026, 10, 1, 23, 30), 1).id).toBe(
+      "daily-2026-10-31",
+    );
+    expect(dailyPuzzle(new Date(2028, 2, 1, 0, 30), 1).id).toBe(
+      "daily-2028-02-29",
+    );
+    expect(dailyPuzzle(new Date(2027, 0, 1, 0, 30), 1).id).toBe(
+      "daily-2026-12-31",
     );
   });
 });

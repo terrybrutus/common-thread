@@ -18,7 +18,7 @@ Older unscoped browser backups are preserved and never automatically attached to
 
 Google authentication is provided by Internet Identity with no automatic email attributes. The Motoko canister stores capability hashes/principals/expiry; the browser stores raw capabilities only in memory. The service uses the official IC agent with query-signature verification and a fixed server-configured canister. D1 stories/topics are owner-scoped. Both learning topics must opt in; personal stories never join learning context. Ordinary saves cannot re-enable a topic’s consent.
 
-Daily play uses 365 distinct combinations of reviewed catalog groups, with a UTC daily date and recent-date archive. Groups repeat across combinations; this is not 365 manually authored boards. AI facts and grouping still need beta quality review.
+Daily play uses 365 distinct combinations of reviewed catalog groups, with the player’s local daily date and recent-date archive. Groups repeat across combinations; this is not 365 manually authored boards. AI facts and grouping still need beta quality review.
 
 The service receives content needed for requested generation and sends it to Anthropic. Account data stays until deleted; a minimal account-ID deletion marker prevents stale devices restoring it. Hosting/identity/AI providers may have separate logs, backups and international processing. Browser dictation may use a remote speech service. Sharing a challenge link intentionally shares that puzzle’s answers, not the full story.
 

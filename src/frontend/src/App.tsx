@@ -41,6 +41,7 @@ export default function App() {
   const [linkError, setLinkError] = useState(entry.error);
   const [mode, setMode] = useState<Mode | null>(null);
   const [puzzleIndex, setPuzzleIndex] = useState(0);
+  const [roundDate, setRoundDate] = useState(() => new Date());
   const [lessonIndex, setLessonIndex] = useState(0);
   const [session, setSession] = useState(0);
   const topic = 0;
@@ -83,6 +84,7 @@ export default function App() {
     setPage("home");
     setLessonIndex(0);
     setPuzzleIndex(index);
+    setRoundDate(new Date());
     setSession((value) => value + 1);
     setMode(nextMode);
   }
@@ -121,7 +123,7 @@ export default function App() {
       ? personal.puzzle
       : mode === "intro"
         ? lessons[lessonIndex]
-        : dailyPuzzle(new Date(), puzzleIndex);
+        : dailyPuzzle(roundDate, puzzleIndex);
 
   return (
     <div className="app-shell" data-ocid="page">
@@ -196,8 +198,8 @@ export default function App() {
                 <span className="eyebrow">JUST PLAY</span>
                 <h2>A new puzzle each day</h2>
                 <p>
-                  One mixed puzzle for everyone today, with a little wordplay. A
-                  new board arrives each day (UTC).
+                  A daily mix of subjects and wordplay. A new puzzle arrives at
+                  midnight in your time zone.
                 </p>
                 <label className="challenge-choice">
                   <input

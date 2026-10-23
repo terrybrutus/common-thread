@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import App from "../App";
 import { dailyPuzzle } from "../game/daily";
 import { lessons, puzzles } from "../game/puzzles";
@@ -21,6 +21,26 @@ async function solve(
 }
 
 describe("playable experience", () => {
+  it("keeps an active round unchanged over midnight and picks the new local date when starting again", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 9, 22, 23, 59));
+    const user = userEvent.setup();
+    const { rerender } = render(<App />);
+    await user.click(screen.getByRole("button", { name: "Play now" }));
+    const word = dailyPuzzle().groups[0].words[0];
+    await user.click(screen.getByRole("button", { name: word }));
+    vi.setSystemTime(new Date(2026, 9, 23, 0, 1));
+    rerender(<App />);
+    expect(screen.getByText("Daily · 2026-10-22")).toBeVisible();
+    expect(screen.getByRole("button", { name: word })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await user.click(screen.getByRole("button", { name: "Home" }));
+    await user.click(screen.getByRole("button", { name: "Play now" }));
+    expect(screen.getByText("Daily · 2026-10-23")).toBeVisible();
+    expect(screen.getByText("0 of 4 selected")).toBeVisible();
+  });
   it("starts a board in one click and keeps setup controls out of the landing view", async () => {
     const user = userEvent.setup();
     render(<App />);

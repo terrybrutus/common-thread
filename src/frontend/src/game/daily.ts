@@ -2,9 +2,18 @@ import { packVariants } from "../../../../services/claude/shared/knowledge.js";
 import plan from "./daily-plan.json";
 import type { Puzzle } from "./puzzles";
 export function dailyPuzzle(date = new Date(), daysAgo = 0): Puzzle {
-  const stamp = new Date(date.getTime() - daysAgo * 86400000)
-    .toISOString()
-    .slice(0, 10);
+  // Calendar-day subtraction stays correct across 23/25-hour daylight-saving days.
+  const local = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() - daysAgo,
+    12,
+  );
+  const stamp = [
+    local.getFullYear(),
+    String(local.getMonth() + 1).padStart(2, "0"),
+    String(local.getDate()).padStart(2, "0"),
+  ].join("-");
   const day = Math.floor(Date.parse(`${stamp}T00:00:00Z`) / 86400000);
   const choices = plan[((day % plan.length) + plan.length) % plan.length];
   const groups = choices.map((key) => {
@@ -16,7 +25,7 @@ export function dailyPuzzle(date = new Date(), daysAgo = 0): Puzzle {
   return {
     id: `daily-${stamp}`,
     title: daysAgo ? `Daily puzzle · ${stamp}` : "Today’s Common Thread",
-    topic: `Daily · ${stamp} (UTC)`,
+    topic: `Daily · ${stamp}`,
     description:
       "Four connections from a mix of subjects. Two use facts; two play with words.",
     groups,
