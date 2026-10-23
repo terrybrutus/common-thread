@@ -11,12 +11,24 @@ const ii_url =
 
 process.env.II_URL = process.env.II_URL || ii_url;
 
+// Match the deployed public-brand asset headers in local development/preview.
+const brandHeaders = (req, res, next) => {
+  const path = (req.url || "").split("?")[0];
+  if (path === "/.well-known/ii-app-metadata") {
+    res.setHeader("Content-Type", "application/json");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  } else if (path === "/brand/common-thread-icon.png") {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
+  next();
+};
+
 export default defineConfig({
   logLevel: "error",
   build: {
     emptyOutDir: true,
     sourcemap: false,
-    minify: false,
+    minify: "esbuild",
   },
   optimizeDeps: {
     esbuildOptions: {
@@ -34,6 +46,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    { name: "common-thread-brand-metadata", configureServer(server) { server.middlewares.use(brandHeaders); }, configurePreviewServer(server) { server.middlewares.use(brandHeaders); } },
     claudeDevPlugin(loadEnv("development", process.cwd(), "ANTHROPIC_"), process.cwd()),
     environment("all", { prefix: "CANISTER_" }),
     environment("all", { prefix: "DFX_" }),
