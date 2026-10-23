@@ -238,7 +238,7 @@ export function nextFreshQuestion(brief: CreatorBrief): string {
       (choice) =>
         choice.from.test(`${facts} ${categories}`) && !choice.asked.test(asked),
     )?.question ||
-    "What's one new memory you'd like to add since your last puzzle?"
+    "Which songs or artists bring back a particular time or event, and why?"
   );
 }
 export function addFreshMemory(

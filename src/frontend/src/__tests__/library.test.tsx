@@ -9,6 +9,22 @@ import { defaultBrief } from "../creator/schema";
 import { storyNotes, storyQuestions } from "../creator/story";
 
 describe("living story persistence", () => {
+  it("drops only unanswered retired prompts while preserving saved memories", () => {
+    const question = "What new memory would you like to add today?";
+    const profile = parseProfile({
+      id: "old-prompts",
+      brief: {
+        ...defaultBrief,
+        extraAnswers: [
+          { question, answer: "" },
+          { question, answer: "We adopted Pip in June" },
+        ],
+      },
+    });
+    expect(profile.brief.extraAnswers).toEqual([
+      { question, answer: "We adopted Pip in June" },
+    ]);
+  });
   it("automatically restores answers and play preferences after remounting", async () => {
     const user = userEvent.setup();
     const { unmount } = render(<App />);
@@ -115,7 +131,9 @@ describe("living story persistence", () => {
       { target: { value: "The cafe by the pier" } },
     );
     await user.click(screen.getByRole("button", { name: "Review my answers" }));
-    await user.click(screen.getByText(/Review saved answers/));
+    expect(
+      screen.getByText(/Review saved answers/).closest("details"),
+    ).toHaveAttribute("open");
     expect(screen.getByText("At the pier")).toBeVisible();
     expect(screen.getByText("The cafe by the pier")).toBeVisible();
     expect(

@@ -105,10 +105,16 @@ export function parseProfile(value: unknown): StoryProfile {
       )
     )
       throw new Error("This story has invalid follow-up answers.");
-    brief.extraAnswers = input.extraAnswers.map((v) => ({
-      question: v.question,
-      answer: v.answer,
-    }));
+    brief.extraAnswers = input.extraAnswers
+      .filter(
+        (v) =>
+          v.question !== "What new memory would you like to add today?" ||
+          v.answer.trim(),
+      )
+      .map((v) => ({
+        question: v.question,
+        answer: v.answer,
+      }));
   }
   if (Array.isArray(input.usedTerms))
     brief.usedTerms = input.usedTerms

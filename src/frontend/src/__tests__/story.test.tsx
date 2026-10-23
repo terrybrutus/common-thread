@@ -37,7 +37,9 @@ describe("guided shared story", () => {
     await user.click(
       screen.getByRole("button", { name: "Skip this question" }),
     );
-    await user.click(screen.getByText(/Review saved answers/));
+    expect(
+      screen.getByText(/Review saved answers/).closest("details"),
+    ).toHaveAttribute("open");
     expect(screen.getByText("First date at the arcade")).toBeVisible();
     expect(screen.getByText("Pickleball")).toBeVisible();
     expect(screen.getAllByText("Skipped")).toHaveLength(2);
@@ -81,5 +83,86 @@ describe("guided shared story", () => {
     expect(
       JSON.stringify(makeChallenge(brief, puzzles[0], "example")),
     ).not.toContain("Arcade");
+  });
+
+  it("skips an added question straight to the next useful prompt and opens answers on review", async () => {
+    function MoreQuestions() {
+      const [extra, setExtra] = useState([
+        {
+          question:
+            "Which restaurants or foods are part of your story? Name a few favorites.",
+          answer: "The pier cafe",
+        },
+        {
+          question:
+            "Who are the family members, friends, or pets in this story, and how are they connected?",
+          answer: "Sam is my brother",
+        },
+        {
+          question: "Which shows, films, or games belong in this story?",
+          answer: "Jeopardy",
+        },
+        {
+          question:
+            "What places have you lived in or visited, and what happened there?",
+          answer: "Boston for school",
+        },
+        {
+          question:
+            "What nicknames, sayings, or inside jokes belong in this story?",
+          answer: "Captain Pancake",
+        },
+      ]);
+      return (
+        <StoryQuestions
+          answers={["At the pier"]}
+          onChange={() => {}}
+          extraAnswers={extra}
+          onExtraChange={setExtra}
+        />
+      );
+    }
+    const user = userEvent.setup();
+    render(<MoreQuestions />);
+    await user.click(screen.getByText("Add a new memory"));
+    await user.click(
+      screen.getByRole("button", { name: "Ask me another question" }),
+    );
+    expect(
+      screen.getByRole("textbox", { name: /What traditions or celebrations/ }),
+    ).toBeVisible();
+    await user.click(
+      screen.getByRole("button", { name: "Skip this question" }),
+    );
+    expect(
+      screen.getByRole("textbox", { name: /Which songs or artists/ }),
+    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: /11 of 11/ })).toBeVisible();
+    await user.type(
+      screen.getByRole("textbox", { name: /Which songs or artists/ }),
+      "Dancing Queen at graduation",
+    );
+    await user.click(screen.getByRole("button", { name: "Review my answers" }));
+    expect(
+      screen.getByText(/Review saved answers/).closest("details"),
+    ).toHaveAttribute("open");
+    expect(screen.getByText("Dancing Queen at graduation")).toBeVisible();
+    expect(screen.getByText("At the pier")).toBeVisible();
+    expect(
+      screen.queryByText("What new memory would you like to add today?"),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByText("Add a new memory"));
+    await user.click(
+      screen.getByRole("button", { name: "Ask me another question" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Skip this question" }),
+    );
+    expect(
+      screen.getByRole("textbox", { name: /What hobbies or plans/ }),
+    ).toBeVisible();
+    expect(
+      screen.getByText(/reached the last suggested question/),
+    ).toBeVisible();
   });
 });

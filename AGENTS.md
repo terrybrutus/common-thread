@@ -54,6 +54,8 @@ Literal tiles may use a complete shorter phrase only when it occurs at word boun
 
 ## Accounts and daily play
 
+- Guided story review must open the saved-answer disclosure when explicitly requested. Skipping the last added prompt advances to the next specific unused suggestion while space remains, and keeps the editor open with a clear end notice when exhausted. Do not suggest generic “What new memory…” questions; retain previously answered retired prompts as history, but omit unanswered retired prompts when loading.
+
 - Personal puzzles can describe one life, someone the creator knows, or any group. Persist storyScope through backup/cloud/request validation and pass it to generation and review. New stories start with My life and hints; preserve existing answers and explicit settings. Never assume a romantic partner or exactly two people. Adapt prompts, optional subject/group name labels, and AI voice to the chosen scope. Direct Play now bypasses sharing; Share puzzle remains optional. Keep learning on its dedicated route rather than adding a second puzzle-type picker inside personal settings. Connected stories sync automatically; manual cloud controls are only for disconnected recovery.
 
 - Never seed Terry’s private story into another account or automatically import unscoped beta browser data. Scope every story/topic read and write by the verified caller. Browser caches use ct-account:<principal>: keys, never auth secrets. Keep personal stories entirely out of learning context. Both learning topics must explicitly opt in before connecting; progress saves must preserve the stored consent. Account deletion keeps a minimal tombstone and a generation fence against stale-device restoration.

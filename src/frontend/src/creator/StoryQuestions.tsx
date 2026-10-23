@@ -29,6 +29,21 @@ export function StoryQuestions({
   );
   const [customQuestion, setCustomQuestion] = useState("");
   const [quiet, setQuiet] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [questionNotice, setQuestionNotice] = useState("");
+  const suggestions = [
+    "Which restaurants or foods are part of your story? Name a few favorites.",
+    "Who are the family members, friends, or pets in this story, and how are they connected?",
+    "Which shows, films, or games belong in this story?",
+    "What places have you lived in or visited, and what happened there?",
+    "What nicknames, sayings, or inside jokes belong in this story?",
+    "What traditions or celebrations belong in this story?",
+    "Which songs or artists bring back a particular time or event, and why?",
+    "What hobbies or plans would you like to add to this story?",
+  ];
+  const nextSuggestion = suggestions.find(
+    (prompt) => !prompts.includes(prompt),
+  );
   const transcript = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     if (quiet) transcript.current?.focus();
@@ -55,6 +70,32 @@ export function StoryQuestions({
         index === question ? value : answers[index] || "",
       ),
     );
+  }
+  function review() {
+    setReviewOpen(true);
+    setQuestion(prompts.length);
+    setQuestionNotice("");
+  }
+  function skip() {
+    setQuestionNotice("");
+    if (question >= 4 && question === prompts.length - 1 && onExtraChange) {
+      const next = extraAnswers.map((item, index) =>
+        index === question - 4 ? { ...item, answer: "" } : item,
+      );
+      if (nextSuggestion && extraAnswers.length < 8) {
+        onExtraChange([...next, { question: nextSuggestion, answer: "" }]);
+        setQuestion(prompts.length);
+      } else {
+        onExtraChange(next);
+        setQuestionNotice(
+          "You've reached the last suggested question. Review your answers when you're ready.",
+        );
+      }
+      return;
+    }
+    answer("");
+    if (question === prompts.length - 1) review();
+    else setQuestion(question + 1);
   }
 
   return (
@@ -126,27 +167,31 @@ export function StoryQuestions({
             <button
               type="button"
               className="secondary-button"
-              onClick={() => setQuestion(question + 1)}
+              onClick={() =>
+                question === prompts.length - 1
+                  ? review()
+                  : setQuestion(question + 1)
+              }
             >
               {question === prompts.length - 1
                 ? "Review my answers"
                 : "Next question"}
             </button>
-            <button
-              type="button"
-              className="text-button"
-              onClick={() => {
-                answer("");
-                setQuestion(question + 1);
-              }}
-            >
+            <button type="button" className="text-button" onClick={skip}>
               Skip this question
             </button>
           </div>
+          {questionNotice && (
+            <output className="field-help">{questionNotice}</output>
+          )}
         </>
       ) : (
         <>
-          <details className="story-review-details">
+          <details
+            className="story-review-details"
+            open={reviewOpen}
+            onToggle={(event) => setReviewOpen(event.currentTarget.open)}
+          >
             <summary>
               Review saved answers (
               {values.filter((value) => value.trim()).length})
@@ -183,20 +228,9 @@ export function StoryQuestions({
               <button
                 type="button"
                 className="secondary-button"
+                disabled={!nextSuggestion}
                 onClick={() => {
-                  const options = [
-                    "Which restaurants or foods are part of your story? Name a few favorites.",
-                    "Who are the family members, friends, or pets in this story, and how are they connected?",
-                    "Which shows, films, or games belong in this story?",
-                    "What places have you lived in or visited, and what happened there?",
-                    "What nicknames, sayings, or inside jokes belong in this story?",
-                    "What new memory would you like to add today?",
-                    "What traditions or celebrations belong in this story?",
-                    "What hobbies or plans would you like to add to this story?",
-                  ];
-                  const next = options.find(
-                    (prompt) => !prompts.includes(prompt),
-                  );
+                  const next = nextSuggestion;
                   if (next) {
                     onExtraChange([
                       ...extraAnswers,
